@@ -47,7 +47,7 @@ export default function Navigation() {
         >
           <SteamAnimation theme={theme} />
           <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
-            $ caspercooks.io
+            $ caspercooks.tech
           </span>
           <span className="animate-pulse ml-1">_</span>
         </motion.div>

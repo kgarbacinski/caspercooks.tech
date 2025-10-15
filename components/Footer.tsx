@@ -32,7 +32,7 @@ export default function Footer() {
             >
               <SteamAnimation theme={theme} />
               <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
-                $ caspercooks.io
+                $ caspercooks.tech
               </span>
               <span className="animate-pulse ml-1">_</span>
             </motion.div>
@@ -101,7 +101,7 @@ export default function Footer() {
             : 'border-founder-accent/10 text-gray-500'}
         `}>
           <p>
-            © {currentYear} caspercooks.io // Built with Next.js + TypeScript + Framer Motion
+            © {currentYear} caspercooks.tech // Built with Next.js + TypeScript + Framer Motion
           </p>
           <p className="mt-2">
             <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
