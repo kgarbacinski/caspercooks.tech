@@ -8,10 +8,10 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   const socialLinks = [
-    { name: 'GitHub', icon: '🐙', url: '#' },
-    { name: 'LinkedIn', icon: '💼', url: '#' },
-    { name: 'Twitter', icon: '🐦', url: '#' },
-    { name: 'Email', icon: '📧', url: 'mailto:casper@caspercooks.me' },
+    { name: 'GitHub', icon: '🐙', url: 'https://github.com/kgarbacinski' },
+    { name: 'LinkedIn', icon: '💼', url: 'https://www.linkedin.com/in/kacper-garbacinski-3271b81a2/' },
+    { name: 'Twitter', icon: '🐦', url: 'https://x.com/KGarbacinski' },
+    { name: 'Email', icon: '📧', url: 'mailto:kacpergarbacinski@gmail.com' },
   ]
 
   return (
@@ -35,7 +35,7 @@ export default function Footer() {
               <span className="animate-pulse ml-1">_</span>
             </motion.div>
             <p className={`text-sm font-mono ${theme === 'founder' ? 'text-gray-600' : 'text-gray-400'}`}>
-              {'> Full-Stack Developer & Serial Entrepreneur'}
+              {'> Full-Stack Developer & Serial Founder'}
             </p>
             <p className={`text-sm font-mono ${theme === 'founder' ? 'text-gray-600' : 'text-gray-400'}`}>
               {'> Building systems and companies that matter.'}

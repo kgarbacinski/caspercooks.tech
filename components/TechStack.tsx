@@ -13,31 +13,48 @@ interface Technology {
 
 const technologies: Technology[] = [
   // Languages
-  { name: 'TypeScript', category: 'languages', icon: '🔷', projects: ['Web3 dApps', 'Fullstack Applications', 'Type-safe Systems'] },
   { name: 'Python', category: 'languages', icon: '🐍', projects: ['Enterprise Web Apps', 'Backend Services', 'System Programming'] },
-  { name: 'Node.js', category: 'languages', icon: '💚', projects: ['Microservices Architecture', 'Real-time Systems', 'API Development'] },
+  { name: 'Javascript', category: 'languages', icon: '💚', projects: ['Web2 Applications', 'Web3 dApps', 'Fullstack Applications'] },
+  { name: 'TypeScript', category: 'languages', icon: '🔷', projects: ['Web3 dApps', 'Fullstack Applications', 'Type-safe Systems'] },
   { name: 'C++', category: 'languages', icon: '⚡', projects: ['Low-level Systems', 'Performance-critical Apps', 'System Architecture'] },
   { name: 'Solidity', category: 'languages', icon: '💎', projects: ['Smart Contracts', 'DeFi Protocols', 'Blockchain Development'] },
+  { name: 'GoLang', category: 'languages', icon: '🐹', projects: ['Backend Services', 'Microservices Architecture', 'Performance-critical Applications'] },
 
   // Web2
-  { name: 'gRPC', category: 'web2', icon: '🔌', projects: ['Microservices Communication', 'High-performance APIs'] },
+  { name: 'Django', category: 'web2', icon: '🎸', projects: ['Enterprise Web Platforms', 'REST APIs', 'DRF'] },
+  { name: 'FastAPI', category: 'web2', icon: '⚡', projects: ['High-performance APIs', 'Modern Python', 'Async Services'] },
+  { name: 'Next.js', category: 'web2', icon: '▲', projects: ['SSR Applications', 'Full-stack Framework', 'React Meta-framework'] },
   { name: 'Docker', category: 'web2', icon: '🐳', projects: ['Container Orchestration', 'Development Environments', 'CI/CD Pipelines'] },
   { name: 'Kubernetes', category: 'web2', icon: '☸️', projects: ['Microservices Deployment', 'Production Scaling', 'Infrastructure Management'] },
-  { name: 'PostgreSQL', category: 'web2', icon: '🐘', projects: ['Enterprise Data Solutions', 'Complex Queries', 'Data Modeling'] },
+  { name: 'PostgreSQL', category: 'web2', icon: '🐘', projects: ['Enterprise Data Solutions', 'SQL', 'ORM'] },
+  { name: 'MongoDB', category: 'web2', icon: '🍃', projects: ['NoSQL Solutions', 'Document Storage', 'Scalable Data'] },
   { name: 'Redis', category: 'web2', icon: '🔴', projects: ['High-performance Caching', 'Session Management', 'Real-time Data'] },
-  { name: 'Django', category: 'web2', icon: '🎸', projects: ['Enterprise Web Platforms', 'Admin Dashboards', 'REST APIs'] },
+  { name: 'RabbitMQ', category: 'web2', icon: '🐰', projects: ['Message Queuing', 'Async Tasks', 'Event-driven Architecture'] },
+  { name: 'gRPC', category: 'web2', icon: '🔌', projects: ['Microservices Communication', 'High-performance APIs', 'Protocol Buffers'] },
+  { name: 'GraphQL', category: 'web2', icon: '◈', projects: ['Flexible APIs', 'Data Fetching', 'Client-driven Queries'] },
+  { name: 'AWS', category: 'web2', icon: '☁️', projects: ['Cloud Infrastructure', 'EC2, S3, RDS', 'ECS, Elasticsearch'] },
+  { name: 'CI/CD', category: 'web2', icon: '🔄', projects: ['Automated Testing', 'Deployment Pipelines', 'GitLab CI'] },
 
   // Web3
   { name: 'The Graph', category: 'web3', icon: '📊', projects: ['Blockchain Indexing', 'Subgraph Development', 'Data Querying'] },
   { name: 'Web3.js', category: 'web3', icon: '🌐', projects: ['dApp Integration', 'Wallet Connections', 'Blockchain Interactions'] },
   { name: 'Smart Contracts', category: 'web3', icon: '📝', projects: ['DeFi Logic', 'Token Standards', 'On-chain Systems'] },
+  { name: 'DeFi', category: 'web3', icon: '💰', projects: ['Decentralized Finance', 'DeFi Protocols', 'Liquidity Pools'] },
+  { name: 'Safe Global', category: 'web3', icon: '🔒', projects: ['Multi-sig Wallets', 'Smart Account', 'Secure Asset Management'] },
   { name: 'dApps', category: 'web3', icon: '🚀', projects: ['Decentralized UI', 'Web3 Frontend', 'User Experience'] },
 
   // Tools
   { name: 'React', category: 'tools', icon: '⚛️', projects: ['Component Architecture', 'State Management', 'Interactive UIs'] },
-  { name: 'Next.js', category: 'tools', icon: '▲', projects: ['SSR Applications', 'Static Generation', 'Full-stack Apps'] },
-  { name: 'Git', category: 'tools', icon: '🌿', projects: ['Version Control', 'Team Collaboration', 'Code Review'] },
-  { name: 'CI/CD', category: 'tools', icon: '🔄', projects: ['Automated Testing', 'Deployment Pipelines', 'DevOps Automation'] },
+  { name: 'Git', category: 'tools', icon: '🌿', projects: ['Version Control', 'GitLab, Bitbucket', 'Code Review'] },
+  { name: 'REST API', category: 'tools', icon: '🔗', projects: ['RESTful Services', 'HTTP Methods', 'API Design'] },
+  { name: 'WebSockets', category: 'tools', icon: '🔌', projects: ['Real-time Communication', 'Bidirectional Data', 'Live Updates'] },
+  { name: 'OAuth/OIDC', category: 'tools', icon: '🔐', projects: ['Authentication', 'Authorization', 'Keycloak, Auth0'] },
+  { name: 'TDD/BDD', category: 'tools', icon: '🧪', projects: ['Test-Driven Development', 'Behavior-Driven', 'Quality Assurance'] },
+  { name: 'DDD', category: 'tools', icon: '🏗️', projects: ['Domain-Driven Design', 'Event Storming', 'Microservices Architecture'] },
+  { name: 'Scrum/Agile', category: 'tools', icon: '🏃', projects: ['Agile Methodology', 'Sprint Planning', 'Team Collaboration'] },
+  { name: 'Nginx', category: 'tools', icon: '🌐', projects: ['Reverse Proxy', 'Load Balancing', 'Web Server'] },
+  { name: 'Grafana', category: 'tools', icon: '📊', projects: ['Monitoring', 'Prometheus', 'Kibana, Elasticsearch'] },
+  { name: 'Swagger', category: 'tools', icon: '📝', projects: ['API Documentation', 'OpenAPI Spec', 'Developer Tools'] },
 ]
 
 const categories = {

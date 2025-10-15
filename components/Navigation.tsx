@@ -2,9 +2,38 @@
 
 import { motion } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
+import { useState, useEffect } from 'react'
 
 export default function Navigation() {
   const { theme, toggleTheme } = useTheme()
+  const [activeSection, setActiveSection] = useState('')
+
+  useEffect(() => {
+    const sections = ['about', 'projects', 'brands', 'contact']
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id)
+          }
+        })
+      },
+      {
+        rootMargin: '-20% 0px -60% 0px',
+        threshold: 0
+      }
+    )
+
+    sections.forEach((section) => {
+      const element = document.getElementById(section)
+      if (element) {
+        observer.observe(element)
+      }
+    })
+
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-8 py-6">
@@ -27,16 +56,56 @@ export default function Navigation() {
           animate={{ opacity: 1, y: 0 }}
           className="hidden md:flex items-center gap-8 font-mono text-sm"
         >
-          <a href="#about" className="hover:opacity-70 transition-opacity">
+          <a
+            href="#about"
+            className={`
+              transition-all duration-300
+              ${activeSection === 'about'
+                ? theme === 'developer'
+                  ? 'text-developer-accent opacity-100'
+                  : 'text-founder-accent opacity-100'
+                : 'opacity-70 hover:opacity-100'}
+            `}
+          >
             [about]
           </a>
-          <a href="#projects" className="hover:opacity-70 transition-opacity">
+          <a
+            href="#projects"
+            className={`
+              transition-all duration-300
+              ${activeSection === 'projects'
+                ? theme === 'developer'
+                  ? 'text-developer-accent opacity-100'
+                  : 'text-founder-accent opacity-100'
+                : 'opacity-70 hover:opacity-100'}
+            `}
+          >
             [projects]
           </a>
-          <a href="#brands" className="hover:opacity-70 transition-opacity">
+          <a
+            href="#brands"
+            className={`
+              transition-all duration-300
+              ${activeSection === 'brands'
+                ? theme === 'developer'
+                  ? 'text-developer-accent opacity-100'
+                  : 'text-founder-accent opacity-100'
+                : 'opacity-70 hover:opacity-100'}
+            `}
+          >
             [brands]
           </a>
-          <a href="#contact" className="hover:opacity-70 transition-opacity">
+          <a
+            href="#contact"
+            className={`
+              transition-all duration-300
+              ${activeSection === 'contact'
+                ? theme === 'developer'
+                  ? 'text-developer-accent opacity-100'
+                  : 'text-founder-accent opacity-100'
+                : 'opacity-70 hover:opacity-100'}
+            `}
+          >
             [contact]
           </a>
         </motion.div>

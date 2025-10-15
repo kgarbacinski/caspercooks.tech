@@ -131,7 +131,7 @@ const projects: Project[] = [
     id: 10,
     title: 'coderiv Mobile App',
     company: 'coderiv.com',
-    year: '2020-Present',
+    year: '2024-Present',
     type: 'founder',
     tech: ['Product Vision', 'Mobile Strategy', 'React Native'],
     description: 'Envisioned and building a revolutionary mobile application for developers. Focused on creating seamless learning experiences and collaboration tools.',
@@ -143,7 +143,7 @@ const projects: Project[] = [
     id: 11,
     title: 'devs-hunting Agency',
     company: 'devs-hunting.com',
-    year: '2020-Present',
+    year: '2021-Present',
     type: 'founder',
     tech: ['Project Management', 'Client Relations', 'Team Coordination'],
     description: 'Evaluated and coordinated delivery of development projects for clients like Redsoft. Connected top talent with meaningful opportunities.',
@@ -211,7 +211,11 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
                 </span>
               </div>
               {project.logo && (
-                <div className="relative w-12 h-12 flex items-center justify-center rounded-full overflow-hidden bg-gray-100 p-1">
+                <div className={`
+                  relative w-12 h-12 flex items-center justify-center rounded-full overflow-hidden
+                  ${project.company === 'Efektywniejsi' ? 'bg-gray-800 p-0.5' : 'bg-gray-100'}
+                  ${project.company === 'coderiv.com' ? 'p-0.5' : project.company === 'Efektywniejsi' ? '' : 'p-1'}
+                `}>
                   <Image
                     src={project.logo}
                     alt={`${project.company} logo`}

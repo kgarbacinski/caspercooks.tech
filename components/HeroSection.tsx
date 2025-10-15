@@ -171,7 +171,7 @@ export default function HeroSection() {
             <h2 className="text-5xl md:text-6xl font-bold mb-4 font-mono">
               Serial
               <br />
-              <span className="text-founder-accent">{'[Entrepreneur]'}</span>
+              <span className="text-founder-accent">{'[Founder]'}</span>
             </h2>
 
             <p className="text-lg opacity-70 max-w-md ml-auto font-mono">

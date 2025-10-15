@@ -38,26 +38,26 @@ export default function ContactSection() {
     {
       icon: '📧',
       label: 'Email',
-      value: 'casper@caspercooks.me',
-      link: 'mailto:casper@caspercooks.me',
+      value: 'kacpergarbacinski@gmail.com',
+      link: 'mailto:kacpergarbacinski@gmail.com',
     },
     {
       icon: '💼',
       label: 'LinkedIn',
       value: 'Connect with me',
-      link: '#',
+      link: 'https://www.linkedin.com/in/kacper-garbacinski-3271b81a2/',
     },
     {
       icon: '🐙',
       label: 'GitHub',
       value: 'Check my code',
-      link: '#',
+      link: 'https://github.com/kgarbacinski',
     },
     {
       icon: '🐦',
       label: 'Twitter',
       value: 'Follow me',
-      link: '#',
+      link: 'https://x.com/KGarbacinski',
     },
   ]
 

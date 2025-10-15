@@ -106,9 +106,11 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
             <div className={`
               w-32 h-32 rounded-xl flex items-center justify-center overflow-hidden shrink-0
               ${brand.logo
-                ? theme === 'founder'
+                ? brand.name === 'Efektywniejsi'
                   ? 'bg-gray-800 border-2 border-gray-600 shadow-md'
-                  : 'bg-white border-2 border-gray-200 shadow-md'
+                  : theme === 'founder'
+                    ? 'bg-gray-800 border-2 border-gray-600 shadow-md'
+                    : 'bg-white border-2 border-gray-200 shadow-md'
                 : `bg-gradient-to-br ${brand.color} border-2 border-transparent`}
             `}>
               {brand.logo ? (
@@ -152,12 +154,30 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
         </div>
 
         {/* Description */}
-        <p className={`mb-6 leading-relaxed ${theme === 'founder' ? 'text-gray-200' : 'text-gray-300'}`}>
+        <p className={`mb-4 leading-relaxed ${theme === 'founder' ? 'text-gray-200' : 'text-gray-300'}`}>
           {brand.description}
         </p>
 
+        {/* Visit Website Link */}
+        {brand.url && brand.url !== '#' && (
+          <a
+            href={brand.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`
+              inline-flex items-center gap-2 text-sm font-medium transition-all duration-300
+              ${theme === 'founder' ? 'text-founder-accent hover:underline' : 'text-developer-accent hover:underline'}
+            `}
+          >
+            Visit Website
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+        )}
+
         {/* Stats */}
-        <div className={`grid grid-cols-3 gap-4 pt-6 border-t ${theme === 'founder' ? 'border-gray-700' : 'border-gray-700'}`}>
+        <div className={`grid grid-cols-3 gap-4 pt-6 mt-4 border-t ${theme === 'founder' ? 'border-gray-700' : 'border-gray-700'}`}>
           {brand.stats.map((stat, i) => (
             <div key={i} className="text-center">
               <div className={`text-xl font-bold mb-1 ${

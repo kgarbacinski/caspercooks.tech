@@ -160,23 +160,23 @@ export default function AboutSection() {
               </p>
 
               <p>
-                <strong>devs-mentoring.pl</strong> - Assembled a team of 15 expert programming
+                🎓 <strong>devs-mentoring.pl</strong> - Assembled a team of 15 expert programming
                 mentors, creating a platform where developers accelerate their careers through
                 personalized guidance.
               </p>
 
               <p>
-                <strong>coderiv.com</strong> - Envisioned and building a mobile application that
+                📱 <strong>coderiv.com</strong> - Envisioned and building a mobile application that
                 will revolutionize how developers learn and collaborate.
               </p>
 
               <p>
-                <strong>devs-hunting.com</strong> - Evaluated and coordinated project delivery
+                🎯 <strong>devs-hunting.com</strong> - Evaluated and coordinated project delivery
                 for clients like Redsoft, connecting top talent with meaningful opportunities.
               </p>
 
               <p>
-                <strong className="text-founder-accent">Efektywniejsi</strong> - Co-founded with
+                🤖 <strong>Efektywniejsi</strong> - Co-founded with
                 2 partners to teach people how to harness AI agents and n8n automation. Delivered
                 numerous webinars, sharing knowledge with live audiences.
               </p>
