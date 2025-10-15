@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
+import SteamAnimation from './SteamAnimation'
 
 export default function Footer() {
   const { theme } = useTheme()
@@ -26,11 +27,12 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <motion.div
-              className="font-mono text-lg mb-4"
+              className="font-mono text-lg mb-4 relative inline-block"
               whileHover={{ scale: 1.05 }}
             >
+              <SteamAnimation theme={theme} />
               <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
-                $ caspercooks.com
+                $ caspercooks.io
               </span>
               <span className="animate-pulse ml-1">_</span>
             </motion.div>
@@ -99,7 +101,7 @@ export default function Footer() {
             : 'border-founder-accent/10 text-gray-500'}
         `}>
           <p>
-            © {currentYear} caspercooks.com // Built with Next.js + TypeScript + Framer Motion
+            © {currentYear} caspercooks.io // Built with Next.js + TypeScript + Framer Motion
           </p>
           <p className="mt-2">
             <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>

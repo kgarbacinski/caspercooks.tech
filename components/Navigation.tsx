@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useState, useEffect } from 'react'
+import SteamAnimation from './SteamAnimation'
 
 export default function Navigation() {
   const { theme, toggleTheme } = useTheme()
@@ -42,10 +43,11 @@ export default function Navigation() {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="font-mono text-sm"
+          className="font-mono text-sm relative"
         >
+          <SteamAnimation theme={theme} />
           <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
-            $ caspercooks.com
+            $ caspercooks.io
           </span>
           <span className="animate-pulse ml-1">_</span>
         </motion.div>

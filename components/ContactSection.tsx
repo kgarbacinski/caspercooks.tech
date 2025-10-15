@@ -81,7 +81,7 @@ export default function ContactSection() {
             <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
               {'$ ping '}
             </span>
-            caspercooks.com
+            caspercooks.io
           </h2>
           <p className={`max-w-2xl mx-auto font-mono ${theme === 'founder' ? 'text-gray-300' : 'text-gray-400'}`}>
             {'// Looking for a developer? Interested in ventures?'}
