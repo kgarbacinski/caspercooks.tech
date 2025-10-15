@@ -21,14 +21,15 @@ interface Project {
 const projects: Project[] = [
   {
     id: 1,
-    title: 'Web3 dApp & Smart Contracts',
+    title: 'Octant - Public Goods Funding',
     company: 'Golem Foundation',
-    year: '2023-Present',
+    year: '2024-Present',
     type: 'developer',
-    tech: ['Solidity', 'The Graph', 'React', 'Web3.js'],
-    description: 'Full-stack Web3 development at Golem Foundation including smart contracts, subgraph implementation, and dApp frontend. Working with cutting-edge blockchain technologies in decentralized computing infrastructure.',
-    role: 'Full-Stack Web3 Developer',
+    tech: ['Solidity', 'The Graph', 'tRPC', 'React'],
+    description: 'Building Octant - an experiment in participatory public goods funding utilizing Golem\'s GLM token. Built V2 from scratch working with subgraph, smart contracts, tRPC, and React.js.',
+    role: 'Senior Software / Web3 Engineer',
     logo: '/logos/golem.png',
+    impact: 'Rebuilt entire platform V2, enabling decentralized funding for public goods projects',
   },
   {
     id: 2,
@@ -44,17 +45,30 @@ const projects: Project[] = [
   },
   {
     id: 3,
+    title: 'Many projects as an outsourcer',
+    company: 'DAC.Digital',
+    year: '2022-2025',
+    type: 'developer',
+    tech: ['Python', 'GoLang', 'Node.js', 'Kubernetes', 'Solidity'],
+    description: 'Working with microservices and blockchain (private ledger). Built and maintained backend services for a leading DeFi protocol. Delivered 3 projects for different customers as an outsourcer.',
+    role: 'Senior Software / Web3 Developer',
+    logo: '/logos/dac_logo.png',
+    impact: 'Built critical infrastructure for DeFi protocol, delivered 3 customer projects',
+  },
+  {
+    id: 4,
     title: 'Microservices Architecture',
     company: 'Invicta',
     year: '2022-2023',
     type: 'developer',
     tech: ['Node.js', 'gRPC', 'Docker', 'Kubernetes'],
-    description: 'Designed and built scalable microservices architecture from scratch. Implemented inter-service communication using gRPC, containerization with Docker, and orchestration with Kubernetes.',
-    role: 'Senior Backend Developer & Architect',
+    description: 'Working in a start-up environment. Facilitated DevOps and architecture processes. Hands-on experience in microservices and Domain-Driven Design (DDD).',
+    role: 'Software Developer',
     logo: '/logos/invicta.png',
+    impact: 'Built scalable microservices from scratch, established DevOps best practices',
   },
   {
-    id: 4,
+    id: 5,
     title: 'devs-mentoring Platform',
     company: 'devs-mentoring.pl',
     year: '2021-Present',
@@ -66,18 +80,55 @@ const projects: Project[] = [
     logo: '/logos/devs-mentoring.png',
   },
   {
-    id: 5,
-    title: 'Campaign Management System',
-    company: 'Red Bull',
-    year: '2021-2022',
+    id: 6,
+    title: 'Architect Consultant & Mentor',
+    company: 'Fathom Group',
+    year: 'Sep-Dec 2022',
     type: 'developer',
-    tech: ['Python', 'Django', 'PostgreSQL', 'Redis'],
-    description: 'Built enterprise monolithic application for campaign management. Led technical team, designed architecture, and delivered robust solution handling high-traffic events.',
-    role: 'Tech Lead',
-    logo: '/logos/redbull.png',
+    tech: ['Architecture', 'Product Strategy', 'Team Management'],
+    description: 'Helped company build product vision from scratch. Organized and facilitated development work and strategy for new product launch.',
+    role: 'Architect Consultant & Mentor',
+    logo: '/logos/fathom_logo.jpeg',
+    impact: 'Established product vision and development strategy from ground zero',
   },
   {
-    id: 6,
+    id: 7,
+    title: 'Campaign Management Platform',
+    company: 'Red Bull',
+    year: '2022-2024',
+    type: 'developer',
+    tech: ['Python', 'Django', 'PostgreSQL', 'Redis'],
+    description: 'Built enterprise monolithic application for campaign management. Led technical team, designed architecture, and delivered robust solution handling high-traffic events for major brand campaigns.',
+    role: 'Tech Leader',
+    logo: '/logos/redbull.png',
+    impact: 'Led team delivering critical campaign infrastructure for global brand events',
+  },
+  {
+    id: 8,
+    title: 'Software Engineering Project',
+    company: 'Inter Cars',
+    year: 'Apr-Nov 2021',
+    type: 'developer',
+    tech: ['Software Engineering', 'Full-stack Development'],
+    description: 'A 6-month contract during which I developed and contributed engineering value to the project as a Software Engineer.',
+    role: 'Software Engineer',
+    logo: '/logos/intercars_logo.webp',
+    impact: '6-month successful contract delivery',
+  },
+  {
+    id: 9,
+    title: 'R&D Software Engineer',
+    company: 'Nokia',
+    year: '2020-2022',
+    type: 'developer',
+    tech: ['Python', 'Testing', 'Code Review', 'Team Management'],
+    description: 'Responsible for improving processes, implementing features, analyzing bugs, designing solutions, and coordinating guidelines. Shared best practices through coaching and contributed to SW design decisions.',
+    role: 'R&D Software Engineer',
+    logo: '/logos/nokia_logo.jpg',
+    impact: 'Led team management, established coding standards, mentored developers',
+  },
+  {
+    id: 10,
     title: 'coderiv Mobile App',
     company: 'coderiv.com',
     year: '2020-Present',
@@ -89,7 +140,7 @@ const projects: Project[] = [
     logo: '/logos/coderiv.png',
   },
   {
-    id: 7,
+    id: 11,
     title: 'devs-hunting Agency',
     company: 'devs-hunting.com',
     year: '2020-Present',
@@ -101,25 +152,16 @@ const projects: Project[] = [
     logo: '/logos/devs-hunting.svg',
   },
   {
-    id: 8,
-    title: 'InfoMotion Platform',
-    company: 'InfoMotion',
-    year: '2019-2020',
+    id: 12,
+    title: 'C++/Python Software Engineer',
+    company: 'DevsH',
+    year: '2017-2020',
     type: 'developer',
-    tech: ['C++', 'Python', 'System Architecture'],
-    description: 'Built complex system from ground up, handling data processing and visualization. Architected solution for enterprise-scale requirements.',
-    role: 'Senior Developer & Architect',
-    logo: '/logos/infomotion.png',
-  },
-  {
-    id: 9,
-    title: 'First Professional Experience',
-    company: 'Early Career',
-    year: '2017-2019',
-    type: 'developer',
-    tech: ['Full-stack Development', 'Learning & Growth'],
-    description: 'Started professional career as full-time developer while still in high school. Built foundation in software development and gained real-world experience.',
-    role: 'Junior Developer',
+    tech: ['C++', 'Python', 'REST', 'Microservices', 'Unit Testing'],
+    description: 'Started professional career while in high school. Supported companies with project estimations, designed software architecture, built and maintained microservices. Worked with databases and unit testing.',
+    role: 'C++/Python Software Engineer',
+    logo: '/logos/devsh.png',
+    impact: 'First full-time role at age 16, built foundation in enterprise software development',
   },
 ]
 
@@ -148,7 +190,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           ${isActive
             ? project.type === 'developer'
               ? 'bg-developer-secondary border-2 border-developer-accent shadow-lg shadow-developer-accent/20'
-              : 'bg-white border-2 border-founder-accent shadow-lg shadow-founder-accent/20'
+              : 'bg-gray-900/40 border-2 border-founder-accent shadow-lg shadow-founder-accent/20'
             : 'bg-gray-800/30 border-2 border-gray-700 opacity-50'}
         `}
         whileHover={{ scale: isActive ? 1.02 : 1, opacity: isActive ? 1 : 0.7 }}
@@ -169,7 +211,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
                 </span>
               </div>
               {project.logo && (
-                <div className="relative w-12 h-12 flex items-center justify-center rounded-full overflow-hidden bg-white p-1">
+                <div className="relative w-12 h-12 flex items-center justify-center rounded-full overflow-hidden bg-gray-100 p-1">
                   <Image
                     src={project.logo}
                     alt={`${project.company} logo`}
@@ -182,11 +224,11 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             </div>
 
             <h3 className="text-xl font-bold mb-1">{project.title}</h3>
-            <p className={`text-sm mb-3 ${theme === 'founder' && isActive ? 'text-gray-600' : 'text-gray-400'}`}>
+            <p className={`text-sm mb-3 ${theme === 'founder' && isActive ? 'text-gray-300' : 'text-gray-400'}`}>
               {project.company} • {project.role}
             </p>
 
-            <p className={`text-sm mb-4 ${theme === 'founder' && isActive ? 'text-gray-700' : 'text-gray-300'}`}>
+            <p className={`text-sm mb-4 ${theme === 'founder' && isActive ? 'text-gray-200' : 'text-gray-300'}`}>
               {project.description}
             </p>
 
@@ -219,7 +261,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             className="min-h-[200px] flex flex-col justify-center"
           >
             <h4 className="text-lg font-bold mb-4">Impact & Results</h4>
-            <p className={`text-sm ${theme === 'founder' && isActive ? 'text-gray-700' : 'text-gray-300'}`}>
+            <p className={`text-sm ${theme === 'founder' && isActive ? 'text-gray-200' : 'text-gray-300'}`}>
               {project.impact || 'Successfully delivered complex solution with high code quality and performance. Collaborated with cross-functional teams to exceed client expectations.'}
             </p>
 
@@ -251,9 +293,13 @@ export default function ProjectsTimeline() {
   const { theme } = useTheme()
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
+  const [showAll, setShowAll] = useState(false)
 
   const developerProjects = projects.filter(p => p.type === 'developer')
   const founderProjects = projects.filter(p => p.type === 'founder')
+
+  const visibleDeveloperProjects = showAll ? developerProjects : developerProjects.slice(0, 4)
+  const visibleFounderProjects = showAll ? founderProjects : founderProjects.slice(0, 3)
 
   return (
     <section id="projects" className="py-32 px-8 relative overflow-hidden" ref={ref}>
@@ -294,18 +340,41 @@ export default function ProjectsTimeline() {
           <div className="grid md:grid-cols-2 gap-8 md:gap-16">
             {/* Developer Column */}
             <div className="space-y-8">
-              {developerProjects.map((project, index) => (
+              {visibleDeveloperProjects.map((project, index) => (
                 <ProjectCard key={project.id} project={project} index={index} />
               ))}
             </div>
 
             {/* Founder Column */}
             <div className="space-y-8">
-              {founderProjects.map((project, index) => (
+              {visibleFounderProjects.map((project, index) => (
                 <ProjectCard key={project.id} project={project} index={index} />
               ))}
             </div>
           </div>
+
+          {/* Show More/Less Button */}
+          {(developerProjects.length > 4 || founderProjects.length > 3) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.8 }}
+              className="flex justify-center mt-12"
+            >
+              <button
+                onClick={() => setShowAll(!showAll)}
+                className={`
+                  px-8 py-4 rounded-full font-mono font-medium transition-all duration-300
+                  ${theme === 'developer'
+                    ? 'bg-developer-accent text-developer-bg hover:bg-developer-accent/90'
+                    : 'bg-founder-accent text-white hover:bg-founder-accent/90'}
+                  shadow-lg hover:scale-105 transform
+                `}
+              >
+                {showAll ? '↑ Show Less' : '↓ Show More Projects'}
+              </button>
+            </motion.div>
+          )}
         </div>
       </div>
     </section>

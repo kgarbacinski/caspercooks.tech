@@ -129,7 +129,7 @@ export default function TechStack() {
                 transition-all duration-300
                 ${theme === 'developer'
                   ? 'bg-developer-secondary border-2 border-developer-accent/20 hover:border-developer-accent'
-                  : 'bg-white border-2 border-founder-accent/20 hover:border-founder-accent'}
+                  : 'bg-gray-900/40 border-2 border-founder-accent/20 hover:border-founder-accent'}
               `}
             >
               {/* Category Badge */}
@@ -143,7 +143,7 @@ export default function TechStack() {
               <div className="text-center">
                 <div className="text-5xl mb-3">{tech.icon}</div>
                 <h3 className="font-bold text-lg mb-2">{tech.name}</h3>
-                <p className={`text-xs ${theme === 'founder' ? 'text-gray-600' : 'text-gray-400'}`}>
+                <p className={`text-xs ${theme === 'founder' ? 'text-gray-300' : 'text-gray-400'}`}>
                   {tech.projects[0]}
                 </p>
               </div>

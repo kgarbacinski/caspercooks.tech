@@ -83,7 +83,7 @@ export default function ContactSection() {
             </span>
             caspercooks.com
           </h2>
-          <p className={`max-w-2xl mx-auto font-mono ${theme === 'founder' ? 'text-gray-600' : 'text-gray-400'}`}>
+          <p className={`max-w-2xl mx-auto font-mono ${theme === 'founder' ? 'text-gray-300' : 'text-gray-400'}`}>
             {'// Looking for a developer? Interested in ventures?'}
             <br />
             {'// Or just want to say hi? Let\'s connect.'}
@@ -116,7 +116,7 @@ export default function ContactSection() {
                             ? 'bg-developer-accent text-developer-bg'
                             : 'bg-founder-accent text-white'
                           : theme === 'founder'
-                            ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                             : 'bg-developer-secondary text-gray-400 hover:bg-gray-700'}
                       `}
                     >
@@ -141,7 +141,7 @@ export default function ContactSection() {
                     w-full px-4 py-3 rounded-lg transition-all duration-300
                     focus:outline-none focus:ring-2
                     ${theme === 'founder'
-                      ? 'bg-white border-2 border-gray-200 focus:border-founder-accent focus:ring-founder-accent/20 text-gray-900'
+                      ? 'bg-gray-800 border-2 border-gray-600 focus:border-founder-accent focus:ring-founder-accent/20 text-white'
                       : 'bg-developer-secondary border-2 border-gray-700 focus:border-developer-accent focus:ring-developer-accent/20 text-white'}
                   `}
                   placeholder="John Doe"
@@ -163,7 +163,7 @@ export default function ContactSection() {
                     w-full px-4 py-3 rounded-lg transition-all duration-300
                     focus:outline-none focus:ring-2
                     ${theme === 'founder'
-                      ? 'bg-white border-2 border-gray-200 focus:border-founder-accent focus:ring-founder-accent/20 text-gray-900'
+                      ? 'bg-gray-800 border-2 border-gray-600 focus:border-founder-accent focus:ring-founder-accent/20 text-white'
                       : 'bg-developer-secondary border-2 border-gray-700 focus:border-developer-accent focus:ring-developer-accent/20 text-white'}
                   `}
                   placeholder="john@example.com"
@@ -185,7 +185,7 @@ export default function ContactSection() {
                     w-full px-4 py-3 rounded-lg transition-all duration-300 resize-none
                     focus:outline-none focus:ring-2
                     ${theme === 'founder'
-                      ? 'bg-white border-2 border-gray-200 focus:border-founder-accent focus:ring-founder-accent/20 text-gray-900'
+                      ? 'bg-gray-800 border-2 border-gray-600 focus:border-founder-accent focus:ring-founder-accent/20 text-white'
                       : 'bg-developer-secondary border-2 border-gray-700 focus:border-developer-accent focus:ring-developer-accent/20 text-white'}
                   `}
                   placeholder="Tell me about your project or inquiry..."
@@ -235,7 +235,7 @@ export default function ContactSection() {
             <div className={`
               p-8 rounded-2xl
               ${theme === 'founder'
-                ? 'bg-white border-2 border-founder-accent/20'
+                ? 'bg-gray-900/40 border-2 border-founder-accent'
                 : 'bg-developer-secondary border-2 border-developer-accent/20'}
             `}>
               <h3 className="text-2xl font-bold mb-6">Get In Touch</h3>
@@ -252,7 +252,7 @@ export default function ContactSection() {
                     className={`
                       flex items-center gap-4 p-4 rounded-lg transition-all duration-300
                       ${theme === 'founder'
-                        ? 'hover:bg-gray-50'
+                        ? 'hover:bg-gray-800'
                         : 'hover:bg-gray-700/50'}
                     `}
                   >
@@ -284,10 +284,10 @@ export default function ContactSection() {
                 or something entirely new, let's discuss how I can help bring your vision to life.
               </p>
               <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">Full-Stack</span>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">Web3</span>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">Tech Lead</span>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">Architecture</span>
+                <span className="px-3 py-1 bg-black/20 rounded-full text-sm">Full-Stack</span>
+                <span className="px-3 py-1 bg-black/20 rounded-full text-sm">Web3</span>
+                <span className="px-3 py-1 bg-black/20 rounded-full text-sm">Tech Lead</span>
+                <span className="px-3 py-1 bg-black/20 rounded-full text-sm">Architecture</span>
               </div>
             </div>
           </motion.div>

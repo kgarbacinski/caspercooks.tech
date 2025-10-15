@@ -90,7 +90,7 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
         relative group overflow-hidden rounded-2xl
         transition-all duration-500
         ${theme === 'founder'
-          ? 'bg-white border-2 border-founder-accent shadow-xl'
+          ? 'bg-gray-900/40 border-2 border-founder-accent shadow-xl'
           : 'bg-developer-secondary border-2 border-developer-accent/30'}
       `}
     >
@@ -106,7 +106,9 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
             <div className={`
               w-32 h-32 rounded-xl flex items-center justify-center overflow-hidden shrink-0
               ${brand.logo
-                ? 'bg-white border-2 border-gray-200 shadow-md'
+                ? theme === 'founder'
+                  ? 'bg-gray-800 border-2 border-gray-600 shadow-md'
+                  : 'bg-white border-2 border-gray-200 shadow-md'
                 : `bg-gradient-to-br ${brand.color} border-2 border-transparent`}
             `}>
               {brand.logo ? (
@@ -126,7 +128,7 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
             </div>
             <div className="flex-1">
               <h3 className="text-xl font-bold mb-1 font-mono">{brand.name}</h3>
-              <p className={`text-xs font-mono ${theme === 'founder' ? 'text-gray-600' : 'text-gray-400'}`}>
+              <p className={`text-xs font-mono ${theme === 'founder' ? 'text-gray-300' : 'text-gray-400'}`}>
                 {brand.tagline}
               </p>
             </div>
@@ -150,12 +152,12 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
         </div>
 
         {/* Description */}
-        <p className={`mb-6 leading-relaxed ${theme === 'founder' ? 'text-gray-700' : 'text-gray-300'}`}>
+        <p className={`mb-6 leading-relaxed ${theme === 'founder' ? 'text-gray-200' : 'text-gray-300'}`}>
           {brand.description}
         </p>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div className={`grid grid-cols-3 gap-4 pt-6 border-t ${theme === 'founder' ? 'border-gray-700' : 'border-gray-700'}`}>
           {brand.stats.map((stat, i) => (
             <div key={i} className="text-center">
               <div className={`text-xl font-bold mb-1 ${
@@ -205,7 +207,7 @@ export default function BrandsShowcase() {
             </span>
             /brands
           </h2>
-          <p className={`max-w-2xl mx-auto font-mono ${theme === 'founder' ? 'text-gray-600' : 'text-gray-400'}`}>
+          <p className={`max-w-2xl mx-auto font-mono ${theme === 'founder' ? 'text-gray-300' : 'text-gray-400'}`}>
             {'// Building companies that empower developers'}
             <br />
             {'// From mentorship → AI automation'}
@@ -245,7 +247,7 @@ export default function BrandsShowcase() {
             className={`
               inline-block px-8 py-4 rounded-full font-bold transition-all duration-300
               ${theme === 'founder'
-                ? 'bg-white text-founder-accent hover:scale-105'
+                ? 'bg-gray-900 text-white border-2 border-white hover:scale-105'
                 : 'bg-developer-bg text-developer-accent hover:scale-105'}
             `}
           >

@@ -140,7 +140,7 @@ export default function AboutSection() {
             className={`
               p-8 rounded-2xl transition-all duration-500
               ${theme === 'founder'
-                ? 'bg-white border-2 border-founder-accent shadow-xl'
+                ? 'bg-gray-900/40 border-2 border-founder-accent shadow-xl'
                 : 'bg-white/5 border-2 border-transparent'}
             `}
           >
@@ -153,7 +153,7 @@ export default function AboutSection() {
               <h3 className="text-2xl font-bold">Founder Story</h3>
             </div>
 
-            <div className={`space-y-4 ${theme === 'founder' ? 'text-gray-700' : 'text-gray-300'}`}>
+            <div className={`space-y-4 ${theme === 'founder' ? 'text-gray-200' : 'text-gray-300'}`}>
               <p>
                 Building products is one thing. <strong className="text-founder-accent">Building
                 companies that empower others</strong> is what drives me.
@@ -188,7 +188,7 @@ export default function AboutSection() {
             </div>
 
             {/* Founder Stats */}
-            <div className="grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-gray-300">
+            <div className={`grid grid-cols-3 gap-4 mt-8 pt-8 border-t ${theme === 'founder' ? 'border-gray-700' : 'border-gray-300'}`}>
               <div className="text-center">
                 <div className="text-founder-accent">
                   <AnimatedCounter value={4} />

@@ -80,7 +80,7 @@ export default function Footer() {
                     transition-colors duration-300
                     ${theme === 'developer'
                       ? 'bg-developer-secondary hover:bg-developer-accent hover:text-developer-bg'
-                      : 'bg-gray-100 hover:bg-founder-accent hover:text-white'}
+                      : 'bg-gray-800 hover:bg-founder-accent hover:text-white'}
                   `}
                   title={social.name}
                 >
