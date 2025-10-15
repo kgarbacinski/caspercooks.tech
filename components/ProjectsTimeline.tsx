@@ -182,11 +182,10 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, delay: index * 0.1 }}
       className={`relative ${project.type === 'developer' ? 'md:pr-8 md:text-right' : 'md:pl-8'}`}
-      style={{ gridColumn: project.type === 'developer' ? '1' : '2' }}
     >
       <motion.div
         className={`
-          p-6 rounded-xl cursor-pointer transition-all duration-500
+          p-4 sm:p-6 rounded-xl cursor-pointer transition-all duration-500
           ${isActive
             ? project.type === 'developer'
               ? 'bg-developer-secondary border-2 border-developer-accent shadow-lg shadow-developer-accent/20'
@@ -227,12 +226,12 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
               )}
             </div>
 
-            <h3 className="text-xl font-bold mb-1">{project.title}</h3>
-            <p className={`text-sm mb-3 ${theme === 'founder' && isActive ? 'text-gray-300' : 'text-gray-400'}`}>
+            <h3 className="text-lg sm:text-xl font-bold mb-1">{project.title}</h3>
+            <p className={`text-xs sm:text-sm mb-3 ${theme === 'founder' && isActive ? 'text-gray-300' : 'text-gray-400'}`}>
               {project.company} • {project.role}
             </p>
 
-            <p className={`text-sm mb-4 ${theme === 'founder' && isActive ? 'text-gray-200' : 'text-gray-300'}`}>
+            <p className={`text-xs sm:text-sm mb-4 ${theme === 'founder' && isActive ? 'text-gray-200' : 'text-gray-300'}`}>
               {project.description}
             </p>
 
@@ -306,7 +305,7 @@ export default function ProjectsTimeline() {
   const visibleFounderProjects = showAll ? founderProjects : founderProjects.slice(0, 3)
 
   return (
-    <section id="projects" className="py-32 px-8 relative overflow-hidden" ref={ref}>
+    <section id="projects" className="py-16 sm:py-24 md:py-32 px-4 sm:px-8 relative overflow-hidden" ref={ref}>
       {/* Background decoration */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full blur-3xl" />
@@ -317,15 +316,15 @@ export default function ProjectsTimeline() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          className="text-center mb-20"
+          className="text-center mb-12 sm:mb-16 md:mb-20"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 font-mono">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 font-mono">
             <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
               {'$ git log '}
             </span>
             --all --oneline
           </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto font-mono">
+          <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto font-mono px-4">
             {'// Dual-track journey: technical excellence + entrepreneurial ventures'}
             <br />
             {'// Click cards to flip and see impact metrics'}
@@ -341,16 +340,16 @@ export default function ProjectsTimeline() {
           `} />
 
           {/* Projects Grid */}
-          <div className="grid md:grid-cols-2 gap-8 md:gap-16">
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 md:gap-16">
             {/* Developer Column */}
-            <div className="space-y-8">
+            <div className={`space-y-6 sm:space-y-8 ${theme === 'founder' ? 'hidden md:block' : ''}`}>
               {visibleDeveloperProjects.map((project, index) => (
                 <ProjectCard key={project.id} project={project} index={index} />
               ))}
             </div>
 
             {/* Founder Column */}
-            <div className="space-y-8">
+            <div className={`space-y-6 sm:space-y-8 ${theme === 'developer' ? 'hidden md:block' : ''}`}>
               {visibleFounderProjects.map((project, index) => (
                 <ProjectCard key={project.id} project={project} index={index} />
               ))}

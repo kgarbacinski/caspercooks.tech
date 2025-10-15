@@ -99,12 +99,12 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
         absolute inset-0 bg-gradient-to-br ${brand.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500
       `} />
 
-      <div className="relative p-8">
+      <div className="relative p-4 sm:p-6 md:p-8">
         {/* Logo & Title */}
-        <div className="flex items-start justify-between mb-6">
-          <div className="flex items-center gap-5">
+        <div className="flex items-start justify-between mb-6 gap-4">
+          <div className="flex items-start gap-4 sm:gap-5 flex-1 min-w-0">
             <div className={`
-              w-32 h-32 rounded-xl flex items-center justify-center overflow-hidden shrink-0
+              w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-xl flex items-center justify-center overflow-hidden shrink-0
               ${brand.logo
                 ? brand.name === 'Efektywniejsi'
                   ? 'bg-gray-800 border-2 border-gray-600 shadow-md'
@@ -125,12 +125,12 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
                   }}
                 />
               ) : (
-                <span className="text-4xl">{brand.icon}</span>
+                <span className="text-2xl sm:text-3xl md:text-4xl">{brand.icon}</span>
               )}
             </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-bold mb-1 font-mono">{brand.name}</h3>
-              <p className={`text-xs font-mono ${theme === 'founder' ? 'text-gray-300' : 'text-gray-400'}`}>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1 font-mono break-words">{brand.name}</h3>
+              <p className={`text-xs sm:text-sm font-mono ${theme === 'founder' ? 'text-gray-300' : 'text-gray-400'}`}>
                 {brand.tagline}
               </p>
             </div>
@@ -154,7 +154,7 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
         </div>
 
         {/* Description */}
-        <p className={`mb-4 leading-relaxed ${theme === 'founder' ? 'text-gray-200' : 'text-gray-300'}`}>
+        <p className={`mb-4 leading-relaxed text-sm sm:text-base ${theme === 'founder' ? 'text-gray-200' : 'text-gray-300'}`}>
           {brand.description}
         </p>
 
@@ -208,7 +208,7 @@ export default function BrandsShowcase() {
   const isInView = useInView(ref, { once: true })
 
   return (
-    <section id="brands" className="py-32 px-8 relative overflow-hidden" ref={ref}>
+    <section id="brands" className="py-16 sm:py-24 md:py-32 px-4 sm:px-8 relative overflow-hidden" ref={ref}>
       {/* Background Decoration */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-gradient-to-r from-orange-500 to-red-500 rounded-full blur-3xl" />
@@ -219,9 +219,9 @@ export default function BrandsShowcase() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          className="text-center mb-20"
+          className="text-center mb-12 sm:mb-16 md:mb-20"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 font-mono">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 font-mono">
             <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
               {'$ tree '}
             </span>

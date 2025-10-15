@@ -48,7 +48,7 @@ export default function HeroSection() {
       </div>
 
       {/* Split Screen Container */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-8 grid md:grid-cols-2 gap-8 items-center">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 grid md:grid-cols-2 gap-12 md:gap-8 items-center">
         {/* Developer Side */}
         <motion.div
           initial={{ opacity: 0, x: -100 }}
@@ -58,7 +58,7 @@ export default function HeroSection() {
             scale: theme === 'developer' ? 1 : 0.95,
           }}
           transition={{ duration: 0.5 }}
-          className="space-y-6"
+          className={`space-y-4 sm:space-y-6 ${theme === 'founder' ? 'hidden md:block' : ''}`}
           style={{
             perspective: '1000px',
           }}
@@ -69,17 +69,17 @@ export default function HeroSection() {
               rotateY: theme === 'developer' ? rotateYSpring : 0,
             }}
           >
-            <div className="inline-block px-4 py-2 bg-developer-accent/10 border-2 border-developer-accent mb-4 font-mono">
-              <span className="text-developer-accent text-sm">{'$ whoami'}</span>
+            <div className="inline-block px-3 py-1.5 sm:px-4 sm:py-2 bg-developer-accent/10 border-2 border-developer-accent mb-3 sm:mb-4 font-mono">
+              <span className="text-developer-accent text-xs sm:text-sm">{'$ whoami'}</span>
             </div>
 
-            <h2 className="text-5xl md:text-6xl font-bold mb-4 font-mono">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 font-mono">
               Full-Stack
               <br />
               <span className="text-developer-accent">{'<Engineer />'}</span>
             </h2>
 
-            <p className="text-lg text-gray-400 max-w-md font-mono">
+            <p className="text-sm sm:text-base md:text-lg text-gray-400 max-w-md font-mono">
               {'> Building scalable systems since 2017'}
               <br />
               {'> From microservices to Web3 dApps'}
@@ -87,33 +87,63 @@ export default function HeroSection() {
               {'> Complex problems → elegant solutions'}
             </p>
 
-            <div className="flex gap-4 mt-6">
+            <div className="flex flex-wrap gap-2 sm:gap-4 mt-4 sm:mt-6">
               <motion.div
-                className="text-sm font-mono border-2 border-developer-accent/30 px-3 py-2"
+                className="text-xs sm:text-sm font-mono border-2 border-developer-accent/30 px-2 py-1.5 sm:px-3 sm:py-2"
                 whileHover={{ scale: 1.05, borderColor: '#00ff88' }}
               >
                 <div className="text-developer-accent">0x08+ years</div>
-                <div className="text-gray-500">// experience</div>
+                <div className="text-gray-500 text-[10px] sm:text-xs">// experience</div>
               </motion.div>
               <motion.div
-                className="text-sm font-mono border-2 border-developer-accent/30 px-3 py-2"
+                className="text-xs sm:text-sm font-mono border-2 border-developer-accent/30 px-2 py-1.5 sm:px-3 sm:py-2"
                 whileHover={{ scale: 1.05, borderColor: '#00ff88' }}
               >
                 <div className="text-developer-accent">0x09 projects</div>
-                <div className="text-gray-500">// delivered</div>
+                <div className="text-gray-500 text-[10px] sm:text-xs">// delivered</div>
               </motion.div>
               <motion.div
-                className="text-sm font-mono border-2 border-developer-accent/30 px-3 py-2"
+                className="text-xs sm:text-sm font-mono border-2 border-developer-accent/30 px-2 py-1.5 sm:px-3 sm:py-2"
                 whileHover={{ scale: 1.05, borderColor: '#00ff88' }}
               >
                 <div className="text-developer-accent">Web2 + Web3</div>
-                <div className="text-gray-500">// full stack</div>
+                <div className="text-gray-500 text-[10px] sm:text-xs">// full stack</div>
               </motion.div>
             </div>
           </motion.div>
         </motion.div>
 
-        {/* Central Avatar/Divider */}
+        {/* Central Avatar - centered on mobile, between columns on desktop */}
+        <div className="md:hidden flex justify-center order-first md:order-none col-span-full mb-8">
+          <motion.div
+            className={`
+              w-24 h-24 sm:w-32 sm:h-32 rounded-full flex items-center justify-center overflow-hidden
+              border-4 transition-all duration-500
+              ${theme === 'developer'
+                ? 'border-developer-accent'
+                : 'border-founder-accent'}
+            `}
+            animate={{
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          >
+            <Image
+              src={theme === 'developer' ? '/logos/nft_avatar_dev.png' : '/logos/nft_avatar_bussiness.png'}
+              alt="Casper - NFT Avatar"
+              width={128}
+              height={128}
+              className="object-cover w-full h-full"
+              priority
+              key={theme}
+            />
+          </motion.div>
+        </div>
+
         <div className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           <motion.div
             className={`
@@ -153,7 +183,7 @@ export default function HeroSection() {
             scale: theme === 'founder' ? 1 : 0.95,
           }}
           transition={{ duration: 0.5 }}
-          className="space-y-6 text-right"
+          className={`space-y-4 sm:space-y-6 text-left md:text-right ${theme === 'developer' ? 'hidden md:block' : ''}`}
           style={{
             perspective: '1000px',
           }}
@@ -164,17 +194,17 @@ export default function HeroSection() {
               rotateY: theme === 'founder' ? rotateYSpring : 0,
             }}
           >
-            <div className="inline-block px-4 py-2 bg-founder-accent/10 border-2 border-founder-accent mb-4 font-mono">
-              <span className="text-founder-accent text-sm">{'# portfolio'}</span>
+            <div className="inline-block px-3 py-1.5 sm:px-4 sm:py-2 bg-founder-accent/10 border-2 border-founder-accent mb-3 sm:mb-4 font-mono">
+              <span className="text-founder-accent text-xs sm:text-sm">{'# portfolio'}</span>
             </div>
 
-            <h2 className="text-5xl md:text-6xl font-bold mb-4 font-mono">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 font-mono">
               Serial
               <br />
               <span className="text-founder-accent">{'[Founder]'}</span>
             </h2>
 
-            <p className="text-lg opacity-70 max-w-md ml-auto font-mono">
+            <p className="text-sm sm:text-base md:text-lg opacity-70 max-w-md md:ml-auto font-mono">
               {'# Building companies that empower devs'}
               <br />
               {'# From mentorship to AI automation'}
@@ -182,27 +212,27 @@ export default function HeroSection() {
               {'# Creating ecosystems of growth'}
             </p>
 
-            <div className="flex gap-4 mt-6 justify-end">
+            <div className="flex flex-wrap gap-2 sm:gap-4 mt-4 sm:mt-6 md:justify-end">
               <motion.div
-                className="text-sm font-mono border-2 border-founder-accent/30 px-3 py-2"
+                className="text-xs sm:text-sm font-mono border-2 border-founder-accent/30 px-2 py-1.5 sm:px-3 sm:py-2"
                 whileHover={{ scale: 1.05, borderColor: '#ff6b35' }}
               >
                 <div className="text-founder-accent">4 brands</div>
-                <div className="opacity-50">// founded</div>
+                <div className="opacity-50 text-[10px] sm:text-xs">// founded</div>
               </motion.div>
               <motion.div
-                className="text-sm font-mono border-2 border-founder-accent/30 px-3 py-2"
+                className="text-xs sm:text-sm font-mono border-2 border-founder-accent/30 px-2 py-1.5 sm:px-3 sm:py-2"
                 whileHover={{ scale: 1.05, borderColor: '#ff6b35' }}
               >
                 <div className="text-founder-accent">15+ mentors</div>
-                <div className="opacity-50">// team</div>
+                <div className="opacity-50 text-[10px] sm:text-xs">// team</div>
               </motion.div>
               <motion.div
-                className="text-sm font-mono border-2 border-founder-accent/30 px-3 py-2"
+                className="text-xs sm:text-sm font-mono border-2 border-founder-accent/30 px-2 py-1.5 sm:px-3 sm:py-2"
                 whileHover={{ scale: 1.05, borderColor: '#ff6b35' }}
               >
                 <div className="text-founder-accent">100+ devs</div>
-                <div className="opacity-50">// impact</div>
+                <div className="opacity-50 text-[10px] sm:text-xs">// impact</div>
               </motion.div>
             </div>
           </motion.div>

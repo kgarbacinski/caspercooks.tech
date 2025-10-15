@@ -42,13 +42,13 @@ export default function AboutSection() {
   const isInView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
-    <section id="about" className="py-32 px-8" ref={ref}>
+    <section id="about" className="py-16 sm:py-24 md:py-32 px-4 sm:px-8" ref={ref}>
       <div className="max-w-7xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
-          className="text-4xl md:text-5xl font-bold text-center mb-20 font-mono"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-12 sm:mb-16 md:mb-20 font-mono"
         >
           <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
             {'$ cat '}
@@ -56,7 +56,7 @@ export default function AboutSection() {
           about.txt
         </motion.h2>
 
-        <div className="grid md:grid-cols-2 gap-16">
+        <div className="grid md:grid-cols-2 gap-8 sm:gap-12 md:gap-16">
           {/* Developer Bio */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -67,6 +67,7 @@ export default function AboutSection() {
               ${theme === 'developer'
                 ? 'bg-developer-secondary border-2 border-developer-accent'
                 : 'bg-white/5 border-2 border-transparent'}
+              ${theme === 'founder' ? 'hidden md:block' : ''}
             `}
           >
             <div className="flex items-center gap-3 mb-6">
@@ -78,7 +79,7 @@ export default function AboutSection() {
               <h3 className="text-2xl font-bold">Developer Journey</h3>
             </div>
 
-            <div className="space-y-4 text-gray-300">
+            <div className="space-y-4 text-sm sm:text-base text-gray-300">
               <p>
                 <strong className="text-developer-accent">Since 2017</strong>, I've been crafting
                 digital experiences and solving complex problems with code. Started my full-time
@@ -142,6 +143,7 @@ export default function AboutSection() {
               ${theme === 'founder'
                 ? 'bg-gray-900/40 border-2 border-founder-accent shadow-xl'
                 : 'bg-white/5 border-2 border-transparent'}
+              ${theme === 'developer' ? 'hidden md:block' : ''}
             `}
           >
             <div className="flex items-center gap-3 mb-6">
@@ -153,7 +155,7 @@ export default function AboutSection() {
               <h3 className="text-2xl font-bold">Founder Story</h3>
             </div>
 
-            <div className={`space-y-4 ${theme === 'founder' ? 'text-gray-200' : 'text-gray-300'}`}>
+            <div className={`space-y-4 text-sm sm:text-base ${theme === 'founder' ? 'text-gray-200' : 'text-gray-300'}`}>
               <p>
                 Building products is one thing. <strong className="text-founder-accent">Building
                 companies that empower others</strong> is what drives me.

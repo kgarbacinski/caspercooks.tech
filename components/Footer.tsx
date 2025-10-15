@@ -17,17 +17,17 @@ export default function Footer() {
 
   return (
     <footer className={`
-      py-12 px-8 border-t transition-colors duration-500
+      py-8 sm:py-12 px-4 sm:px-8 border-t transition-colors duration-500
       ${theme === 'developer'
         ? 'border-developer-accent/20 bg-developer-bg'
         : 'border-founder-accent/20 bg-founder-bg'}
     `}>
       <div className="max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-3 gap-8 mb-8">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8">
           {/* Brand */}
           <div>
             <motion.div
-              className="font-mono text-lg mb-4 relative inline-block"
+              className="font-mono text-base sm:text-lg mb-4 relative inline-block"
               whileHover={{ scale: 1.05 }}
             >
               <SteamAnimation theme={theme} />
@@ -95,7 +95,7 @@ export default function Footer() {
 
         {/* Bottom */}
         <div className={`
-          pt-8 border-t text-center text-sm font-mono
+          pt-6 sm:pt-8 border-t text-center text-xs sm:text-sm font-mono
           ${theme === 'developer'
             ? 'border-developer-accent/10 text-gray-500'
             : 'border-founder-accent/10 text-gray-500'}

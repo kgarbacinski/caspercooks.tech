@@ -74,8 +74,13 @@ export default function TechStack() {
     ? technologies.filter(t => t.category === activeCategory)
     : []
 
+  // Hide TechStack in founder mode
+  if (theme === 'founder') {
+    return null
+  }
+
   return (
-    <section className="py-32 px-8 relative overflow-hidden" ref={ref}>
+    <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-8 relative overflow-hidden" ref={ref}>
       {/* Background */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
@@ -90,13 +95,13 @@ export default function TechStack() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 font-mono">
-            <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 font-mono">
+            <span className="text-developer-accent">
               {'$ ls -la '}
             </span>
             /usr/bin/skills
           </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto mb-8 font-mono">
+          <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto mb-8 font-mono px-4">
             {'// Languages = tools | Domain knowledge = power'}
             <br />
             {'// Adaptability allows writing efficient code in any stack'}
@@ -108,18 +113,16 @@ export default function TechStack() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.2 }}
-          className="flex flex-wrap justify-center gap-3 mb-16"
+          className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-12 sm:mb-16 px-4"
         >
           {Object.entries(categories).map(([key, cat]) => (
             <button
               key={key}
               onClick={() => setActiveCategory(key)}
               className={`
-                px-6 py-3 rounded-full font-medium transition-all duration-300
+                px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium text-sm sm:text-base transition-all duration-300
                 ${activeCategory === key
-                  ? theme === 'developer'
-                    ? 'bg-developer-accent text-developer-bg'
-                    : 'bg-founder-accent text-white'
+                  ? 'bg-developer-accent text-developer-bg'
                   : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}
               `}
             >
@@ -129,7 +132,7 @@ export default function TechStack() {
         </motion.div>
 
         {/* Tech Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {filteredTechs.map((tech, index) => (
             <motion.div
               key={tech.name}
@@ -141,26 +144,17 @@ export default function TechStack() {
                 rotate: [0, -2, 2, 0],
                 transition: { duration: 0.3 }
               }}
-              className={`
-                relative group p-6 rounded-2xl cursor-pointer
-                transition-all duration-300
-                ${theme === 'developer'
-                  ? 'bg-developer-secondary border-2 border-developer-accent/20 hover:border-developer-accent'
-                  : 'bg-gray-900/40 border-2 border-founder-accent/20 hover:border-founder-accent'}
-              `}
+              className="relative group p-4 sm:p-6 rounded-2xl cursor-pointer transition-all duration-300 bg-developer-secondary border-2 border-developer-accent/20 hover:border-developer-accent"
             >
               {/* Category Badge */}
-              <div className={`
-                absolute -top-2 -right-2 w-6 h-6 rounded-full text-xs flex items-center justify-center
-                ${theme === 'developer' ? 'bg-developer-accent text-developer-bg' : 'bg-founder-accent text-white'}
-              `}>
+              <div className="absolute -top-2 -right-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full text-xs flex items-center justify-center bg-developer-accent text-developer-bg">
                 {tech.category === 'web2' ? '2' : tech.category === 'web3' ? '3' : '•'}
               </div>
 
               <div className="text-center">
-                <div className="text-5xl mb-3">{tech.icon}</div>
-                <h3 className="font-bold text-lg mb-2">{tech.name}</h3>
-                <p className={`text-xs ${theme === 'founder' ? 'text-gray-300' : 'text-gray-400'}`}>
+                <div className="text-3xl sm:text-5xl mb-2 sm:mb-3">{tech.icon}</div>
+                <h3 className="font-bold text-sm sm:text-lg mb-1 sm:mb-2">{tech.name}</h3>
+                <p className="text-[10px] sm:text-xs text-gray-400 line-clamp-1">
                   {tech.projects[0]}
                 </p>
               </div>
@@ -189,45 +183,37 @@ export default function TechStack() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.6 }}
-          className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
+          className="mt-12 sm:mt-16 md:mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center"
         >
           <div>
-            <div className={`text-4xl font-bold mb-2 ${
-              theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'
-            }`}>
+            <div className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2 text-developer-accent">
               5+
             </div>
-            <div className={`text-sm ${theme === 'founder' ? 'text-gray-600' : 'text-gray-400'}`}>
+            <div className="text-xs sm:text-sm text-gray-400">
               Programming Languages
             </div>
           </div>
           <div>
-            <div className={`text-4xl font-bold mb-2 ${
-              theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'
-            }`}>
+            <div className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2 text-developer-accent">
               10+
             </div>
-            <div className={`text-sm ${theme === 'founder' ? 'text-gray-600' : 'text-gray-400'}`}>
+            <div className="text-xs sm:text-sm text-gray-400">
               Frameworks & Tools
             </div>
           </div>
           <div>
-            <div className={`text-4xl font-bold mb-2 ${
-              theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'
-            }`}>
+            <div className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2 text-developer-accent">
               Web2 + Web3
             </div>
-            <div className={`text-sm ${theme === 'founder' ? 'text-gray-600' : 'text-gray-400'}`}>
+            <div className="text-xs sm:text-sm text-gray-400">
               Full Spectrum
             </div>
           </div>
           <div>
-            <div className={`text-4xl font-bold mb-2 ${
-              theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'
-            }`}>
+            <div className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2 text-developer-accent">
               8+
             </div>
-            <div className={`text-sm ${theme === 'founder' ? 'text-gray-600' : 'text-gray-400'}`}>
+            <div className="text-xs sm:text-sm text-gray-400">
               Years Experience
             </div>
           </div>

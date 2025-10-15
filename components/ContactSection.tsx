@@ -62,7 +62,7 @@ export default function ContactSection() {
   ]
 
   return (
-    <section id="contact" className="py-32 px-8 relative overflow-hidden" ref={ref}>
+    <section id="contact" className="py-16 sm:py-24 md:py-32 px-4 sm:px-8 relative overflow-hidden" ref={ref}>
       {/* Background */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
@@ -75,42 +75,42 @@ export default function ContactSection() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          className="text-center mb-20"
+          className="text-center mb-12 sm:mb-16 md:mb-20"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 font-mono">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 font-mono">
             <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
               {'$ ping '}
             </span>
             caspercooks.tech
           </h2>
-          <p className={`max-w-2xl mx-auto font-mono ${theme === 'founder' ? 'text-gray-300' : 'text-gray-400'}`}>
+          <p className={`max-w-2xl mx-auto font-mono text-sm sm:text-base px-4 ${theme === 'founder' ? 'text-gray-300' : 'text-gray-400'}`}>
             {'// Looking for a developer? Interested in ventures?'}
             <br />
             {'// Or just want to say hi? Let\'s connect.'}
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-12">
+        <div className="grid md:grid-cols-2 gap-8 sm:gap-12">
           {/* Contact Form */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               {/* Contact Type Selector */}
               <div>
-                <label className="block text-sm font-medium mb-3">
+                <label className="block text-xs sm:text-sm font-medium mb-2 sm:mb-3">
                   I'm interested in...
                 </label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   {(['developer', 'founder', 'general'] as const).map((type) => (
                     <button
                       key={type}
                       type="button"
                       onClick={() => setFormData({ ...formData, type })}
                       className={`
-                        px-4 py-3 rounded-lg font-medium transition-all duration-300 text-sm
+                        px-2 py-2 sm:px-4 sm:py-3 rounded-lg font-medium transition-all duration-300 text-xs sm:text-sm
                         ${formData.type === type
                           ? theme === 'developer'
                             ? 'bg-developer-accent text-developer-bg'
@@ -120,7 +120,8 @@ export default function ContactSection() {
                             : 'bg-developer-secondary text-gray-400 hover:bg-gray-700'}
                       `}
                     >
-                      {type === 'developer' ? '👨‍💻 Dev' : type === 'founder' ? '🚀 CEO' : '💬 General'}
+                      <span className="hidden sm:inline">{type === 'developer' ? '👨‍💻 Dev' : type === 'founder' ? '🚀 CEO' : '💬 General'}</span>
+                      <span className="sm:hidden">{type === 'developer' ? '👨‍💻' : type === 'founder' ? '🚀' : '💬'}</span>
                     </button>
                   ))}
                 </div>
@@ -128,7 +129,7 @@ export default function ContactSection() {
 
               {/* Name Input */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-2">
+                <label htmlFor="name" className="block text-xs sm:text-sm font-medium mb-2">
                   Your Name
                 </label>
                 <input
@@ -138,7 +139,7 @@ export default function ContactSection() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className={`
-                    w-full px-4 py-3 rounded-lg transition-all duration-300
+                    w-full px-3 py-2 sm:px-4 sm:py-3 rounded-lg transition-all duration-300 text-sm sm:text-base
                     focus:outline-none focus:ring-2
                     ${theme === 'founder'
                       ? 'bg-gray-800 border-2 border-gray-600 focus:border-founder-accent focus:ring-founder-accent/20 text-white'
@@ -150,7 +151,7 @@ export default function ContactSection() {
 
               {/* Email Input */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2">
+                <label htmlFor="email" className="block text-xs sm:text-sm font-medium mb-2">
                   Your Email
                 </label>
                 <input
@@ -160,7 +161,7 @@ export default function ContactSection() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className={`
-                    w-full px-4 py-3 rounded-lg transition-all duration-300
+                    w-full px-3 py-2 sm:px-4 sm:py-3 rounded-lg transition-all duration-300 text-sm sm:text-base
                     focus:outline-none focus:ring-2
                     ${theme === 'founder'
                       ? 'bg-gray-800 border-2 border-gray-600 focus:border-founder-accent focus:ring-founder-accent/20 text-white'
@@ -172,17 +173,17 @@ export default function ContactSection() {
 
               {/* Message Input */}
               <div>
-                <label htmlFor="message" className="block text-sm font-medium mb-2">
+                <label htmlFor="message" className="block text-xs sm:text-sm font-medium mb-2">
                   Your Message
                 </label>
                 <textarea
                   id="message"
                   required
-                  rows={5}
+                  rows={4}
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   className={`
-                    w-full px-4 py-3 rounded-lg transition-all duration-300 resize-none
+                    w-full px-3 py-2 sm:px-4 sm:py-3 rounded-lg transition-all duration-300 resize-none text-sm sm:text-base
                     focus:outline-none focus:ring-2
                     ${theme === 'founder'
                       ? 'bg-gray-800 border-2 border-gray-600 focus:border-founder-accent focus:ring-founder-accent/20 text-white'
@@ -199,7 +200,7 @@ export default function ContactSection() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className={`
-                  w-full px-8 py-4 rounded-lg font-bold transition-all duration-300
+                  w-full px-6 py-3 sm:px-8 sm:py-4 rounded-lg font-bold text-sm sm:text-base transition-all duration-300
                   ${theme === 'developer'
                     ? 'bg-developer-accent text-developer-bg hover:bg-developer-accent/90'
                     : 'bg-founder-accent text-white hover:bg-founder-accent/90'}
@@ -233,12 +234,12 @@ export default function ContactSection() {
             className="space-y-8"
           >
             <div className={`
-              p-8 rounded-2xl
+              p-6 sm:p-8 rounded-2xl
               ${theme === 'founder'
                 ? 'bg-gray-900/40 border-2 border-founder-accent'
                 : 'bg-developer-secondary border-2 border-developer-accent/20'}
             `}>
-              <h3 className="text-2xl font-bold mb-6">Get In Touch</h3>
+              <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Get In Touch</h3>
 
               <div className="space-y-4">
                 {contactMethods.map((method, index) => (
@@ -250,21 +251,21 @@ export default function ContactSection() {
                     transition={{ delay: 0.5 + index * 0.1 }}
                     whileHover={{ x: 5 }}
                     className={`
-                      flex items-center gap-4 p-4 rounded-lg transition-all duration-300
+                      flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg transition-all duration-300
                       ${theme === 'founder'
                         ? 'hover:bg-gray-800'
                         : 'hover:bg-gray-700/50'}
                     `}
                   >
                     <div className={`
-                      w-12 h-12 rounded-full flex items-center justify-center text-2xl
+                      w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-xl sm:text-2xl flex-shrink-0
                       ${theme === 'developer' ? 'bg-developer-accent/20' : 'bg-founder-accent/20'}
                     `}>
                       {method.icon}
                     </div>
-                    <div>
-                      <div className="text-sm text-gray-500">{method.label}</div>
-                      <div className="font-medium">{method.value}</div>
+                    <div className="min-w-0">
+                      <div className="text-xs sm:text-sm text-gray-500">{method.label}</div>
+                      <div className="font-medium text-sm sm:text-base truncate">{method.value}</div>
                     </div>
                   </motion.a>
                 ))}
@@ -273,21 +274,21 @@ export default function ContactSection() {
 
             {/* Quick Info */}
             <div className={`
-              p-8 rounded-2xl
+              p-6 sm:p-8 rounded-2xl
               ${theme === 'founder'
                 ? 'bg-gradient-to-br from-founder-accent to-orange-500 text-white'
                 : 'bg-gradient-to-br from-developer-accent to-cyan-500 text-developer-bg'}
             `}>
-              <h3 className="text-xl font-bold mb-4">Looking for a Developer?</h3>
-              <p className="mb-4 opacity-90">
+              <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Looking for a Developer?</h3>
+              <p className="mb-3 sm:mb-4 opacity-90 text-sm sm:text-base">
                 I'm currently open to new opportunities and projects. Whether it's Web2, Web3,
                 or something entirely new, let's discuss how I can help bring your vision to life.
               </p>
-              <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 bg-black/20 rounded-full text-sm">Full-Stack</span>
-                <span className="px-3 py-1 bg-black/20 rounded-full text-sm">Web3</span>
-                <span className="px-3 py-1 bg-black/20 rounded-full text-sm">Tech Lead</span>
-                <span className="px-3 py-1 bg-black/20 rounded-full text-sm">Architecture</span>
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-black/20 rounded-full text-xs sm:text-sm">Full-Stack</span>
+                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-black/20 rounded-full text-xs sm:text-sm">Web3</span>
+                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-black/20 rounded-full text-xs sm:text-sm">Tech Lead</span>
+                <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-black/20 rounded-full text-xs sm:text-sm">Architecture</span>
               </div>
             </div>
           </motion.div>
