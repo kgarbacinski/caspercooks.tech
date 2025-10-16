@@ -1,253 +1,83 @@
-# Deployment Guide - caspercooks.tech na Mikrus
+# Deployment Guide
 
-## Wymagania
+This guide covers deploying the caspercooks.tech portfolio to various platforms.
 
-- Docker zainstalowany lokalnie
-- SSH dostęp do serwera Mikrus
-- Docker zainstalowany na serwerze Mikrus
-- Wykupiona domena caspercooks.tech
+## Prerequisites
 
-## Szybki start
+Before deploying, ensure you have:
+1. ✅ Resend API key configured (see [EMAIL_SETUP.md](./EMAIL_SETUP.md))
+2. ✅ All changes committed to GitHub
+3. ✅ Environment variables ready
 
-### 1. Konfiguracja skryptu deployment
+---
 
-Edytuj `deploy.sh` i zaktualizuj następujące zmienne:
+## Option 1: Vercel (Recommended - Easiest)
 
-```bash
-SSH_HOST="your-mikrus-server.mikr.us"  # Twój adres serwera Mikrus
-SSH_USER="your-username"                # Twoja nazwa użytkownika
-SSH_PORT="22"                          # Port SSH (zazwyczaj 22)
-```
+Vercel is the recommended platform for Next.js applications with zero-config deployment.
 
-### 2. Uruchomienie deployment
+### Steps:
 
-```bash
-./deploy.sh
-```
+1. **Push to GitHub** (already done)
+   ```bash
+   git push origin main
+   ```
 
-Skrypt automatycznie:
-- Zbuduje obraz Docker
-- Przesle go na serwer
-- Uruchomi nowy kontener
-- Posprzata stare wersje
+2. **Import to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Click "Import Project"
+   - Select your GitHub repository: `kgarbacinski/caspercooks.tech`
 
-## Konfiguracja serwera Mikrus
+3. **Configure Environment Variables**
+   - In Vercel dashboard, go to: Settings → Environment Variables
+   - Add:
+     - Name: `RESEND_API_KEY`
+     - Value: Your Resend API key (e.g., `re_xxxxxxxxxxxxx`)
+     - Environment: Production, Preview, Development
 
-### A. Instalacja Docker (jeśli nie jest zainstalowany)
+4. **Deploy**
+   - Vercel will automatically deploy
+   - Your site will be live at: `https://your-project.vercel.app`
+   - Configure custom domain in Vercel settings
 
-Zaloguj się na serwer przez SSH:
+### Auto-Deploy on Push
 
-```bash
-ssh -p PORT user@your-server.mikr.us
-```
+Vercel automatically deploys when you push to GitHub.
 
-Zainstaluj Docker:
+---
 
-```bash
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-sudo usermod -aG docker $USER
-```
+## Option 2: Docker on VPS (Current Setup)
 
-Wyloguj się i zaloguj ponownie, aby zmiany weszły w życie.
+Deploy to your Mikrus VPS using the provided deployment script.
 
-### B. Konfiguracja Nginx jako reverse proxy
+### Steps:
 
-Zainstaluj Nginx:
+1. **Set Environment Variable Locally**
+   ```bash
+   export RESEND_API_KEY=re_xxxxxxxxxxxxx
+   ```
 
-```bash
-sudo apt update
-sudo apt install nginx
-```
+2. **Run Deployment Script**
+   ```bash
+   ./deploy.sh
+   ```
 
-Utwórz konfigurację dla caspercooks.tech:
+---
 
-```bash
-sudo nano /etc/nginx/sites-available/caspercooks.tech
-```
+## Post-Deployment Checklist
 
-Dodaj następującą konfigurację:
+After deploying, verify:
 
-```nginx
-server {
-    listen 80;
-    server_name caspercooks.tech www.caspercooks.tech;
+- [ ] Website loads correctly
+- [ ] Dev ↔ CEO theme toggle works
+- [ ] Coin flip avatar animation works
+- [ ] Contact form submits successfully
+- [ ] Email is received at kacpergarbacinski@gmail.com
 
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-Aktywuj konfigurację:
-
-```bash
-sudo ln -s /etc/nginx/sites-available/caspercooks.tech /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
-### C. Konfiguracja SSL z Let's Encrypt
-
-Zainstaluj Certbot:
-
-```bash
-sudo apt install certbot python3-certbot-nginx
-```
-
-Uzyskaj certyfikat SSL:
-
-```bash
-sudo certbot --nginx -d caspercooks.tech -d www.caspercooks.tech
-```
-
-Certbot automatycznie skonfiguruje odnowienie certyfikatu.
-
-### D. Konfiguracja DNS
-
-W panelu zarządzania domeną (np. nazwa.pl, cloudflare) dodaj rekordy:
-
-```
-A     @              IP_SERWERA_MIKRUS
-A     www            IP_SERWERA_MIKRUS
-```
-
-Poczekaj na propagację DNS (może trwać do 24h, zwykle 15-30 minut).
-
-## Zarządzanie aplikacją na serwerze
-
-### Sprawdzenie statusu kontenera
-
-```bash
-docker ps
-docker logs caspercooks-io
-```
-
-### Restart kontenera
-
-```bash
-docker restart caspercooks-io
-```
-
-### Stop kontenera
-
-```bash
-docker stop caspercooks-io
-```
-
-### Zobacz logi w czasie rzeczywistym
-
-```bash
-docker logs -f caspercooks-io
-```
-
-### Usunięcie kontenera
-
-```bash
-docker stop caspercooks-io
-docker rm caspercooks-io
-```
-
-## Aktualizacja aplikacji
-
-Po wprowadzeniu zmian w kodzie:
-
-```bash
-./deploy.sh
-```
-
-Skrypt automatycznie:
-1. Zbuduje nową wersję
-2. Zatrzyma starą
-3. Uruchomi nową wersję
+---
 
 ## Troubleshooting
 
-### Problem: Port 3000 już zajęty
-
-```bash
-# Znajdź proces
-sudo lsof -i :3000
-# Lub
-sudo netstat -tulpn | grep :3000
-
-# Zatrzymaj konfliktujący kontener
-docker stop $(docker ps -q --filter "publish=3000")
-```
-
-### Problem: Aplikacja nie odpowiada
-
-```bash
-# Sprawdź logi
-docker logs caspercooks-io
-
-# Sprawdź czy kontener działa
-docker ps -a | grep caspercooks-io
-
-# Sprawdź nginx
-sudo nginx -t
-sudo systemctl status nginx
-```
-
-### Problem: Brak połączenia SSH
-
-Sprawdź czy używasz poprawnego portu i użytkownika:
-```bash
-ssh -v -p PORT user@server.mikr.us
-```
-
-## Monitoring
-
-### Sprawdzenie zasobów
-
-```bash
-docker stats caspercooks-io
-```
-
-### Sprawdzenie miejsca na dysku
-
-```bash
-df -h
-docker system df
-```
-
-### Czyszczenie nieużywanych obrazów
-
-```bash
-docker system prune -a
-```
-
-## Bezpieczeństwo
-
-1. **Firewall** - upewnij się że tylko porty 22, 80, 443 są otwarte:
-   ```bash
-   sudo ufw allow 22
-   sudo ufw allow 80
-   sudo ufw allow 443
-   sudo ufw enable
-   ```
-
-2. **Aktualizacje** - regularnie aktualizuj system:
-   ```bash
-   sudo apt update && sudo apt upgrade -y
-   ```
-
-3. **Backup** - regularnie twórz kopie zapasowe:
-   ```bash
-   docker export caspercooks-io > backup-$(date +%Y%m%d).tar
-   ```
-
-## Kontakt
-
-W razie problemów sprawdź:
-- Logi kontenera: `docker logs caspercooks-io`
-- Logi nginx: `sudo tail -f /var/log/nginx/error.log`
-- Status serwera: `systemctl status nginx docker`
+### Contact form not sending emails
+- Check RESEND_API_KEY is set in environment variables
+- Verify API key is valid at [resend.com](https://resend.com)
+- Ensure you haven't exceeded free tier limit (100 emails/day)
