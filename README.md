@@ -122,7 +122,27 @@ Modify the `brands` array in `components/BrandsShowcase.tsx`
 
 ## Deployment
 
-### Vercel (Recommended)
+### CI/CD with GitHub Actions (Recommended for VPS)
+
+Automatic deployment on every push to `main`:
+
+1. **Configure GitHub Secrets** (see [CI_CD_SETUP.md](./CI_CD_SETUP.md)):
+   - `SSH_HOST`, `SSH_USER`, `SSH_PORT`, `SSH_PRIVATE_KEY`
+   - `RESEND_API_KEY`
+
+2. **Push to main branch**:
+   ```bash
+   git push origin main
+   ```
+
+3. **GitHub Actions automatically**:
+   - Builds Docker image
+   - Deploys to VPS
+   - Restarts container with new code
+
+For detailed setup instructions, see [CI_CD_SETUP.md](./CI_CD_SETUP.md)
+
+### Vercel (Alternative)
 
 1. Push your code to GitHub
 2. Import your repository in [Vercel](https://vercel.com)
@@ -136,14 +156,16 @@ npm install -g vercel
 vercel
 ```
 
-### Docker
-
-The project includes Docker support:
+### Manual Docker Deployment
 
 ```bash
 # Build and run
 docker build -t portfolio .
 docker run -p 3000:3000 -e RESEND_API_KEY=your_key portfolio
+
+# Or use deploy script
+export RESEND_API_KEY=your_key
+./deploy.sh
 ```
 
 ### Other Platforms

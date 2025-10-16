@@ -1,0 +1,76 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build --platform linux/amd64 -t caspercooks-tech:latest .
+
+      - name: Save Docker image
+        run: |
+          docker save caspercooks-tech:latest | gzip > caspercooks-tech.tar.gz
+
+      - name: Copy image to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "caspercooks-tech.tar.gz"
+          target: "~/"
+
+      - name: Deploy on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            # Load the image
+            echo "Loading Docker image..."
+            gunzip ~/caspercooks-tech.tar.gz
+            sudo docker load -i ~/caspercooks-tech.tar
+
+            # Stop and remove old container
+            echo "Stopping old container..."
+            sudo docker stop caspercooks-tech 2>/dev/null || true
+            sudo docker rm caspercooks-tech 2>/dev/null || true
+
+            # Run new container with environment variables
+            echo "Starting new container..."
+            sudo docker run -d \
+              --name caspercooks-tech \
+              --restart unless-stopped \
+              -p 3000:3000 \
+              -e RESEND_API_KEY="${{ secrets.RESEND_API_KEY }}" \
+              caspercooks-tech:latest
+
+            # Cleanup
+            echo "Cleaning up..."
+            rm ~/caspercooks-tech.tar
+            sudo docker image prune -f
+
+            echo "✅ Deployment complete!"
+            sudo docker ps | grep caspercooks-tech
+
+      - name: Cleanup local files
+        if: always()
+        run: |
+          rm -f caspercooks-tech.tar.gz
