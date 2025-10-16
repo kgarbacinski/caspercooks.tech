@@ -123,17 +123,22 @@ export default function Navigation() {
             animate={{ opacity: 1, x: 0 }}
             onClick={toggleTheme}
             className={`
-              relative w-16 sm:w-20 h-8 sm:h-10 rounded-full p-1 transition-colors duration-300
-              ${theme === 'developer' ? 'bg-developer-secondary' : 'bg-founder-secondary border-2 border-founder-text/20'}
+              relative w-20 sm:w-24 h-10 sm:h-12 rounded-full transition-all duration-300 flex items-center p-1
+              ${theme === 'developer'
+                ? 'bg-developer-secondary border-2 border-developer-accent/40 shadow-lg shadow-developer-accent/20'
+                : 'bg-founder-secondary border-2 border-founder-accent/40 shadow-lg shadow-founder-accent/20'}
             `}
           >
             <motion.div
               layout
               className={`
-                w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold
+                w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold
                 ${theme === 'developer' ? 'bg-developer-accent text-developer-bg' : 'bg-founder-accent text-white'}
+                shadow-md
               `}
-              animate={{ x: theme === 'developer' ? 0 : 28 }}
+              animate={{
+                x: theme === 'developer' ? 0 : 40
+              }}
               transition={{ type: 'spring', stiffness: 500, damping: 30 }}
             >
               {theme === 'developer' ? 'DEV' : 'CEO'}

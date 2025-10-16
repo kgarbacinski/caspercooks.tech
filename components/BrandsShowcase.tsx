@@ -108,9 +108,7 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
               ${brand.logo
                 ? brand.name === 'Efektywniejsi'
                   ? 'bg-gray-800 border-2 border-gray-600 shadow-md'
-                  : theme === 'founder'
-                    ? 'bg-gray-800 border-2 border-gray-600 shadow-md'
-                    : 'bg-white border-2 border-gray-200 shadow-md'
+                  : 'bg-white border-2 border-gray-200 shadow-md'
                 : `bg-gradient-to-br ${brand.color} border-2 border-transparent`}
             `}>
               {brand.logo ? (

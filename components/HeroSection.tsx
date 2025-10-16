@@ -116,13 +116,7 @@ export default function HeroSection() {
         {/* Central Avatar - centered on mobile, between columns on desktop */}
         <div className="md:hidden flex justify-center order-first md:order-none col-span-full mb-8">
           <motion.div
-            className={`
-              w-24 h-24 sm:w-32 sm:h-32 rounded-full flex items-center justify-center overflow-hidden
-              border-4 transition-all duration-500
-              ${theme === 'developer'
-                ? 'border-developer-accent'
-                : 'border-founder-accent'}
-            `}
+            className="w-24 h-24 sm:w-32 sm:h-32"
             animate={{
               scale: [1, 1.1, 1],
             }}
@@ -131,28 +125,52 @@ export default function HeroSection() {
               repeat: Infinity,
               ease: 'easeInOut',
             }}
+            style={{ perspective: '1000px' }}
           >
-            <Image
-              src={theme === 'developer' ? '/logos/nft_avatar_dev.png' : '/logos/nft_avatar_bussiness.png'}
-              alt="Casper - NFT Avatar"
-              width={128}
-              height={128}
-              className="object-cover w-full h-full"
-              priority
-              key={theme}
-            />
+            <motion.div
+              className="relative w-full h-full"
+              animate={{
+                rotateY: theme === 'developer' ? 0 : 180
+              }}
+              transition={{ duration: 0.6, ease: 'easeInOut' }}
+              style={{ transformStyle: 'preserve-3d' }}
+            >
+              <motion.div
+                className="absolute inset-0 rounded-full overflow-hidden border-4 border-developer-accent"
+                style={{ backfaceVisibility: 'hidden' }}
+              >
+                <Image
+                  src="/logos/nft_avatar_dev.png"
+                  alt="Casper - Developer Avatar"
+                  width={128}
+                  height={128}
+                  className="object-cover w-full h-full"
+                  priority
+                />
+              </motion.div>
+              <motion.div
+                className="absolute inset-0 rounded-full overflow-hidden border-4 border-founder-accent"
+                style={{
+                  backfaceVisibility: 'hidden',
+                  transform: 'rotateY(180deg)'
+                }}
+              >
+                <Image
+                  src="/logos/nft_avatar_bussiness.png"
+                  alt="Casper - CEO Avatar"
+                  width={128}
+                  height={128}
+                  className="object-cover w-full h-full"
+                  priority
+                />
+              </motion.div>
+            </motion.div>
           </motion.div>
         </div>
 
         <div className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           <motion.div
-            className={`
-              w-32 h-32 rounded-full flex items-center justify-center overflow-hidden
-              border-4 transition-all duration-500
-              ${theme === 'developer'
-                ? 'border-developer-accent'
-                : 'border-founder-accent'}
-            `}
+            className="w-32 h-32"
             animate={{
               scale: [1, 1.1, 1],
             }}
@@ -161,16 +179,46 @@ export default function HeroSection() {
               repeat: Infinity,
               ease: 'easeInOut',
             }}
+            style={{ perspective: '1000px' }}
           >
-            <Image
-              src={theme === 'developer' ? '/logos/nft_avatar_dev.png' : '/logos/nft_avatar_bussiness.png'}
-              alt="Casper - NFT Avatar"
-              width={128}
-              height={128}
-              className="object-cover w-full h-full"
-              priority
-              key={theme}
-            />
+            <motion.div
+              className="relative w-full h-full"
+              animate={{
+                rotateY: theme === 'developer' ? 0 : 180
+              }}
+              transition={{ duration: 0.6, ease: 'easeInOut' }}
+              style={{ transformStyle: 'preserve-3d' }}
+            >
+              <motion.div
+                className="absolute inset-0 rounded-full overflow-hidden border-4 border-developer-accent"
+                style={{ backfaceVisibility: 'hidden' }}
+              >
+                <Image
+                  src="/logos/nft_avatar_dev.png"
+                  alt="Casper - Developer Avatar"
+                  width={128}
+                  height={128}
+                  className="object-cover w-full h-full"
+                  priority
+                />
+              </motion.div>
+              <motion.div
+                className="absolute inset-0 rounded-full overflow-hidden border-4 border-founder-accent"
+                style={{
+                  backfaceVisibility: 'hidden',
+                  transform: 'rotateY(180deg)'
+                }}
+              >
+                <Image
+                  src="/logos/nft_avatar_bussiness.png"
+                  alt="Casper - CEO Avatar"
+                  width={128}
+                  height={128}
+                  className="object-cover w-full h-full"
+                  priority
+                />
+              </motion.div>
+            </motion.div>
           </motion.div>
         </div>
 
