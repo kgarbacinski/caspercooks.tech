@@ -1,11 +1,24 @@
 #!/bin/bash
 
-# Deployment script for caspercooks. on Mikrus
+# Deployment script for caspercooks.tech on Mikrus
 # Usage: ./deploy.sh
+#
+# IMPORTANT: Set RESEND_API_KEY before deploying:
+#   export RESEND_API_KEY=your_resend_api_key
+#   ./deploy.sh
 
 set -e
 
 echo "🚀 Starting deployment process..."
+
+# Check if RESEND_API_KEY is set
+if [ -z "$RESEND_API_KEY" ]; then
+    echo "❌ Error: RESEND_API_KEY environment variable is not set"
+    echo "Please set it before deploying:"
+    echo "  export RESEND_API_KEY=your_resend_api_key"
+    echo "  ./deploy.sh"
+    exit 1
+fi
 
 # Configuration - UPDATE THESE VALUES
 SSH_HOST="patryk176.mikrus.xyz"
@@ -32,7 +45,7 @@ echo -e "${BLUE}📤 Uploading image to server...${NC}"
 scp -P $SSH_PORT -o StrictHostKeyChecking=accept-new ${IMAGE_NAME}.tar.gz ${SSH_USER}@${SSH_HOST}:~
 
 echo -e "${BLUE}🔧 Deploying on server...${NC}"
-ssh -p $SSH_PORT -o StrictHostKeyChecking=accept-new ${SSH_USER}@${SSH_HOST} << 'ENDSSH'
+ssh -p $SSH_PORT -o StrictHostKeyChecking=accept-new ${SSH_USER}@${SSH_HOST} << ENDSSH
     # Load the image
     echo "Loading Docker image..."
     gunzip ~/caspercooks-tech.tar.gz
@@ -43,12 +56,13 @@ ssh -p $SSH_PORT -o StrictHostKeyChecking=accept-new ${SSH_USER}@${SSH_HOST} << 
     sudo docker stop caspercooks-tech 2>/dev/null || true
     sudo docker rm caspercooks-tech 2>/dev/null || true
 
-    # Run new container
+    # Run new container with environment variables
     echo "Starting new container..."
     sudo docker run -d \
         --name caspercooks-tech \
         --restart unless-stopped \
         -p 3000:3000 \
+        -e RESEND_API_KEY="${RESEND_API_KEY}" \
         caspercooks-tech:latest
 
     # Cleanup
