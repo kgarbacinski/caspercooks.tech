@@ -2,7 +2,7 @@
 
 import { motion, useInView } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 
 interface Project {
@@ -297,6 +297,18 @@ export default function ProjectsTimeline() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
   const [showAll, setShowAll] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(false)
+
+  // Check if desktop on mount and window resize
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 768)
+    }
+
+    checkDesktop()
+    window.addEventListener('resize', checkDesktop)
+    return () => window.removeEventListener('resize', checkDesktop)
+  }, [])
 
   const developerProjects = projects.filter(p => p.type === 'developer')
   const founderProjects = projects.filter(p => p.type === 'founder')
@@ -341,19 +353,23 @@ export default function ProjectsTimeline() {
 
           {/* Projects Grid */}
           <div className="grid md:grid-cols-2 gap-6 sm:gap-8 md:gap-16">
-            {/* Developer Column */}
-            <div className={`space-y-6 sm:space-y-8 ${theme === 'founder' ? 'hidden md:block' : ''}`}>
-              {visibleDeveloperProjects.map((project, index) => (
-                <ProjectCard key={project.id} project={project} index={index} />
-              ))}
-            </div>
+            {/* Developer Column - always render on desktop, conditionally on mobile */}
+            {(theme === 'developer' || isDesktop) && (
+              <div className="space-y-6 sm:space-y-8">
+                {visibleDeveloperProjects.map((project, index) => (
+                  <ProjectCard key={project.id} project={project} index={index} />
+                ))}
+              </div>
+            )}
 
-            {/* Founder Column */}
-            <div className={`space-y-6 sm:space-y-8 ${theme === 'developer' ? 'hidden md:block' : ''}`}>
-              {visibleFounderProjects.map((project, index) => (
-                <ProjectCard key={project.id} project={project} index={index} />
-              ))}
-            </div>
+            {/* Founder Column - always render on desktop, conditionally on mobile */}
+            {(theme === 'founder' || isDesktop) && (
+              <div className="space-y-6 sm:space-y-8">
+                {visibleFounderProjects.map((project, index) => (
+                  <ProjectCard key={project.id} project={project} index={index} />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Show More/Less Button */}
