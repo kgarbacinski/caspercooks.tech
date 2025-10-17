@@ -40,14 +40,24 @@ export default function AboutSection() {
   const { theme } = useTheme()
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   return (
     <section id="about" className="py-16 sm:py-24 md:py-32 px-4 sm:px-8" ref={ref}>
       <div className="max-w-7xl mx-auto">
         <motion.h2
-          initial={{ opacity: 0, y: 20 }}
+          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
+          transition={isMobile ? {} : { duration: 0.5 }}
           className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-12 sm:mb-16 md:mb-20 font-mono"
         >
           <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
@@ -59,9 +69,9 @@ export default function AboutSection() {
         <div className="grid md:grid-cols-2 gap-8 sm:gap-12 md:gap-16">
           {/* Developer Bio */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={isMobile ? {} : { duration: 0.6, delay: 0.2 }}
             className={`
               p-8 rounded-2xl transition-all duration-500
               ${theme === 'developer'
@@ -135,9 +145,9 @@ export default function AboutSection() {
 
           {/* Founder Bio */}
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
+            initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={isMobile ? {} : { duration: 0.6, delay: 0.4 }}
             className={`
               p-8 rounded-2xl transition-all duration-500
               ${theme === 'founder'

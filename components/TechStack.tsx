@@ -101,9 +101,9 @@ export default function TechStack() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: isMobile ? 20 : 30 }}
+          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: isMobile ? 0.4 : 0.6, ease: 'easeOut' }}
+          transition={isMobile ? {} : { duration: 0.6, ease: 'easeOut' }}
           className="text-center mb-12"
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 font-mono">
@@ -121,10 +121,10 @@ export default function TechStack() {
 
         {/* Category Filter */}
         <motion.div
-          initial={{ opacity: 0, y: isMobile ? 20 : 30 }}
+          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ 
-            duration: isMobile ? 0.4 : 0.6, 
+          transition={isMobile ? {} : { 
+            duration: 0.6, 
             delay: 0.2,
             ease: 'easeOut' 
           }}
@@ -151,14 +151,14 @@ export default function TechStack() {
           {filteredTechs.map((tech, index) => (
             <motion.div
               key={tech.name}
-              initial={{ opacity: 0, scale: 0.8, y: isMobile ? 10 : 20 }}
+              initial={isMobile ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.8, y: 20 }}
               animate={isInView ? { opacity: 1, scale: 1, y: 0 } : {}}
-              transition={{ 
-                duration: isMobile ? 0.3 : 0.4, 
+              transition={isMobile ? {} : { 
+                duration: 0.4, 
                 delay: index * 0.05,
                 ease: 'easeOut' 
               }}
-              whileHover={{
+              whileHover={isMobile ? {} : {
                 scale: 1.05,
                 rotate: [0, -2, 2, 0],
                 transition: { duration: 0.3 }
@@ -199,10 +199,10 @@ export default function TechStack() {
 
         {/* Stats */}
         <motion.div
-          initial={{ opacity: 0, y: isMobile ? 20 : 30 }}
+          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ 
-            duration: isMobile ? 0.4 : 0.6, 
+          transition={isMobile ? {} : { 
+            duration: 0.6, 
             delay: 0.6,
             ease: 'easeOut' 
           }}

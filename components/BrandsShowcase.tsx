@@ -92,14 +92,14 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: isMobile ? 20 : 30 }}
+      initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ 
-        duration: isMobile ? 0.4 : 0.6, 
+      transition={isMobile ? {} : { 
+        duration: 0.6, 
         delay: index * 0.1,
         ease: 'easeOut' 
       }}
-      whileHover={{ y: -10 }}
+      whileHover={isMobile ? {} : { y: -10 }}
       className={`
         relative group overflow-hidden rounded-2xl
         transition-all duration-500
@@ -239,9 +239,9 @@ export default function BrandsShowcase() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: isMobile ? 20 : 30 }}
+          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: isMobile ? 0.4 : 0.6, ease: 'easeOut' }}
+          transition={isMobile ? {} : { duration: 0.6, ease: 'easeOut' }}
           className="text-center mb-12 sm:mb-16 md:mb-20"
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 font-mono">
@@ -268,10 +268,10 @@ export default function BrandsShowcase() {
 
         {/* CTA Section */}
         <motion.div
-          initial={{ opacity: 0, y: isMobile ? 20 : 30 }}
+          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ 
-            duration: isMobile ? 0.4 : 0.6, 
+          transition={isMobile ? {} : { 
+            duration: 0.6, 
             delay: 0.6,
             ease: 'easeOut' 
           }}
