@@ -137,7 +137,7 @@ export default function Navigation() {
                 shadow-md
               `}
               animate={{
-                x: theme === 'developer' ? 0 : 40
+                x: theme === 'developer' ? 0 : window.innerWidth < 640 ? 40 : 52
               }}
               transition={{ type: 'spring', stiffness: 500, damping: 30 }}
             >
