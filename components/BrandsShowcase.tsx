@@ -94,15 +94,15 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
       ref={ref}
       initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={isMobile ? {} : { 
-        duration: 0.6, 
+      transition={isMobile ? {} : {
+        duration: 0.6,
         delay: index * 0.1,
-        ease: 'easeOut' 
+        ease: 'easeOut'
       }}
       whileHover={isMobile ? {} : { y: -10 }}
       className={`
-        relative group overflow-hidden rounded-2xl
-        transition-all duration-500
+        relative overflow-hidden rounded-2xl
+        ${isMobile ? '' : 'group transition-all duration-500'}
         ${theme === 'founder'
           ? 'bg-gray-900/40 border-2 border-founder-accent shadow-xl'
           : 'bg-developer-secondary border-2 border-developer-accent/30'}
@@ -110,7 +110,8 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
     >
       {/* Gradient Background */}
       <div className={`
-        absolute inset-0 bg-gradient-to-br ${brand.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500
+        absolute inset-0 bg-gradient-to-br ${brand.color}
+        ${isMobile ? 'opacity-0' : 'opacity-0 group-hover:opacity-10 transition-opacity duration-500'}
       `} />
 
       <div className="relative p-4 sm:p-6 md:p-8">
@@ -154,7 +155,7 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
               target="_blank"
               rel="noopener noreferrer"
               className={`
-                opacity-0 group-hover:opacity-100 transition-opacity
+                ${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 transition-opacity'}
                 ${theme === 'founder' ? 'text-founder-accent' : 'text-developer-accent'}
               `}
             >
@@ -177,7 +178,8 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
             target="_blank"
             rel="noopener noreferrer"
             className={`
-              inline-flex items-center gap-2 text-sm font-medium transition-all duration-300
+              inline-flex items-center gap-2 text-sm font-medium
+              ${isMobile ? '' : 'transition-all duration-300'}
               ${theme === 'founder' ? 'text-founder-accent hover:underline' : 'text-developer-accent hover:underline'}
             `}
           >
@@ -205,10 +207,12 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
         </div>
 
         {/* Hover Effect Border */}
-        <div className={`
-          absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${brand.color}
-          transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500
-        `} />
+        {!isMobile && (
+          <div className={`
+            absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${brand.color}
+            transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500
+          `} />
+        )}
       </div>
     </motion.div>
   )
