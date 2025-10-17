@@ -44,6 +44,7 @@ export default function CustomCursor() {
         className={`
           fixed top-0 left-0 w-4 h-4 rounded-full pointer-events-none z-[9999] mix-blend-difference
           ${theme === 'developer' ? 'bg-developer-accent' : 'bg-founder-accent'}
+          hidden lg:block
         `}
         animate={{
           x: mousePosition.x - 8,
@@ -58,6 +59,7 @@ export default function CustomCursor() {
         className={`
           fixed top-0 left-0 w-8 h-8 rounded-full pointer-events-none z-[9998] border-2
           ${theme === 'developer' ? 'border-developer-accent' : 'border-founder-accent'}
+          hidden lg:block
         `}
         animate={{
           x: mousePosition.x - 16,
