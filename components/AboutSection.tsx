@@ -73,7 +73,8 @@ export default function AboutSection() {
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={isMobile ? {} : { duration: 0.6, delay: 0.2 }}
             className={`
-              p-8 rounded-2xl transition-all duration-500
+              p-8 rounded-2xl
+              ${isMobile ? '' : 'transition-all duration-500'}
               ${theme === 'developer'
                 ? 'bg-developer-secondary border-2 border-developer-accent'
                 : 'bg-white/5 border-2 border-transparent'}
@@ -149,7 +150,8 @@ export default function AboutSection() {
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={isMobile ? {} : { duration: 0.6, delay: 0.4 }}
             className={`
-              p-8 rounded-2xl transition-all duration-500
+              p-8 rounded-2xl
+              ${isMobile ? '' : 'transition-all duration-500'}
               ${theme === 'founder'
                 ? 'bg-gray-900/40 border-2 border-founder-accent shadow-xl'
                 : 'bg-white/5 border-2 border-transparent'}
