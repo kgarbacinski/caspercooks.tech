@@ -36,17 +36,17 @@ export default function Footer() {
               </span>
               <span className="animate-pulse ml-1">_</span>
             </motion.div>
-            <p className={`text-sm font-mono ${theme === 'founder' ? 'text-gray-600' : 'text-gray-400'}`}>
+            <p className={`text-sm font-mono ${theme === 'founder' ? 'text-gray-700' : 'text-gray-400'}`}>
               {'> Full-Stack Developer & Serial Founder'}
             </p>
-            <p className={`text-sm font-mono ${theme === 'founder' ? 'text-gray-600' : 'text-gray-400'}`}>
+            <p className={`text-sm font-mono ${theme === 'founder' ? 'text-gray-700' : 'text-gray-400'}`}>
               {'> Building systems and companies that matter.'}
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-bold mb-4">Quick Links</h3>
+            <h3 className={`font-bold mb-4 ${theme === 'founder' ? 'text-gray-800' : 'text-white'}`}>Quick Links</h3>
             <div className="space-y-2">
               {['About', 'Projects', 'Brands', 'Contact'].map((link) => (
                 <a
@@ -55,7 +55,7 @@ export default function Footer() {
                   className={`
                     block text-sm transition-colors
                     ${theme === 'founder'
-                      ? 'text-gray-600 hover:text-founder-accent'
+                      ? 'text-gray-700 hover:text-founder-accent'
                       : 'text-gray-400 hover:text-developer-accent'}
                   `}
                 >
@@ -67,7 +67,7 @@ export default function Footer() {
 
           {/* Social */}
           <div>
-            <h3 className="font-bold mb-4">Connect</h3>
+            <h3 className={`font-bold mb-4 ${theme === 'founder' ? 'text-gray-800' : 'text-white'}`}>Connect</h3>
             <div className="flex gap-4">
               {socialLinks.map((social) => (
                 <motion.a
@@ -98,7 +98,7 @@ export default function Footer() {
           pt-6 sm:pt-8 border-t text-center text-xs sm:text-sm font-mono
           ${theme === 'developer'
             ? 'border-developer-accent/10 text-gray-500'
-            : 'border-founder-accent/10 text-gray-500'}
+            : 'border-founder-accent/10 text-gray-700'}
         `}>
           <p>
             © {currentYear} caspercooks.tech // Built with Next.js + TypeScript + Framer Motion
