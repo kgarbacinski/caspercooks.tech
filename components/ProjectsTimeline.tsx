@@ -1,9 +1,10 @@
 'use client'
 
-import { motion, useInView } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
-import { useRef, useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
+import { useInView } from 'framer-motion'
 
 interface Project {
   id: number
@@ -168,7 +169,17 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
   const [isFlipped, setIsFlipped] = useState(false)
   const { theme } = useTheme()
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const isInView = useInView(ref, { once: true, margin: '-50px' })
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const isActive =
     (theme === 'developer' && project.type === 'developer') ||
@@ -177,9 +188,13 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 50 }}
+      initial={{ opacity: 0, y: isMobile ? 20 : 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+      transition={{ 
+        duration: isMobile ? 0.4 : 0.6, 
+        delay: index * 0.1,
+        ease: 'easeOut' 
+      }}
       className={`relative ${project.type === 'developer' ? 'md:pr-8 md:text-right' : 'md:pl-8'}`}
     >
       <motion.div
@@ -297,16 +312,18 @@ export default function ProjectsTimeline() {
   const isInView = useInView(ref, { once: true })
   const [showAll, setShowAll] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   // Check if desktop on mount and window resize
   useEffect(() => {
-    const checkDesktop = () => {
+    const checkScreen = () => {
       setIsDesktop(window.innerWidth >= 768)
+      setIsMobile(window.innerWidth < 768)
     }
 
-    checkDesktop()
-    window.addEventListener('resize', checkDesktop)
-    return () => window.removeEventListener('resize', checkDesktop)
+    checkScreen()
+    window.addEventListener('resize', checkScreen)
+    return () => window.removeEventListener('resize', checkScreen)
   }, [])
 
   const developerProjects = projects.filter(p => p.type === 'developer')
@@ -325,8 +342,9 @@ export default function ProjectsTimeline() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: isMobile ? 20 : 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: isMobile ? 0.4 : 0.6, ease: 'easeOut' }}
           className="text-center mb-12 sm:mb-16 md:mb-20"
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 font-mono">
@@ -374,9 +392,13 @@ export default function ProjectsTimeline() {
           {/* Show More/Less Button */}
           {(developerProjects.length > 4 || founderProjects.length > 3) && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: isMobile ? 20 : 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.8 }}
+              transition={{ 
+                duration: isMobile ? 0.4 : 0.6, 
+                delay: 0.8,
+                ease: 'easeOut' 
+              }}
               className="flex justify-center mt-12"
             >
               <button

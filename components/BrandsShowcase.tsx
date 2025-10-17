@@ -2,7 +2,7 @@
 
 import { motion, useInView } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 interface Brand {
   name: string
@@ -77,14 +77,28 @@ const brands: Brand[] = [
 function BrandCard({ brand, index }: { brand: Brand; index: number }) {
   const { theme } = useTheme()
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const isInView = useInView(ref, { once: true, margin: '-50px' })
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 50 }}
+      initial={{ opacity: 0, y: isMobile ? 20 : 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+      transition={{ 
+        duration: isMobile ? 0.4 : 0.6, 
+        delay: index * 0.1,
+        ease: 'easeOut' 
+      }}
       whileHover={{ y: -10 }}
       className={`
         relative group overflow-hidden rounded-2xl
@@ -204,6 +218,16 @@ export default function BrandsShowcase() {
   const { theme } = useTheme()
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   return (
     <section id="brands" className="py-16 sm:py-24 md:py-32 px-4 sm:px-8 relative overflow-hidden" ref={ref}>
@@ -215,8 +239,9 @@ export default function BrandsShowcase() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: isMobile ? 20 : 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: isMobile ? 0.4 : 0.6, ease: 'easeOut' }}
           className="text-center mb-12 sm:mb-16 md:mb-20"
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 font-mono">
@@ -243,9 +268,13 @@ export default function BrandsShowcase() {
 
         {/* CTA Section */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: isMobile ? 20 : 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.6 }}
+          transition={{ 
+            duration: isMobile ? 0.4 : 0.6, 
+            delay: 0.6,
+            ease: 'easeOut' 
+          }}
           className={`
             mt-20 p-8 md:p-12 rounded-2xl text-center
             ${theme === 'founder'
