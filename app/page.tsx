@@ -1,3 +1,5 @@
+'use client'
+
 import Navigation from '@/components/Navigation'
 import HeroSection from '@/components/HeroSection'
 import AboutSection from '@/components/AboutSection'
@@ -7,8 +9,11 @@ import BrandsShowcase from '@/components/BrandsShowcase'
 import ContactSection from '@/components/ContactSection'
 import Footer from '@/components/Footer'
 import CustomCursor from '@/components/CustomCursor'
+import { useTheme } from '@/contexts/ThemeContext'
 
 export default function Home() {
+  const { theme } = useTheme()
+
   return (
     <>
       <CustomCursor />
@@ -17,7 +22,7 @@ export default function Home() {
         <HeroSection />
         <AboutSection />
         <ProjectsTimeline />
-        <TechStack />
+        {theme === 'developer' && <TechStack />}
         <BrandsShowcase />
         <ContactSection />
       </main>

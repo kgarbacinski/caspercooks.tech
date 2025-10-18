@@ -9,6 +9,16 @@ export default function Navigation() {
   const { theme, toggleTheme } = useTheme()
   const [activeSection, setActiveSection] = useState('')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isSmallScreen, setIsSmallScreen] = useState(false)
+
+  useEffect(() => {
+    const checkScreen = () => {
+      setIsSmallScreen(window.innerWidth < 640)
+    }
+    checkScreen()
+    window.addEventListener('resize', checkScreen)
+    return () => window.removeEventListener('resize', checkScreen)
+  }, [])
 
   useEffect(() => {
     const sections = ['about', 'projects', 'brands', 'contact']
@@ -137,7 +147,7 @@ export default function Navigation() {
                 shadow-md
               `}
               animate={{
-                x: theme === 'developer' ? 0 : window.innerWidth < 640 ? 40 : 52
+                x: theme === 'developer' ? 0 : isSmallScreen ? 40 : 52
               }}
               transition={{ type: 'spring', stiffness: 500, damping: 30 }}
             >

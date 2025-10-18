@@ -34,6 +34,7 @@ const technologies: Technology[] = [
   { name: 'GraphQL', category: 'web2', icon: '◈', projects: ['Flexible APIs', 'Data Fetching', 'Client-driven Queries'] },
   { name: 'AWS', category: 'web2', icon: '☁️', projects: ['Cloud Infrastructure', 'EC2, S3, RDS', 'ECS, Elasticsearch'] },
   { name: 'CI/CD', category: 'web2', icon: '🔄', projects: ['Automated Testing', 'Deployment Pipelines', 'GitLab CI'] },
+  { name: 'React', category: 'web2', icon: '⚛️', projects: ['Component Architecture', 'State Management', 'Interactive UIs'] },
 
   // Web3
   { name: 'The Graph', category: 'web3', icon: '📊', projects: ['Blockchain Indexing', 'Subgraph Development', 'Data Querying'] },
@@ -44,7 +45,6 @@ const technologies: Technology[] = [
   { name: 'dApps', category: 'web3', icon: '🚀', projects: ['Decentralized UI', 'Web3 Frontend', 'User Experience'] },
 
   // Tools
-  { name: 'React', category: 'tools', icon: '⚛️', projects: ['Component Architecture', 'State Management', 'Interactive UIs'] },
   { name: 'Git', category: 'tools', icon: '🌿', projects: ['Version Control', 'GitLab, Bitbucket', 'Code Review'] },
   { name: 'REST API', category: 'tools', icon: '🔗', projects: ['RESTful Services', 'HTTP Methods', 'API Design'] },
   { name: 'WebSockets', category: 'tools', icon: '🔌', projects: ['Real-time Communication', 'Bidirectional Data', 'Live Updates'] },
@@ -83,11 +83,6 @@ export default function TechStack() {
   const filteredTechs = activeCategory
     ? technologies.filter(t => t.category === activeCategory)
     : []
-
-  // Hide TechStack in founder mode
-  if (theme === 'founder') {
-    return null
-  }
 
   return (
     <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-8 relative overflow-hidden" ref={ref}>
