@@ -1,5 +1,13 @@
 # Casper Cooks Portfolio
 
+[![CI/CD](https://github.com/kgarbacinski/caspercooks.tech/actions/workflows/deploy.yml/badge.svg)](https://github.com/kgarbacinski/caspercooks.tech/actions/workflows/deploy.yml)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5.5-black?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.18-38bdf8?logo=tailwind-css)](https://tailwindcss.com/)
+[![React](https://img.shields.io/badge/React-19.2.0-61dafb?logo=react)](https://react.dev/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Live Site](https://img.shields.io/badge/Live-caspercooks.tech-00ff88?logo=vercel)](https://caspercooks.tech)
+
 A modern, dual-identity portfolio website showcasing both developer expertise and entrepreneurial ventures.
 
 ## Features
