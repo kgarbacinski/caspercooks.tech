@@ -64,7 +64,7 @@ const brands: Brand[] = [
     tagline: 'AI Automation & Productivity',
     description: 'Co-founded with 2 partners to teach people how to leverage AI agents and n8n automation. Conducted numerous webinars, sharing knowledge with live audiences and empowering professionals.',
     stats: [
-      { label: 'Students', value: '500+' },
+      { label: 'Students', value: '200+' },
       { label: 'Webinars', value: '20+' },
       { label: 'Focus', value: 'AI & n8n' },
     ],
