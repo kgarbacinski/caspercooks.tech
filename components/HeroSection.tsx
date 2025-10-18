@@ -279,7 +279,7 @@ export default function HeroSection() {
                 className="text-xs sm:text-sm font-mono border-2 border-founder-accent/30 px-2 py-1.5 sm:px-3 sm:py-2"
                 whileHover={{ scale: 1.05, borderColor: '#ff6b35' }}
               >
-                <div className="text-founder-accent">100+ devs</div>
+                <div className="text-founder-accent">300+ devs</div>
                 <div className="opacity-50 text-[10px] sm:text-xs">// impact</div>
               </motion.div>
             </div>

@@ -23,8 +23,8 @@ const brands: Brand[] = [
     description: 'Built a thriving community of 15 expert programming mentors helping Mid and Senior backend developers advance their careers, switch projects, and level up their skills.',
     stats: [
       { label: 'Mentors', value: '15+' },
-      { label: 'Developers Helped', value: '100+' },
-      { label: 'Success Rate', value: '80%' },
+      { label: 'Developers Helped', value: '300+' },
+      { label: 'Success Rate', value: '90%' },
     ],
     icon: '🎓',
     logo: '/logos/devs-mentoring.png',

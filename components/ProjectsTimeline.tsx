@@ -76,7 +76,7 @@ const projects: Project[] = [
     type: 'founder',
     tech: ['Team Building', 'Mentorship', 'Education'],
     description: 'Built and scaled a team of 15 expert programming mentors. Created a mentorship platform helping Mid and Senior developers advance their careers.',
-    impact: '100+ developers mentored, 80% career advancement rate',
+    impact: '300+ developers mentored, 90% career advancement rate',
     role: 'Founder & Lead Organizer',
     logo: '/logos/devs-mentoring.png',
   },
