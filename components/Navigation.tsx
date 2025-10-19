@@ -9,11 +9,11 @@ export default function Navigation() {
   const { theme, toggleTheme } = useTheme()
   const [activeSection, setActiveSection] = useState('')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isSmallScreen, setIsSmallScreen] = useState(false)
+  const [isMobileScreen, setIsMobileScreen] = useState(false)
 
   useEffect(() => {
     const checkScreen = () => {
-      setIsSmallScreen(window.innerWidth < 640)
+      setIsMobileScreen(window.innerWidth < 768) // md breakpoint
     }
     checkScreen()
     window.addEventListener('resize', checkScreen)
@@ -102,29 +102,31 @@ export default function Navigation() {
             animate={{ opacity: 1, x: 0 }}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className={`
-              md:hidden w-10 h-10 flex flex-col items-center justify-center gap-1.5
+              md:hidden w-10 h-10 flex items-center justify-center relative
               ${theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}
             `}
             aria-label="Toggle menu"
           >
-            <motion.span
-              animate={isMobileMenuOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
-              className={`w-6 h-0.5 transition-colors ${
-                theme === 'developer' ? 'bg-developer-accent' : 'bg-founder-accent'
-              }`}
-            />
-            <motion.span
-              animate={isMobileMenuOpen ? { opacity: 0 } : { opacity: 1 }}
-              className={`w-6 h-0.5 transition-colors ${
-                theme === 'developer' ? 'bg-developer-accent' : 'bg-founder-accent'
-              }`}
-            />
-            <motion.span
-              animate={isMobileMenuOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
-              className={`w-6 h-0.5 transition-colors ${
-                theme === 'developer' ? 'bg-developer-accent' : 'bg-founder-accent'
-              }`}
-            />
+            <div className="relative w-6 h-6 flex items-center justify-center">
+              <motion.span
+                animate={isMobileMenuOpen ? { rotate: 45, y: 0 } : { rotate: 0, y: -6 }}
+                className={`absolute w-6 h-0.5 transition-colors ${
+                  theme === 'developer' ? 'bg-developer-accent' : 'bg-founder-accent'
+                }`}
+              />
+              <motion.span
+                animate={isMobileMenuOpen ? { opacity: 0 } : { opacity: 1 }}
+                className={`w-6 h-0.5 transition-colors ${
+                  theme === 'developer' ? 'bg-developer-accent' : 'bg-founder-accent'
+                }`}
+              />
+              <motion.span
+                animate={isMobileMenuOpen ? { rotate: -45, y: 0 } : { rotate: 0, y: 6 }}
+                className={`absolute w-6 h-0.5 transition-colors ${
+                  theme === 'developer' ? 'bg-developer-accent' : 'bg-founder-accent'
+                }`}
+              />
+            </div>
           </motion.button>
 
           {/* Theme Toggle */}
@@ -147,7 +149,7 @@ export default function Navigation() {
                 shadow-md
               `}
               animate={{
-                x: theme === 'developer' ? 0 : isSmallScreen ? 40 : 52
+                x: theme === 'developer' ? 0 : isMobileScreen ? 40 : 52
               }}
               transition={{ type: 'spring', stiffness: 500, damping: 30 }}
             >
