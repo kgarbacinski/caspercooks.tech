@@ -276,16 +276,18 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           <motion.div
             initial={{ rotateY: 180 }}
             animate={{ rotateY: 0 }}
-            className="h-full flex flex-col justify-center"
+            className="h-full flex flex-col justify-center py-8"
           >
-            <h4 className="text-lg font-bold mb-4">Impact & Results</h4>
-            <p className={`text-sm ${theme === 'founder' && isActive ? 'text-gray-200' : 'text-gray-300'}`}>
-              {project.impact || 'Successfully delivered complex solution with high code quality and performance. Collaborated with cross-functional teams to exceed client expectations.'}
-            </p>
+            <div>
+              <h4 className="text-lg font-bold mb-4">Impact & Results</h4>
+              <p className={`text-sm ${theme === 'founder' && isActive ? 'text-gray-200' : 'text-gray-300'}`}>
+                {project.impact || 'Successfully delivered complex solution with high code quality and performance. Collaborated with cross-functional teams to exceed client expectations.'}
+              </p>
 
-            <div className="mt-6 text-xs text-gray-500 flex items-center gap-1">
-              <span>Click to see details</span>
-              <span>↻</span>
+              <div className="mt-6 text-xs text-gray-500 flex items-center gap-1">
+                <span>Click to see details</span>
+                <span>↻</span>
+              </div>
             </div>
           </motion.div>
         )}
