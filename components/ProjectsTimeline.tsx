@@ -200,6 +200,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
       <motion.div
         className={`
           p-4 sm:p-6 rounded-xl cursor-pointer transition-all duration-500
+          min-h-[320px] sm:min-h-[380px]
           ${isActive
             ? project.type === 'developer'
               ? 'bg-developer-secondary border-2 border-developer-accent shadow-lg shadow-developer-accent/20'
@@ -211,7 +212,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
       >
         {!isFlipped ? (
           // Front of card
-          <div>
+          <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <span className={`text-2xl ${project.type === 'developer' ? '💻' : '🚀'}`}>
@@ -275,7 +276,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           <motion.div
             initial={{ rotateY: 180 }}
             animate={{ rotateY: 0 }}
-            className="min-h-[200px] flex flex-col justify-center"
+            className="h-full flex flex-col justify-center"
           >
             <h4 className="text-lg font-bold mb-4">Impact & Results</h4>
             <p className={`text-sm ${theme === 'founder' && isActive ? 'text-gray-200' : 'text-gray-300'}`}>
