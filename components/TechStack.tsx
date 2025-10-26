@@ -6,7 +6,7 @@ import { useRef, useState, useEffect } from 'react'
 import {
   SiPython, SiJavascript, SiTypescript, SiCplusplus, SiSolidity, SiGo,
   SiDjango, SiFastapi, SiNextdotjs, SiDocker, SiKubernetes, SiPostgresql,
-  SiMongodb, SiRedis, SiRabbitmq, SiGraphql, SiAmazonaws, SiReact,
+  SiMongodb, SiRedis, SiRabbitmq, SiGraphql, SiAmazon, SiReact,
   SiGit, SiNginx, SiGrafana, SiSwagger, SiWeb3Dotjs
 } from 'react-icons/si'
 import {
@@ -44,7 +44,7 @@ const technologies: Technology[] = [
   { name: 'RabbitMQ', category: 'web2', icon: SiRabbitmq, projects: ['Message Queuing', 'Async Tasks', 'Event-driven Architecture'] },
   { name: 'gRPC', category: 'web2', icon: FaNetworkWired, projects: ['Microservices Communication', 'High-performance APIs', 'Protocol Buffers'] },
   { name: 'GraphQL', category: 'web2', icon: SiGraphql, projects: ['Flexible APIs', 'Data Fetching', 'Client-driven Queries'] },
-  { name: 'AWS', category: 'web2', icon: SiAmazonaws, projects: ['Cloud Infrastructure', 'EC2, S3, RDS', 'ECS, Elasticsearch'] },
+  { name: 'AWS', category: 'web2', icon: SiAmazon, projects: ['Cloud Infrastructure', 'EC2, S3, RDS', 'ECS, Elasticsearch'] },
   { name: 'CI/CD', category: 'web2', icon: FaCodeBranch, projects: ['Automated Testing', 'Deployment Pipelines', 'GitLab CI'] },
   { name: 'React', category: 'web2', icon: SiReact, projects: ['Component Architecture', 'State Management', 'Interactive UIs'] },
 
