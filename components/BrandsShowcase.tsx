@@ -3,6 +3,8 @@
 import { motion, useInView } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useRef, useState, useEffect } from 'react'
+import { FaGraduationCap, FaMobileAlt, FaBullseye, FaRobot } from 'react-icons/fa'
+import type { IconType } from 'react-icons'
 
 interface Brand {
   name: string
@@ -10,7 +12,7 @@ interface Brand {
   tagline: string
   description: string
   stats: { label: string; value: string }[]
-  icon: string
+  icon: IconType
   logo?: string
   color: string
 }
@@ -26,7 +28,7 @@ const brands: Brand[] = [
       { label: 'Developers Helped', value: '300+' },
       { label: 'Success Rate', value: '90%' },
     ],
-    icon: '🎓',
+    icon: FaGraduationCap,
     logo: '/logos/devs-mentoring.png',
     color: 'from-blue-500 to-cyan-500',
   },
@@ -40,7 +42,7 @@ const brands: Brand[] = [
       { label: 'Target Users', value: '10k+' },
       { label: 'Status', value: 'Building' },
     ],
-    icon: '📱',
+    icon: FaMobileAlt,
     logo: '/logos/coderiv.png',
     color: 'from-purple-500 to-pink-500',
   },
@@ -54,7 +56,7 @@ const brands: Brand[] = [
       { label: 'Clients', value: 'Enterprise' },
       { label: 'Quality', value: 'Premium' },
     ],
-    icon: '🎯',
+    icon: FaBullseye,
     logo: '/logos/devs-hunting.svg',
     color: 'from-orange-500 to-red-500',
   },
@@ -68,7 +70,7 @@ const brands: Brand[] = [
       { label: 'Webinars', value: '20+' },
       { label: 'Focus', value: 'AI & n8n' },
     ],
-    icon: '🤖',
+    icon: FaRobot,
     logo: '/logos/efektywniejsi.svg',
     color: 'from-green-500 to-emerald-500',
   },
@@ -138,7 +140,7 @@ function BrandCard({ brand, index }: { brand: Brand; index: number }) {
                   }}
                 />
               ) : (
-                <span className="text-2xl sm:text-3xl md:text-4xl">{brand.icon}</span>
+                <brand.icon className="text-2xl sm:text-3xl md:text-4xl w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20" />
               )}
             </div>
             <div className="flex-1 min-w-0">

@@ -2,12 +2,15 @@
 
 import { motion, useInView } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
+import { FaEnvelope, FaLinkedin, FaGithub, FaTwitter, FaUserTie, FaRocket, FaComments } from 'react-icons/fa'
+import type { IconType } from 'react-icons'
 
 export default function ContactSection() {
   const { theme } = useTheme()
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
+  const [isMobile, setIsMobile] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -17,6 +20,15 @@ export default function ContactSection() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -59,25 +71,25 @@ export default function ContactSection() {
 
   const contactMethods = [
     {
-      icon: '📧',
+      icon: FaEnvelope,
       label: 'Email',
       value: 'kacpergarbacinski@gmail.com',
       link: 'mailto:kacpergarbacinski@gmail.com',
     },
     {
-      icon: '💼',
+      icon: FaLinkedin,
       label: 'LinkedIn',
       value: 'Connect with me',
       link: 'https://www.linkedin.com/in/kacper-garbacinski-3271b81a2/',
     },
     {
-      icon: '🐙',
+      icon: FaGithub,
       label: 'GitHub',
       value: 'Check my code',
       link: 'https://github.com/kgarbacinski',
     },
     {
-      icon: '🐦',
+      icon: FaTwitter,
       label: 'Twitter',
       value: 'Follow me',
       link: 'https://x.com/KGarbacinski',
@@ -96,8 +108,9 @@ export default function ContactSection() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={isMobile ? {} : { duration: 0.5 }}
           className="text-center mb-12 sm:mb-16 md:mb-20"
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 font-mono">
@@ -116,9 +129,9 @@ export default function ContactSection() {
         <div className="grid md:grid-cols-2 gap-8 sm:gap-12">
           {/* Contact Form */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={isMobile ? {} : { duration: 0.6, delay: 0.2 }}
           >
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               {/* Contact Type Selector */}
@@ -143,8 +156,12 @@ export default function ContactSection() {
                             : 'bg-developer-secondary text-gray-400 hover:bg-gray-700'}
                       `}
                     >
-                      <span className="hidden sm:inline">{type === 'developer' ? '👨‍💻 Dev' : type === 'founder' ? '🚀 CEO' : '💬 General'}</span>
-                      <span className="sm:hidden">{type === 'developer' ? '👨‍💻' : type === 'founder' ? '🚀' : '💬'}</span>
+                      <span className="hidden sm:inline flex items-center gap-1">
+                        {type === 'developer' ? <><FaUserTie className="inline" /> Dev</> : type === 'founder' ? <><FaRocket className="inline" /> CEO</> : <><FaComments className="inline" /> General</>}
+                      </span>
+                      <span className="sm:hidden">
+                        {type === 'developer' ? <FaUserTie /> : type === 'founder' ? <FaRocket /> : <FaComments />}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -267,9 +284,9 @@ export default function ContactSection() {
 
           {/* Contact Info */}
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
+            initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={isMobile ? {} : { duration: 0.6, delay: 0.4 }}
             className="space-y-8"
           >
             <div className={`
@@ -285,10 +302,10 @@ export default function ContactSection() {
                   <motion.a
                     key={method.label}
                     href={method.link}
-                    initial={{ opacity: 0, x: 20 }}
+                    initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
                     animate={isInView ? { opacity: 1, x: 0 } : {}}
-                    transition={{ delay: 0.5 + index * 0.1 }}
-                    whileHover={{ x: 5 }}
+                    transition={isMobile ? {} : { delay: 0.5 + index * 0.1 }}
+                    whileHover={isMobile ? {} : { x: 5 }}
                     className={`
                       flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg transition-all duration-300
                       ${theme === 'founder'
@@ -297,10 +314,10 @@ export default function ContactSection() {
                     `}
                   >
                     <div className={`
-                      w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-xl sm:text-2xl flex-shrink-0
+                      w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0
                       ${theme === 'developer' ? 'bg-developer-accent/20' : 'bg-founder-accent/20'}
                     `}>
-                      {method.icon}
+                      <method.icon className="w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
                     <div className="min-w-0">
                       <div className="text-xs sm:text-sm text-gray-500">{method.label}</div>

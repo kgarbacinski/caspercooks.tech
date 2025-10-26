@@ -3,16 +3,17 @@
 import { motion } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
 import SteamAnimation from './SteamAnimation'
+import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from 'react-icons/fa'
 
 export default function Footer() {
   const { theme } = useTheme()
   const currentYear = new Date().getFullYear()
 
   const socialLinks = [
-    { name: 'GitHub', icon: '🐙', url: 'https://github.com/kgarbacinski' },
-    { name: 'LinkedIn', icon: '💼', url: 'https://www.linkedin.com/in/kacper-garbacinski-3271b81a2/' },
-    { name: 'Twitter', icon: '🐦', url: 'https://x.com/KGarbacinski' },
-    { name: 'Email', icon: '📧', url: 'mailto:kacpergarbacinski@gmail.com' },
+    { name: 'GitHub', icon: FaGithub, url: 'https://github.com/kgarbacinski' },
+    { name: 'LinkedIn', icon: FaLinkedin, url: 'https://www.linkedin.com/in/kacper-garbacinski-3271b81a2/' },
+    { name: 'Twitter', icon: FaTwitter, url: 'https://x.com/KGarbacinski' },
+    { name: 'Email', icon: FaEnvelope, url: 'mailto:kacpergarbacinski@gmail.com' },
   ]
 
   return (
@@ -78,7 +79,7 @@ export default function Footer() {
                   whileHover={{ scale: 1.2, rotate: 5 }}
                   whileTap={{ scale: 0.9 }}
                   className={`
-                    w-10 h-10 rounded-full flex items-center justify-center text-xl
+                    w-10 h-10 rounded-full flex items-center justify-center
                     transition-colors duration-300
                     ${theme === 'developer'
                       ? 'bg-developer-secondary hover:bg-developer-accent hover:text-developer-bg'
@@ -86,7 +87,7 @@ export default function Footer() {
                   `}
                   title={social.name}
                 >
-                  {social.icon}
+                  <social.icon className="w-5 h-5" />
                 </motion.a>
               ))}
             </div>

@@ -3,58 +3,70 @@
 import { motion, useInView } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useRef, useState, useEffect } from 'react'
+import {
+  SiPython, SiJavascript, SiTypescript, SiCplusplus, SiSolidity, SiGo,
+  SiDjango, SiFastapi, SiNextdotjs, SiDocker, SiKubernetes, SiPostgresql,
+  SiMongodb, SiRedis, SiRabbitmq, SiGraphql, SiAmazonaws, SiReact,
+  SiGit, SiNginx, SiGrafana, SiSwagger, SiWeb3Dotjs
+} from 'react-icons/si'
+import {
+  FaNetworkWired, FaRocket, FaLock, FaShieldAlt, FaVial,
+  FaCubes, FaRunning, FaChartBar, FaFileContract, FaCoins,
+  FaLink, FaPlug, FaCodeBranch
+} from 'react-icons/fa'
+import type { IconType } from 'react-icons'
 
 interface Technology {
   name: string
   category: 'web2' | 'web3' | 'languages' | 'tools'
-  icon: string
+  icon: IconType
   projects: string[]
 }
 
 const technologies: Technology[] = [
   // Languages
-  { name: 'Python', category: 'languages', icon: '🐍', projects: ['Enterprise Web Apps', 'Backend Services', 'System Programming'] },
-  { name: 'Javascript', category: 'languages', icon: '💚', projects: ['Web2 Applications', 'Web3 dApps', 'Fullstack Applications'] },
-  { name: 'TypeScript', category: 'languages', icon: '🔷', projects: ['Web3 dApps', 'Fullstack Applications', 'Type-safe Systems'] },
-  { name: 'C++', category: 'languages', icon: '⚡', projects: ['Low-level Systems', 'Performance-critical Apps', 'System Architecture'] },
-  { name: 'Solidity', category: 'languages', icon: '💎', projects: ['Smart Contracts', 'DeFi Protocols', 'Blockchain Development'] },
-  { name: 'GoLang', category: 'languages', icon: '🐹', projects: ['Backend Services', 'Microservices Architecture', 'Performance-critical Applications'] },
+  { name: 'Python', category: 'languages', icon: SiPython, projects: ['Enterprise Web Apps', 'Backend Services', 'System Programming'] },
+  { name: 'Javascript', category: 'languages', icon: SiJavascript, projects: ['Web2 Applications', 'Web3 dApps', 'Fullstack Applications'] },
+  { name: 'TypeScript', category: 'languages', icon: SiTypescript, projects: ['Web3 dApps', 'Fullstack Applications', 'Type-safe Systems'] },
+  { name: 'C++', category: 'languages', icon: SiCplusplus, projects: ['Low-level Systems', 'Performance-critical Apps', 'System Architecture'] },
+  { name: 'Solidity', category: 'languages', icon: SiSolidity, projects: ['Smart Contracts', 'DeFi Protocols', 'Blockchain Development'] },
+  { name: 'GoLang', category: 'languages', icon: SiGo, projects: ['Backend Services', 'Microservices Architecture', 'Performance-critical Applications'] },
 
   // Web2
-  { name: 'Django', category: 'web2', icon: '🎸', projects: ['Enterprise Web Platforms', 'REST APIs', 'DRF'] },
-  { name: 'FastAPI', category: 'web2', icon: '⚡', projects: ['High-performance APIs', 'Modern Python', 'Async Services'] },
-  { name: 'Next.js', category: 'web2', icon: '▲', projects: ['SSR Applications', 'Full-stack Framework', 'React Meta-framework'] },
-  { name: 'Docker', category: 'web2', icon: '🐳', projects: ['Container Orchestration', 'Development Environments', 'CI/CD Pipelines'] },
-  { name: 'Kubernetes', category: 'web2', icon: '☸️', projects: ['Microservices Deployment', 'Production Scaling', 'Infrastructure Management'] },
-  { name: 'PostgreSQL', category: 'web2', icon: '🐘', projects: ['Enterprise Data Solutions', 'SQL', 'ORM'] },
-  { name: 'MongoDB', category: 'web2', icon: '🍃', projects: ['NoSQL Solutions', 'Document Storage', 'Scalable Data'] },
-  { name: 'Redis', category: 'web2', icon: '🔴', projects: ['High-performance Caching', 'Session Management', 'Real-time Data'] },
-  { name: 'RabbitMQ', category: 'web2', icon: '🐰', projects: ['Message Queuing', 'Async Tasks', 'Event-driven Architecture'] },
-  { name: 'gRPC', category: 'web2', icon: '🔌', projects: ['Microservices Communication', 'High-performance APIs', 'Protocol Buffers'] },
-  { name: 'GraphQL', category: 'web2', icon: '◈', projects: ['Flexible APIs', 'Data Fetching', 'Client-driven Queries'] },
-  { name: 'AWS', category: 'web2', icon: '☁️', projects: ['Cloud Infrastructure', 'EC2, S3, RDS', 'ECS, Elasticsearch'] },
-  { name: 'CI/CD', category: 'web2', icon: '🔄', projects: ['Automated Testing', 'Deployment Pipelines', 'GitLab CI'] },
-  { name: 'React', category: 'web2', icon: '⚛️', projects: ['Component Architecture', 'State Management', 'Interactive UIs'] },
+  { name: 'Django', category: 'web2', icon: SiDjango, projects: ['Enterprise Web Platforms', 'REST APIs', 'DRF'] },
+  { name: 'FastAPI', category: 'web2', icon: SiFastapi, projects: ['High-performance APIs', 'Modern Python', 'Async Services'] },
+  { name: 'Next.js', category: 'web2', icon: SiNextdotjs, projects: ['SSR Applications', 'Full-stack Framework', 'React Meta-framework'] },
+  { name: 'Docker', category: 'web2', icon: SiDocker, projects: ['Container Orchestration', 'Development Environments', 'CI/CD Pipelines'] },
+  { name: 'Kubernetes', category: 'web2', icon: SiKubernetes, projects: ['Microservices Deployment', 'Production Scaling', 'Infrastructure Management'] },
+  { name: 'PostgreSQL', category: 'web2', icon: SiPostgresql, projects: ['Enterprise Data Solutions', 'SQL', 'ORM'] },
+  { name: 'MongoDB', category: 'web2', icon: SiMongodb, projects: ['NoSQL Solutions', 'Document Storage', 'Scalable Data'] },
+  { name: 'Redis', category: 'web2', icon: SiRedis, projects: ['High-performance Caching', 'Session Management', 'Real-time Data'] },
+  { name: 'RabbitMQ', category: 'web2', icon: SiRabbitmq, projects: ['Message Queuing', 'Async Tasks', 'Event-driven Architecture'] },
+  { name: 'gRPC', category: 'web2', icon: FaNetworkWired, projects: ['Microservices Communication', 'High-performance APIs', 'Protocol Buffers'] },
+  { name: 'GraphQL', category: 'web2', icon: SiGraphql, projects: ['Flexible APIs', 'Data Fetching', 'Client-driven Queries'] },
+  { name: 'AWS', category: 'web2', icon: SiAmazonaws, projects: ['Cloud Infrastructure', 'EC2, S3, RDS', 'ECS, Elasticsearch'] },
+  { name: 'CI/CD', category: 'web2', icon: FaCodeBranch, projects: ['Automated Testing', 'Deployment Pipelines', 'GitLab CI'] },
+  { name: 'React', category: 'web2', icon: SiReact, projects: ['Component Architecture', 'State Management', 'Interactive UIs'] },
 
   // Web3
-  { name: 'The Graph', category: 'web3', icon: '📊', projects: ['Blockchain Indexing', 'Subgraph Development', 'Data Querying'] },
-  { name: 'Web3.js', category: 'web3', icon: '🌐', projects: ['dApp Integration', 'Wallet Connections', 'Blockchain Interactions'] },
-  { name: 'Smart Contracts', category: 'web3', icon: '📝', projects: ['DeFi Logic', 'Token Standards', 'On-chain Systems'] },
-  { name: 'DeFi', category: 'web3', icon: '💰', projects: ['Decentralized Finance', 'DeFi Protocols', 'Liquidity Pools'] },
-  { name: 'Safe Global', category: 'web3', icon: '🔒', projects: ['Multi-sig Wallets', 'Smart Account', 'Secure Asset Management'] },
-  { name: 'dApps', category: 'web3', icon: '🚀', projects: ['Decentralized UI', 'Web3 Frontend', 'User Experience'] },
+  { name: 'The Graph', category: 'web3', icon: FaChartBar, projects: ['Blockchain Indexing', 'Subgraph Development', 'Data Querying'] },
+  { name: 'Web3.js', category: 'web3', icon: SiWeb3Dotjs, projects: ['dApp Integration', 'Wallet Connections', 'Blockchain Interactions'] },
+  { name: 'Smart Contracts', category: 'web3', icon: FaFileContract, projects: ['DeFi Logic', 'Token Standards', 'On-chain Systems'] },
+  { name: 'DeFi', category: 'web3', icon: FaCoins, projects: ['Decentralized Finance', 'DeFi Protocols', 'Liquidity Pools'] },
+  { name: 'Safe Global', category: 'web3', icon: FaLock, projects: ['Multi-sig Wallets', 'Smart Account', 'Secure Asset Management'] },
+  { name: 'dApps', category: 'web3', icon: FaRocket, projects: ['Decentralized UI', 'Web3 Frontend', 'User Experience'] },
 
   // Tools
-  { name: 'Git', category: 'tools', icon: '🌿', projects: ['Version Control', 'GitLab, Bitbucket', 'Code Review'] },
-  { name: 'REST API', category: 'tools', icon: '🔗', projects: ['RESTful Services', 'HTTP Methods', 'API Design'] },
-  { name: 'WebSockets', category: 'tools', icon: '🔌', projects: ['Real-time Communication', 'Bidirectional Data', 'Live Updates'] },
-  { name: 'OAuth/OIDC', category: 'tools', icon: '🔐', projects: ['Authentication', 'Authorization', 'Keycloak, Auth0'] },
-  { name: 'TDD/BDD', category: 'tools', icon: '🧪', projects: ['Test-Driven Development', 'Behavior-Driven', 'Quality Assurance'] },
-  { name: 'DDD', category: 'tools', icon: '🏗️', projects: ['Domain-Driven Design', 'Event Storming', 'Microservices Architecture'] },
-  { name: 'Scrum/Agile', category: 'tools', icon: '🏃', projects: ['Agile Methodology', 'Sprint Planning', 'Team Collaboration'] },
-  { name: 'Nginx', category: 'tools', icon: '🌐', projects: ['Reverse Proxy', 'Load Balancing', 'Web Server'] },
-  { name: 'Grafana', category: 'tools', icon: '📊', projects: ['Monitoring', 'Prometheus', 'Kibana, Elasticsearch'] },
-  { name: 'Swagger', category: 'tools', icon: '📝', projects: ['API Documentation', 'OpenAPI Spec', 'Developer Tools'] },
+  { name: 'Git', category: 'tools', icon: SiGit, projects: ['Version Control', 'GitLab, Bitbucket', 'Code Review'] },
+  { name: 'REST API', category: 'tools', icon: FaLink, projects: ['RESTful Services', 'HTTP Methods', 'API Design'] },
+  { name: 'WebSockets', category: 'tools', icon: FaPlug, projects: ['Real-time Communication', 'Bidirectional Data', 'Live Updates'] },
+  { name: 'OAuth/OIDC', category: 'tools', icon: FaShieldAlt, projects: ['Authentication', 'Authorization', 'Keycloak, Auth0'] },
+  { name: 'TDD/BDD', category: 'tools', icon: FaVial, projects: ['Test-Driven Development', 'Behavior-Driven', 'Quality Assurance'] },
+  { name: 'DDD', category: 'tools', icon: FaCubes, projects: ['Domain-Driven Design', 'Event Storming', 'Microservices Architecture'] },
+  { name: 'Scrum/Agile', category: 'tools', icon: FaRunning, projects: ['Agile Methodology', 'Sprint Planning', 'Team Collaboration'] },
+  { name: 'Nginx', category: 'tools', icon: SiNginx, projects: ['Reverse Proxy', 'Load Balancing', 'Web Server'] },
+  { name: 'Grafana', category: 'tools', icon: SiGrafana, projects: ['Monitoring', 'Prometheus', 'Kibana, Elasticsearch'] },
+  { name: 'Swagger', category: 'tools', icon: SiSwagger, projects: ['API Documentation', 'OpenAPI Spec', 'Developer Tools'] },
 ]
 
 const categories = {
@@ -166,7 +178,9 @@ export default function TechStack() {
               </div>
 
               <div className="text-center">
-                <div className="text-3xl sm:text-5xl mb-2 sm:mb-3">{tech.icon}</div>
+                <div className="text-3xl sm:text-5xl mb-2 sm:mb-3 flex items-center justify-center">
+                  <tech.icon className="w-8 h-8 sm:w-12 sm:h-12" />
+                </div>
                 <h3 className="font-bold text-sm sm:text-lg mb-1 sm:mb-2">{tech.name}</h3>
                 <p className="text-[10px] sm:text-xs text-gray-400 line-clamp-1">
                   {tech.projects[0]}
