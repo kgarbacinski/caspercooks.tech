@@ -6,6 +6,7 @@ import AboutSection from '@/components/AboutSection'
 import ProjectsTimeline from '@/components/ProjectsTimeline'
 import TechStack from '@/components/TechStack'
 import BrandsShowcase from '@/components/BrandsShowcase'
+import TikTokSection from '@/components/TikTokSection'
 import ContactSection from '@/components/ContactSection'
 import Footer from '@/components/Footer'
 import CustomCursor from '@/components/CustomCursor'
@@ -24,6 +25,7 @@ export default function Home() {
         <ProjectsTimeline />
         {theme === 'developer' && <TechStack />}
         <BrandsShowcase />
+        <TikTokSection />
         <ContactSection />
       </main>
       <Footer />
