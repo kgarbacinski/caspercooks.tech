@@ -3,7 +3,7 @@
 import { motion, useInView } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useRef, useState, useEffect } from 'react'
-import { FaEnvelope, FaLinkedin, FaGithub, FaTwitter, FaTiktok, FaUserTie, FaRocket, FaComments } from 'react-icons/fa'
+import { FaEnvelope, FaLinkedin, FaGithub, FaTwitter, FaUserTie, FaRocket, FaComments } from 'react-icons/fa'
 import type { IconType } from 'react-icons'
 
 export default function ContactSection() {
@@ -93,12 +93,6 @@ export default function ContactSection() {
       label: 'Twitter',
       value: 'Follow me',
       link: 'https://x.com/KGarbacinski',
-    },
-    {
-      icon: FaTiktok,
-      label: 'TikTok',
-      value: 'Dev content PL',
-      link: 'https://www.tiktok.com/@kacper.senior.dev',
     },
   ]
 
