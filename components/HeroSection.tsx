@@ -80,7 +80,7 @@ export default function HeroSection() {
             </h2>
 
             <p className="text-sm sm:text-base md:text-lg text-gray-400 max-w-md font-mono">
-              {'> Building scalable systems since 2017'}
+              {'> Building scalable systems since 2015'}
               <br />
               {'> From microservices to Web3 dApps'}
               <br />
