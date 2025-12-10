@@ -156,11 +156,8 @@ export default function ContactSection() {
                             : 'bg-developer-secondary text-gray-400 hover:bg-gray-700'}
                       `}
                     >
-                      <span className="hidden sm:inline flex items-center gap-1">
-                        {type === 'developer' ? <><FaUserTie className="inline" /> Dev</> : type === 'founder' ? <><FaRocket className="inline" /> CEO</> : <><FaComments className="inline" /> General</>}
-                      </span>
-                      <span className="sm:hidden">
-                        {type === 'developer' ? <FaUserTie /> : type === 'founder' ? <FaRocket /> : <FaComments />}
+                      <span className="flex items-center justify-center gap-1">
+                        {type === 'developer' ? <><FaUserTie /> Dev</> : type === 'founder' ? <><FaRocket /> CEO</> : <><FaComments /> General</>}
                       </span>
                     </button>
                   ))}
