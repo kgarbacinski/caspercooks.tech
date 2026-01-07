@@ -48,7 +48,7 @@ export default function HeroSection() {
       </div>
 
       {/* Split Screen Container */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 grid md:grid-cols-2 gap-12 md:gap-8 items-center">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 grid md:grid-cols-2 gap-12 md:gap-16 lg:gap-24 items-center">
         {/* Developer Side */}
         <motion.div
           initial={{ opacity: 0, x: -100 }}
@@ -58,7 +58,7 @@ export default function HeroSection() {
             scale: theme === 'developer' ? 1 : 0.95,
           }}
           transition={{ duration: 0.5 }}
-          className={`space-y-4 sm:space-y-6 ${theme === 'founder' ? 'hidden md:block' : ''}`}
+          className={`space-y-4 sm:space-y-6 md:pr-8 lg:pr-12 ${theme === 'founder' ? 'hidden md:block' : ''}`}
           style={{
             perspective: '1000px',
           }}
@@ -170,7 +170,7 @@ export default function HeroSection() {
 
         <div className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           <motion.div
-            className="w-32 h-32"
+            className="w-24 h-24 lg:w-32 lg:h-32"
             animate={{
               scale: [1, 1.1, 1],
             }}
@@ -231,7 +231,7 @@ export default function HeroSection() {
             scale: theme === 'founder' ? 1 : 0.95,
           }}
           transition={{ duration: 0.5 }}
-          className={`space-y-4 sm:space-y-6 text-left md:text-right ${theme === 'developer' ? 'hidden md:block' : ''}`}
+          className={`space-y-4 sm:space-y-6 text-left md:text-right md:pl-8 lg:pl-12 ${theme === 'developer' ? 'hidden md:block' : ''}`}
           style={{
             perspective: '1000px',
           }}
