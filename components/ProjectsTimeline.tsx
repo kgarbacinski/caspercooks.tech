@@ -5,6 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { useInView } from 'framer-motion'
+import { FaLaptopCode, FaRocket } from 'react-icons/fa'
 
 interface Project {
   id: number
@@ -215,9 +216,10 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className={`text-2xl ${project.type === 'developer' ? '💻' : '🚀'}`}>
-                  {project.type === 'developer' ? '💻' : '🚀'}
-                </span>
+                {project.type === 'developer'
+                  ? <FaLaptopCode className="w-6 h-6 text-white" />
+                  : <FaRocket className="w-6 h-6 text-white" />
+                }
                 <span className={`text-sm font-mono ${
                   project.type === 'developer' ? 'text-developer-accent' : 'text-founder-accent'
                 }`}>

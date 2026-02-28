@@ -3,7 +3,7 @@
 import { motion, useInView } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useRef, useState, useEffect } from 'react'
-import { FaTiktok, FaGraduationCap, FaRocket, FaCode, FaBookOpen } from 'react-icons/fa'
+import { FaTiktok, FaGraduationCap, FaRocket, FaCode, FaBookOpen, FaFlag } from 'react-icons/fa'
 import Image from 'next/image'
 
 export default function TikTokSection() {
@@ -157,7 +157,7 @@ export default function TikTokSection() {
                     ? 'bg-developer-accent/20 text-developer-accent'
                     : 'bg-founder-accent/20 text-founder-accent'}
                 `}>
-                  🇵🇱 Polish Content
+                  <FaFlag className="inline-block w-3 h-3 mr-1" /> Polish Content
                 </span>
               </div>
 

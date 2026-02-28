@@ -3,6 +3,7 @@
 import { motion, useInView } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useRef, useEffect, useState } from 'react'
+import { FaLaptopCode, FaRocket, FaGraduationCap, FaMobileAlt, FaBullseye, FaRobot } from 'react-icons/fa'
 
 function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
   const [count, setCount] = useState(0)
@@ -82,10 +83,10 @@ export default function AboutSection() {
             `}
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                 theme === 'developer' ? 'bg-developer-accent text-developer-bg' : 'bg-gray-700'
               }`}>
-                💻
+                <FaLaptopCode className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-2xl font-bold">Developer Journey</h3>
             </div>
@@ -159,10 +160,10 @@ export default function AboutSection() {
             `}
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                 theme === 'founder' ? 'bg-founder-accent text-white' : 'bg-gray-700'
               }`}>
-                🚀
+                <FaRocket className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-2xl font-bold">Founder Story</h3>
             </div>
@@ -173,26 +174,30 @@ export default function AboutSection() {
                 companies that empower others</strong> is what drives me.
               </p>
 
-              <p>
-                🎓 <strong>devs-mentoring.pl</strong> - Assembled a team of 15 expert programming
+              <p className="flex items-start gap-2">
+                <FaGraduationCap className="w-4 h-4 mt-1 shrink-0 text-founder-accent" />
+                <span><strong>devs-mentoring.pl</strong> - Assembled a team of 15 expert programming
                 mentors, creating a platform where developers accelerate their careers through
-                personalized guidance.
+                personalized guidance.</span>
               </p>
 
-              <p>
-                📱 <strong>coderiv.com</strong> - Envisioned and building a mobile application that
-                will revolutionize how developers learn and collaborate.
+              <p className="flex items-start gap-2">
+                <FaMobileAlt className="w-4 h-4 mt-1 shrink-0 text-founder-accent" />
+                <span><strong>coderiv.com</strong> - Envisioned and building a mobile application that
+                will revolutionize how developers learn and collaborate.</span>
               </p>
 
-              <p>
-                🎯 <strong>devs-hunting.com</strong> - Evaluated and coordinated project delivery
-                for clients like Redsoft, connecting top talent with meaningful opportunities.
+              <p className="flex items-start gap-2">
+                <FaBullseye className="w-4 h-4 mt-1 shrink-0 text-founder-accent" />
+                <span><strong>devs-hunting.com</strong> - Evaluated and coordinated project delivery
+                for clients like Redsoft, connecting top talent with meaningful opportunities.</span>
               </p>
 
-              <p>
-                🤖 <strong>Efektywniejsi</strong> - Co-founded with
+              <p className="flex items-start gap-2">
+                <FaRobot className="w-4 h-4 mt-1 shrink-0 text-founder-accent" />
+                <span><strong>Efektywniejsi</strong> - Co-founded with
                 2 partners to teach people how to harness AI agents and n8n automation. Delivered
-                numerous webinars, sharing knowledge with live audiences.
+                numerous webinars, sharing knowledge with live audiences.</span>
               </p>
 
               <p>
