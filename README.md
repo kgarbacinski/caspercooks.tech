@@ -156,7 +156,7 @@ For detailed setup instructions, see [CI_CD_SETUP.md](./CI_CD_SETUP.md)
 2. Import your repository in [Vercel](https://vercel.com)
 3. Add environment variable in Vercel dashboard:
    - `RESEND_API_KEY` = your Resend API key
-4. Deploy!
+4. Deploy and enjoy!
 
 ```bash
 # Or use Vercel CLI
