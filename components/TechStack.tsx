@@ -12,13 +12,14 @@ import {
 import {
   FaNetworkWired, FaRocket, FaLock, FaShieldAlt, FaVial,
   FaCubes, FaRunning, FaChartBar, FaFileContract, FaCoins,
-  FaLink, FaPlug, FaCodeBranch
+  FaLink, FaPlug, FaCodeBranch, FaRobot, FaBrain, FaDatabase,
+  FaProjectDiagram, FaCogs, FaSearch
 } from 'react-icons/fa'
 import type { IconType } from 'react-icons'
 
 interface Technology {
   name: string
-  category: 'web2' | 'web3' | 'languages' | 'tools'
+  category: 'web2' | 'web3' | 'languages' | 'tools' | 'ai'
   icon: IconType
   projects: string[]
 }
@@ -56,6 +57,16 @@ const technologies: Technology[] = [
   { name: 'Safe Global', category: 'web3', icon: FaLock, projects: ['Multi-sig Wallets', 'Smart Account', 'Secure Asset Management'] },
   { name: 'dApps', category: 'web3', icon: FaRocket, projects: ['Decentralized UI', 'Web3 Frontend', 'User Experience'] },
 
+  // AI & ML
+  { name: 'LLMs', category: 'ai', icon: FaRobot, projects: ['GPT, Claude, Gemini', 'Fine-tuning & Evaluation', 'Production Deployments'] },
+  { name: 'Prompt Engineering', category: 'ai', icon: FaBrain, projects: ['Chain-of-Thought', 'Few-shot & Zero-shot', 'System Prompt Design'] },
+  { name: 'RAG', category: 'ai', icon: FaDatabase, projects: ['Vector Databases', 'Embedding Models', 'Retrieval Pipelines'] },
+  { name: 'AI Agents', category: 'ai', icon: FaProjectDiagram, projects: ['Multi-agent Systems', 'Tool Use & Function Calling', 'Autonomous Workflows'] },
+  { name: 'n8n / Automation', category: 'ai', icon: FaCogs, projects: ['AI Workflow Automation', 'Integration Pipelines', 'No-code AI Solutions'] },
+  { name: 'LangChain', category: 'ai', icon: FaLink, projects: ['Agent Frameworks', 'Chain Composition', 'Memory & Retrieval'] },
+  { name: 'Vector DBs', category: 'ai', icon: FaSearch, projects: ['Pinecone, Qdrant', 'Similarity Search', 'Semantic Retrieval'] },
+  { name: 'AI APIs', category: 'ai', icon: FaPlug, projects: ['OpenAI, Anthropic', 'Hugging Face', 'API Orchestration'] },
+
   // Tools
   { name: 'Git', category: 'tools', icon: SiGit, projects: ['Version Control', 'GitLab, Bitbucket', 'Code Review'] },
   { name: 'REST API', category: 'tools', icon: FaLink, projects: ['RESTful Services', 'HTTP Methods', 'API Design'] },
@@ -73,6 +84,7 @@ const categories = {
   languages: { name: 'Languages', color: 'blue' },
   web2: { name: 'Web2 Stack', color: 'green' },
   web3: { name: 'Web3 Stack', color: 'purple' },
+  ai: { name: 'AI & ML', color: 'pink' },
   tools: { name: 'Tools & Frameworks', color: 'orange' },
 }
 
@@ -174,7 +186,7 @@ export default function TechStack() {
             >
               {/* Category Badge */}
               <div className="absolute -top-2 -right-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full text-xs flex items-center justify-center bg-developer-accent text-developer-bg">
-                {tech.category === 'web2' ? '2' : tech.category === 'web3' ? '3' : '•'}
+                {tech.category === 'web2' ? '2' : tech.category === 'web3' ? '3' : tech.category === 'ai' ? 'AI' : '•'}
               </div>
 
               <div className="text-center">
@@ -243,7 +255,7 @@ export default function TechStack() {
           </div>
           <div>
             <div className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2 text-developer-accent">
-              8+
+              10+
             </div>
             <div className="text-xs sm:text-sm text-gray-400">
               Years Experience

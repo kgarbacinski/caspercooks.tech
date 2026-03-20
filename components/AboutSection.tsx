@@ -93,7 +93,7 @@ export default function AboutSection() {
 
             <div className="space-y-4 text-sm sm:text-base text-gray-300">
               <p>
-                <strong className="text-developer-accent">Since 2017</strong>, I've been crafting
+                <strong className="text-developer-accent">Since 2015</strong>, I've been crafting
                 digital experiences and solving complex problems with code. Started my full-time
                 career while still in high school, driven by passion and curiosity.
               </p>
@@ -126,7 +126,7 @@ export default function AboutSection() {
             <div className="grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-gray-700">
               <div className="text-center">
                 <div className="text-developer-accent">
-                  <AnimatedCounter value={8} suffix="+" />
+                  <AnimatedCounter value={10} suffix="+" />
                 </div>
                 <div className="text-sm text-gray-500 mt-1">Years</div>
               </div>
@@ -222,7 +222,7 @@ export default function AboutSection() {
               </div>
               <div className="text-center">
                 <div className="text-founder-accent">
-                  <AnimatedCounter value={100} suffix="+" />
+                  <AnimatedCounter value={300} suffix="+" />
                 </div>
                 <div className={`text-sm mt-1 ${theme === 'founder' ? 'text-gray-500' : 'text-gray-500'}`}>Devs Helped</div>
               </div>

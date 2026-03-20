@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'caspercooks.tech - Developer & Founder',
-  description: '$ whoami | Full-stack developer since 2017 | Founder of coderiv, devs-mentoring, devs-hunting & efektywniejsi | Web2 + Web3 | Low-level programming enthusiast',
+  description: '$ whoami | Full-stack developer since 2015 | Founder of coderiv, devs-mentoring, devs-hunting & efektywniejsi | Web2 + Web3 | Low-level programming enthusiast',
 }
 
 export default function RootLayout({

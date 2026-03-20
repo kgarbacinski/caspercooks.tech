@@ -92,7 +92,7 @@ export default function HeroSection() {
                 className="text-xs sm:text-sm font-mono border-2 border-developer-accent/30 px-2 py-1.5 sm:px-3 sm:py-2"
                 whileHover={{ scale: 1.05, borderColor: '#00ff88' }}
               >
-                <div className="text-developer-accent">0x08+ years</div>
+                <div className="text-developer-accent">0x0A+ years</div>
                 <div className="text-gray-500 text-[10px] sm:text-xs">// experience</div>
               </motion.div>
               <motion.div
