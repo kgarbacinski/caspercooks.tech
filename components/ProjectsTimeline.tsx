@@ -29,7 +29,7 @@ const projects: Project[] = [
     type: 'developer',
     tech: ['Solidity', 'The Graph', 'tRPC', 'React'],
     description: 'Building Octant - an experiment in participatory public goods funding utilizing Golem\'s GLM token. Built V2 from scratch working with subgraph, smart contracts, tRPC, and React.js.',
-    role: 'Senior Software / Web3 Engineer',
+    role: 'Staff Backend Engineer',
     logo: '/logos/golem.png',
     impact: 'Rebuilt entire platform V2, enabling decentralized funding for public goods projects',
   },
