@@ -74,7 +74,7 @@ export default function HeroSection() {
             </div>
 
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 font-mono">
-              Full-Stack
+              AI &amp; Full-Stack
               <br />
               <span className="text-developer-accent">{'<Engineer />'}</span>
             </h2>
@@ -82,7 +82,7 @@ export default function HeroSection() {
             <p className="text-sm sm:text-base md:text-lg text-gray-400 max-w-md font-mono">
               {'> Building scalable systems since 2015'}
               <br />
-              {'> From microservices to Web3 dApps'}
+              {'> From microservices to AI agents & Web3'}
               <br />
               {'> Complex problems → elegant solutions'}
             </p>
@@ -106,8 +106,8 @@ export default function HeroSection() {
                 className="text-xs sm:text-sm font-mono border-2 border-developer-accent/30 px-2 py-1.5 sm:px-3 sm:py-2"
                 whileHover={{ scale: 1.05, borderColor: '#00ff88' }}
               >
-                <div className="text-developer-accent">Web2 + Web3</div>
-                <div className="text-gray-500 text-[10px] sm:text-xs">// full stack</div>
+                <div className="text-developer-accent">AI + Web3</div>
+                <div className="text-gray-500 text-[10px] sm:text-xs">// focus</div>
               </motion.div>
             </div>
           </motion.div>

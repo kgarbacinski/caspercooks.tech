@@ -101,19 +101,19 @@ export default function AboutSection() {
               <p>
                 For me, <strong>programming languages are just tools</strong>. With deep domain
                 knowledge and adaptability, I write efficient code in any stack - from C++ and
-                Python to Node.js and gRPC.
+                Python to production LLM agents.
               </p>
 
               <p>
                 Built systems from scratch for companies like <strong>Invicta</strong> (microservices),
-                <strong> Infomotion</strong> and <strong> Red Bull</strong> (monoliths).
+                <strong> Nokia</strong> (5G R&amp;D) and <strong> Red Bull</strong> (data + backend platform).
                 Led technical teams and architected solutions for top-tier brands.
               </p>
 
               <p>
-                Currently exploring <strong className="text-developer-accent">Web3</strong>,
-                working with dApps, Smart Contracts in Solidity, and subgraphs. Always pushing
-                boundaries and learning new paradigms.
+                Currently focused on <strong className="text-developer-accent">production AI</strong> -
+                agentic, LLM-based systems on Temporal and RAG pipelines - alongside Web3 (dApps,
+                Solidity, subgraphs). Always pushing boundaries and learning new paradigms.
               </p>
 
               <p>
