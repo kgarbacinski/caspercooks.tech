@@ -75,7 +75,7 @@ const Figure = forwardRef<FigureHandle, { theme: Theme; dim: boolean; reduce: bo
     // jawne klatki startowe: niezależnie od tego, gdzie skończyła poprzednia sekwencja
     await animate(
       scope.current,
-      { opacity: [0, 1, 1], y: ['-170%', '-120%', '0%'], x: ['-25%', '-18%', '0%'], rotate: [-14, -10, 0], scaleX: [0.94, 0.94, 0.94], scaleY: [1.06, 1.06, 1.06] },
+      { opacity: [0, 1, 1], y: ['-135%', '-95%', '0%'], x: ['-25%', '-18%', '0%'], rotate: [-14, -10, 0], scaleX: [0.94, 0.94, 0.94], scaleY: [1.06, 1.06, 1.06] },
       { duration: 0.5, ease: [0.45, 0, 0.95, 0.55], times: [0, 0.15, 1] },
     )
     if (gen.current !== run) return
