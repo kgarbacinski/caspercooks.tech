@@ -365,7 +365,7 @@ function Sparkles({ lite }: { lite?: boolean }) {
  * Sejf: jeden stan "otwarcia" p ∈ [0,1] (0 = drzwi uchylone jak w grafice, 1 = otwarte na oścież),
  * który zawsze płynnie dąży do celu: cel = otwarty w oknie cyklu (co 19 s) albo gdy kursor jest nad
  * pokojem. Dzięki temu hover i zegar nigdy się nie gryzą, a zamykanie po zjechaniu kursorem
- * zaczyna się z bieżącej fazy (bez przeskoku). Faza 0–0.4: koło robi pełny obrót, od 0.22: drzwi
+ * zaczyna się z bieżącej fazy (bez przeskoku). Faza 0–0.35: koło robi pełny obrót, od 0.12: drzwi
  * (nakładają się, więc drzwi ruszają szybko). Sam otwiera się co 13 s na ~4.4 s; po interakcji kursorem
  * własny cykl odczekuje 9 s (drzwi nie odbijają z powrotem zaraz po zamknięciu).
  */
@@ -373,11 +373,11 @@ const VAULT_EVERY = 13000 // co ile sam się otwiera (ms)
 const VAULT_HOLD = 4400 // ile stoi otwarty
 const VAULT_QUIET = 9000 // po interakcji kursorem: tyle spokoju, zanim otworzy się sam
 const VAULT_SPEED = 1 / 2300 // pełne otwarcie ≈ 2.3 s (cykl)
-const VAULT_SPEED_HOT = 1 / 1200 // przy kursorze szybciej (w obie strony)
+const VAULT_SPEED_HOT = 1 / 1500 // przy kursorze trochę szybciej (w obie strony), ale z widocznym ruchem drzwi
 const vault = { p: 0, t: -1, tw: 0, nextOpen: 6200, openUntil: 0, lastHot: -1e9, subs: new Set<(p: number) => void>() }
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v)
 const easeIO = (v: number) => (v < 0.5 ? 4 * v * v * v : 1 - Math.pow(-2 * v + 2, 3) / 2)
-const vaultDoor = (p: number) => easeIO(clamp01((p - 0.22) / 0.78))
+const vaultDoor = (p: number) => easeIO(clamp01((p - 0.12) / 0.88))
 function stepVault(t: number, hot: boolean) {
   const dt = vault.t < 0 ? 0 : Math.min(100, t - vault.t)
   vault.t = t
@@ -414,7 +414,7 @@ function VaultArt({ run, hot }: { run: boolean; hot?: boolean }) {
     const apply = (p: number) => {
       const d = vaultDoor(p)
       if (door.current) door.current.style.transform = `perspective(320cqw) rotateY(${(-78 * d).toFixed(2)}deg)`
-      if (wheel.current) wheel.current.style.transform = `rotate(${(-360 * easeIO(clamp01(p / 0.4)) - vault.tw).toFixed(1)}deg)`
+      if (wheel.current) wheel.current.style.transform = `rotate(${(-360 * easeIO(clamp01(p / 0.35)) - vault.tw).toFixed(1)}deg)`
       if (shade.current) shade.current.style.opacity = (0.55 * d).toFixed(3)
     }
     apply(vault.p)
@@ -575,8 +575,8 @@ function Laptops() {
             height: `${h}%`,
             borderRadius: '6%',
             background: i % 2 ? 'rgba(255,150,70,1)' : 'rgba(255,184,96,1)',
-            boxShadow: '0 0 1cqw rgba(255,170,90,0.8)',
-            animationDelay: sec([0, 3.1, 1.4, 4.6, 2.2, 5.3][i]),
+            boxShadow: '0 0 2cqw 0.6cqw rgba(255,170,90,0.75)',
+            animationDelay: sec([0, 3.2, 1.6, 0.05, 3.25, 1.65][i]),
           }}
         />
       ))}
@@ -690,9 +690,29 @@ function OfficeSky() {
         }}
       />
       <div className="absolute overflow-hidden" style={{ ...box(o.sky), WebkitMaskImage: m, maskImage: m, WebkitMaskSize: '100% 100%', maskSize: '100% 100%' }}>
+        {/* dwa reflektory z miasta omiatają niebo (wolno, w przeciwnych kierunkach) */}
+        {[0, 1].map((k) => (
+          <span
+            key={k}
+            className="amb-searchlight absolute mix-blend-screen"
+            style={{
+              left: k ? '70%' : '28%',
+              top: '100%',
+              width: '14%',
+              height: '260%',
+              transformOrigin: '50% 100%',
+              translate: '-50% -100%',
+              animationDuration: k ? '9s' : '11s',
+              animationDelay: k ? '-4s' : '0s',
+              animationDirection: k ? 'alternate-reverse' : 'alternate',
+              background: 'linear-gradient(0deg, rgba(200,220,255,0.55), rgba(200,220,255,0.2) 55%, transparent)',
+              clipPath: 'polygon(42% 100%, 58% 100%, 100% 0, 0 0)',
+            }}
+          />
+        ))}
         <span
           className="amb-meteor absolute mix-blend-screen"
-          style={{ left: '70%', top: '6%', width: '42%', height: '8%', background: 'linear-gradient(90deg, rgba(255,255,255,1), rgba(220,235,255,0.7) 20%, rgba(200,220,255,0.25) 55%, transparent)', borderRadius: 9, boxShadow: '0 0 1cqw rgba(220,235,255,0.6)' }}
+          style={{ left: '70%', top: '6%', width: '55%', height: '10%', background: 'linear-gradient(90deg, rgba(255,255,255,1), rgba(220,235,255,0.7) 20%, rgba(200,220,255,0.25) 55%, transparent)', borderRadius: 9, boxShadow: '0 0 1cqw rgba(220,235,255,0.6)' }}
         />
       </div>
       <Halo c={o.lamp} r={11} color="255,190,110" dur={3.6} lo={0.15} />
@@ -782,6 +802,13 @@ function Slides() {
       <Img src="slide-3b" className="amb-s3b absolute inset-0 w-full h-full" />
       <Img src="slide-4" className="amb-s4 absolute inset-0 w-full h-full" />
       {/* czerwona kropka wskaźnika laserowego prowadzącego — wędruje po treści slajdu */}
+      {[0.12, 0.06].map((d, k) => (
+        <span
+          key={k}
+          className="amb-laser absolute rounded-full mix-blend-screen"
+          style={{ left: 0, top: 0, width: '12%', aspectRatio: '1', animationDelay: `${-d}s`, scale: `${0.55 + k * 0.2}`, filter: `opacity(${0.35 + k * 0.25})`, background: 'radial-gradient(circle, rgba(255,60,60,1) 14%, rgba(255,20,20,0.4) 36%, transparent 64%)' }}
+        />
+      ))}
       <span
         className="amb-laser absolute rounded-full mix-blend-screen"
         style={{ left: 0, top: 0, width: '12%', aspectRatio: '1', background: 'radial-gradient(circle, rgb(255,255,255) 9%, rgb(255,20,20) 20%, rgba(255,20,20,0.55) 34%, rgba(255,20,20,0.18) 52%, transparent 70%)' }}

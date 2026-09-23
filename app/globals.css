@@ -737,7 +737,7 @@ body.founder-mode {
 }
 /* okna: poświata zapalonego okna (screen) */
 .amb-winglow { opacity: 0; animation: amb-winglow 12s steps(1, end) infinite; }
-@keyframes amb-winglow { 0% { opacity: 1; } 45% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes amb-winglow { 0% { opacity: 1; } 55% { opacity: 0; } 100% { opacity: 0; } }
 /* światło ostrzegawcze na wieżowcu: podwójne mrugnięcie */
 .amb-beacon { opacity: .1; animation: amb-beacon 1.8s steps(1, end) infinite; }
 @keyframes amb-beacon { 0% { opacity: 1; } 14% { opacity: .1; } 26% { opacity: 1; } 42%, 100% { opacity: .1; } }
@@ -760,8 +760,8 @@ body.founder-mode {
   76%, 100% { opacity: 0; transform: translateY(-120%); }
 }
 /* laptopy kursantów: krótki błysk ekranu co 6.4 s, każdy z innym opóźnieniem */
-.amb-laptop { opacity: 0; animation: amb-laptop 6.4s steps(1, end) infinite; }
-@keyframes amb-laptop { 0% { opacity: .9; } 6% { opacity: .3; } 9% { opacity: .9; } 22%, 100% { opacity: 0; } }
+.amb-laptop { opacity: 0; animation: amb-laptop 4.8s steps(1, end) infinite; }
+@keyframes amb-laptop { 0% { opacity: 1; } 8% { opacity: .35; } 12% { opacity: 1; } 30%, 100% { opacity: 0; } }
 /* webinar: wskaźnik laserowy (20 s, zsynchronizowany ze slajdami): wodzi po schemacie, słupkach, liście i donucie */
 .amb-laser { opacity: 0; animation: amb-laser 20s cubic-bezier(.4, 0, .2, 1) infinite; }
 @keyframes amb-laser {
@@ -806,3 +806,6 @@ body.founder-mode {
   100% { opacity: 0; transform: translate(287%, 196%); }
 }
 
+/* reflektory nad miastem: powolne wahadło */
+.amb-searchlight { animation: amb-searchlight 10s ease-in-out infinite alternate; }
+@keyframes amb-searchlight { from { transform: rotate(-38deg); } to { transform: rotate(34deg); } }
