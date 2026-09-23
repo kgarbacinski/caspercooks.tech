@@ -200,7 +200,7 @@ export default function Diorama() {
     return () => mq.removeEventListener('change', sync)
   }, [])
   const dive = wide && !reduce
-  const capFade = useTransform(scrollY, [0, 160], [1, 0])
+  const capFade = useTransform(scrollY, [0, 70], [1, 0]) // podpisy gasną razem z tekstem hero
 
   /*
    * Desktop: "wjazd kamery" w pierwszy pokój. Hero jest przypięte (sticky) przez D px scrolla,
@@ -233,7 +233,7 @@ export default function Diorama() {
   // kamera rusza od razu (wyspa wjeżdża w miejsce gasnącego tekstu), hamuje łagodnie
   // i dojeżdża na 85% drogi — potem stoi, gdy obok wjeżdżają notatki About
   const camE = useTransform(diveP, (p) => {
-    const t = clamp01(p / 0.85)
+    const t = clamp01(p / 0.65)
     return 1 - (1 - t) * (1 - t)
   })
   // tor pokoju idzie w tym samym tempie co zbliżenie (tekst hero zdąży zgasnąć i odsunąć się w lewo)
@@ -254,6 +254,8 @@ export default function Diorama() {
   const camS = useTransform([camE, camPos], ([e, q]: number[]) => cam(e, q).s)
   // reszta wyspy gaśnie w pierwszej połowie drogi — zanim obok pojawią się notatki
   const rest = useTransform(diveP, [0.03, 0.3], [1, 0])
+  // skała, kable i ich poświata gasną szybciej niż pokoje — zanim od dołu wjedzie nagłówek About
+  const baseFade = useTransform(diveP, [0.02, 0.15], [1, 0])
   // pozostałe pokoje nie tylko gasną, ale odjeżdżają w prawo poza kadr (paralaksa "najazdu" kamery)
   const out1 = useTransform(rest, (r) => `${(1 - r) * 60}%`)
   const out2 = useTransform(rest, (r) => `${(1 - r) * 90}%`)
@@ -371,7 +373,7 @@ export default function Diorama() {
   return (
     <figure ref={figureRef} data-paused={paused || undefined} className="relative m-0 select-none" aria-label="Interactive papercraft diorama">
       {/* iskry tylko przy myszy (desktop) — na dotyku to koszt baterii bez zysku */}
-      <motion.div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ opacity: dive ? rest : 1 }}>
+      <motion.div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ opacity: dive ? baseFade : 1 }}>
         <Sparks accent={accent} reduce={reduce || !finePointer} paused={paused} />
 
         {/* poświata kabli pod wyspą — w kolorze akcentu, zapala się razem z bazą */}
@@ -407,10 +409,10 @@ export default function Diorama() {
             onClick={onClick}
           >
             {/* cień wyspy w pustce */}
-            <motion.div aria-hidden="true" className="absolute left-[16%] right-[16%] top-[76%] h-[16%] rounded-[50%] bg-black/70 blur-2xl" style={{ opacity: dive ? rest : 1 }} />
+            <motion.div aria-hidden="true" className="absolute left-[16%] right-[16%] top-[76%] h-[16%] rounded-[50%] bg-black/70 blur-2xl" style={{ opacity: dive ? baseFade : 1 }} />
 
             {/* podstawa wyspy: skała, kable, pieczęć KG — przygasa przy hoverze i przy zgaszonych światłach */}
-            <motion.div className="absolute inset-0" style={{ opacity: dive ? rest : 1 }}>
+            <motion.div className="absolute inset-0" style={{ opacity: dive ? baseFade : 1 }}>
             <AnimatePresence initial={false}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <motion.img

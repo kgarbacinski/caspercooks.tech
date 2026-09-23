@@ -236,9 +236,9 @@ export default function AboutSection() {
   // ten sam pokój pokazuje powiększona wyspa z hero (podmiana 1:1, bez skoku)
   const { scrollYProgress: pinIn } = useScroll({ target: sceneRef, offset: ['start end', 'start start'] })
   const shown = useTransform(pinIn, (v): number => (reduce ? 1 : v >= 0.985 ? 1 : 0))
-  // położenie kolumny = 100vh·(1−q)^2.5 zamiast 100vh·(1−q): monotonicznie, szybciej na starcie,
+  // położenie kolumny = 100vh·(1−q)^1.8 zamiast 100vh·(1−q): monotonicznie, szybciej na starcie,
   // z miękkim dojazdem do przypięcia (q = postęp wjazdu sceny od dołu ekranu do góry)
-  const colY = useTransform(pinIn, (v) => (reduce ? '0vh' : `${(Math.pow(1 - v, 2.5) - (1 - v)) * 100}vh`))
+  const colY = useTransform(pinIn, (v) => (reduce ? '0vh' : `${(Math.pow(1 - v, 1.8) - (1 - v)) * 100}vh`))
   const glowBase = useTransform(scrollYProgress, [0, 0.5, 1], [0.35, 0.8, 0.55])
   const glow = useTransform([glowBase, shown], ([g, v]: number[]) => g * v)
   // figurka w tym samym miejscu względem pokoju co na wyspie
