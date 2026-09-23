@@ -33,6 +33,7 @@ const Figure = forwardRef<FigureHandle, { theme: Theme; dim: boolean; reduce: bo
   const [pose, setPose] = useState<'stand' | 'jump'>('stand')
   const [dust, setDust] = useState(0)
   const [busy, setBusy] = useState(false)
+  const [present, setPresent] = useState(false) // czy figurka jest na wyspie (cień kontaktowy)
   // numer bieżącej sekwencji — starsza sekwencja przerywa się po najbliższym await
   const gen = useRef(0)
   const k = KEY[theme]
@@ -49,16 +50,19 @@ const Figure = forwardRef<FigureHandle, { theme: Theme; dim: boolean; reduce: bo
     await animate(scope.current, { scaleY: 1.08, scaleX: 0.95, y: '-115%', x: '60%', rotate: 14 }, { duration: 0.32, ease: [0.2, 0.8, 0.4, 1] })
     if (gen.current !== run) return
     // łukiem w górę i w prawo, nad pokojami, z dala od tekstu (nie przez skałę)
+    setPresent(false)
     await animate(scope.current, { y: '-150%', x: '320%', rotate: 60, scaleY: 0.9, scaleX: 0.9, opacity: 0 }, { duration: 0.6, ease: [0.3, 0, 0.7, 1] })
   }, [animate, scope])
 
   const hide = useCallback(() => {
     gen.current++
+    setPresent(false)
     if (scope.current) animate(scope.current, { opacity: 0 }, { duration: 0 })
   }, [animate, scope])
 
   const show = useCallback(() => {
     gen.current++
+    setPresent(true)
     setPose('stand')
     if (scope.current) animate(scope.current, { opacity: 1, x: '0%', y: '0%', rotate: 0, scaleX: 1, scaleY: 1 }, { duration: 0 })
   }, [animate, scope])
@@ -67,6 +71,7 @@ const Figure = forwardRef<FigureHandle, { theme: Theme; dim: boolean; reduce: bo
     const run = ++gen.current
     setBusy(true)
     setPose('jump')
+    setPresent(true)
     // jawne klatki startowe: niezależnie od tego, gdzie skończyła poprzednia sekwencja
     await animate(
       scope.current,
@@ -114,13 +119,13 @@ const Figure = forwardRef<FigureHandle, { theme: Theme; dim: boolean; reduce: bo
       <motion.div
         aria-hidden="true"
         className="absolute left-[-10%] right-[-10%] bottom-[-2.5%] h-[5%] rounded-[50%] bg-black/60 blur-[3px]"
-        animate={{ opacity: pose === 'jump' ? 0.25 : 0.9, scaleX: pose === 'jump' ? 0.6 : 1 }}
+        animate={{ opacity: !present ? 0 : pose === 'jump' ? 0.25 : 0.9, scaleX: pose === 'jump' ? 0.6 : 1 }}
         transition={{ duration: 0.2 }}
       />
       <div
         ref={scope}
         className="absolute inset-0 will-change-transform"
-        style={{ transformOrigin: '50% 100%', filter: dim ? 'brightness(0.45) saturate(0.7)' : 'none', transition: 'filter .35s ease' }}
+        style={{ opacity: 0, transformOrigin: '50% 100%', filter: dim ? 'brightness(0.45) saturate(0.7)' : 'none', transition: 'filter .35s ease' }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

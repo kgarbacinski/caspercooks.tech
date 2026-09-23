@@ -62,6 +62,12 @@ export default function Diorama() {
   const [ready, setReady] = useState(false)
   const [burst, setBurst] = useState(0)
   const [flash, setFlash] = useState(0)
+  const panRef = useRef<HTMLDivElement>(null)
+  // mobile: startowo pokazujemy pokój z figurką
+  useEffect(() => {
+    const el = panRef.current
+    if (el && el.scrollWidth > el.clientWidth) el.scrollLeft = (el.scrollWidth - el.clientWidth) * 0.12
+  }, [])
   const [bounceRef, animateBounce] = useAnimate()
   const k = KEY[theme]
   const info = ROOMS[theme]
@@ -74,7 +80,7 @@ export default function Diorama() {
   useEffect(() => () => timers.current.forEach(clearTimeout), [])
 
   useEffect(() => {
-    const mq = window.matchMedia('(hover: hover) and (pointer: fine)')
+    const mq = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 768px)')
     const sync = () => setFinePointer(mq.matches)
     sync()
     mq.addEventListener('change', sync)
@@ -108,7 +114,7 @@ export default function Diorama() {
       // lądowanie figurki: cała wyspa ugina się i odbija (moment "bum")
       at(delay + E.figure + 500, () => {
         if (bounceRef.current)
-          animateBounce(bounceRef.current, { y: [0, 12, -5, 2, 0], rotateZ: [0, -0.6, 0.3, 0, 0] }, { duration: 0.7, ease: 'easeOut' })
+          animateBounce(bounceRef.current, { y: [0, 16, -6, 2, 0], scaleY: [1, 0.985, 1.006, 1, 1], rotateZ: [0, -0.7, 0.35, 0, 0] }, { duration: 0.75, ease: 'easeOut' })
       })
       for (let i = 0; i < 5; i++)
         at(delay + E.lights + i * 110, () => setRooms((r) => r.map((s, j) => (j === i ? { ...s, lit: true, flicker: true } : s))))
@@ -275,6 +281,9 @@ export default function Diorama() {
         {!reduce && <div className="absolute inset-0 rounded-[50%] animate-cable-pulse" style={{ background: `rgba(${accent},${theme === 'developer' ? 0.1 : 0.18})` }} />}
       </div>
 
+      {/* mobile: scena szersza niż ekran, przesuwana palcem (większe pokoje); desktop bez zmian */}
+      <div ref={panRef} className="overflow-x-auto overflow-y-visible sm:overflow-visible no-scrollbar snap-x">
+      <div className="w-[165%] sm:w-full pt-16 pb-14 sm:p-0">
       <motion.div
         style={{
           rotateX: reduce ? 0 : rotX,
@@ -516,14 +525,16 @@ export default function Diorama() {
           </div>
         </div>
       </motion.div>
+      </div>
+      </div>
 
-      <figcaption className="mt-4 sm:mt-5 px-3 sm:px-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 eyebrow !text-[10px] sm:!text-[11px]">
+      <figcaption style={{ opacity: baseLit ? 1 : 0, transition: 'opacity .6s ease' }} className="mt-4 sm:mt-5 px-3 sm:px-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 eyebrow !text-[10px] sm:!text-[11px]">
         <AnimatePresence mode="wait">
           <motion.span key={theme} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
             {theme === 'developer' ? 'My very normal workspace' : 'The companies I build'}
           </motion.span>
         </AnimatePresence>
-        <span className="text-ember text-right">{finePointer ? 'hover a room · click me to change' : 'tap a room ↗'}</span>
+        <span className="text-ember text-right">{finePointer ? 'hover a room · click me to change' : 'swipe ↔ · tap a room · tap me to change'}</span>
       </figcaption>
     </figure>
   )

@@ -139,8 +139,11 @@ body.founder-mode {
 
   /* bilecik z pieczątką (statystyki) */
   .stamp-ticket {
-    @apply relative px-4 py-4 sm:px-5 sm:py-5 bg-cocoa-800 border border-dashed border-cocoa-500/80;
-    box-shadow: inset 0 1px 0 rgba(232, 132, 58, 0.3), 0 18px 30px -18px rgba(0, 0, 0, 0.9);
+    @apply relative px-4 py-4 sm:px-5 sm:py-5 text-ink;
+    background-color: #d8b98c;
+    background-image: linear-gradient(90deg, rgb(var(--accent-rgb)) 0 4px, transparent 4px),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85 0.06' numOctaves='3' seed='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.2 0 0 0 0 0.08 0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    box-shadow: inset 0 1px 0 rgba(255, 240, 215, 0.5), 0 18px 30px -16px rgba(0, 0, 0, 0.9);
     -webkit-mask: radial-gradient(circle 7px at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat,
       radial-gradient(circle 7px at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
     mask: radial-gradient(circle 7px at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat,
@@ -154,13 +157,19 @@ body.founder-mode {
   .folder:hover {
     transform: translateY(-8px) rotate(0deg) !important;
   }
+  /* druga ścieżka (nie aktywny tryb): lekko cofnięta, ale w pełnym kolorze */
   .folder-other {
-    opacity: 0.72;
-    filter: saturate(0.6) brightness(0.8);
+    opacity: 0.88;
   }
   .folder-other:hover {
     opacity: 1;
-    filter: none;
+  }
+  /* teczki ścieżki CEO: czerwonawy karton (terakota) zamiast manili */
+  .folder-ceo .folder-body {
+    background-color: #c98e68;
+  }
+  .folder-ceo .folder-tab {
+    background: #bb7f58;
   }
   /* teczki z kraftu (manila): ciemny atrament na papierze, włókna, postrzępiona krawędź */
   .folder-tab {
@@ -292,8 +301,27 @@ body.founder-mode {
 
   /* ——— uliczka marek ——— */
   .plaque {
-    @apply px-5 py-5 bg-cocoa-800 border border-cocoa-500/70;
-    box-shadow: inset 0 1px 0 rgba(232, 132, 58, 0.3), 0 26px 40px -24px rgba(0, 0, 0, 0.9);
+    @apply px-5 py-5 text-ink;
+    background-color: #d8b98c;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85 0.06' numOctaves='3' seed='6'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.2 0 0 0 0 0.08 0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    box-shadow: inset 0 1px 0 rgba(255, 240, 215, 0.5), 0 26px 40px -24px rgba(0, 0, 0, 0.9);
+  }
+  /* na jasnym kartonie: atrament zamiast kremu, akcent przyciemniony */
+  .stamp-ticket .text-accent,
+  .plaque .text-accent {
+    color: #2a1a10;
+  }
+  .stamp-ticket .text-paper-muted,
+  .plaque .text-paper-muted,
+  .plaque .text-paper-dim {
+    color: rgba(42, 26, 16, 0.62);
+  }
+  .plaque .text-paper,
+  .plaque .link-arrow {
+    color: #2a1a10;
+  }
+  .plaque .border-cocoa-500\/60 {
+    border-color: rgba(42, 26, 16, 0.3);
   }
   .link-arrow {
     @apply inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-paper hover:text-accent transition-colors;

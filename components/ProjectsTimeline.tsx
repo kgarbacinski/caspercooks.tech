@@ -194,7 +194,7 @@ function Folder({ p, i, active }: { p: Project; i: number; active: boolean }) {
   const isDev = p.type === 'developer'
   return (
     <article
-      className={`folder group relative shrink-0 w-[82vw] sm:w-[420px] lg:w-[400px] xl:w-[430px] ${active ? '' : 'folder-other'}`}
+      className={`folder group relative shrink-0 w-[82vw] sm:w-[420px] lg:w-[400px] xl:w-[430px] ${isDev ? 'folder-dev' : 'folder-ceo'} ${active ? '' : 'folder-other'}`}
       style={{ rotate: `${TILTS[i % TILTS.length]}deg` }}
     >
       {/* zakładka teczki: hash commita + data */}
@@ -212,7 +212,13 @@ function Folder({ p, i, active }: { p: Project; i: number; active: boolean }) {
           {/* logo firmy jako pieczątka */}
           <div className="stamp-logo" aria-hidden={!p.logo}>
             {p.logo ? (
-              <Image src={p.logo} alt={`${p.company} logo`} width={52} height={52} className="object-contain w-[70%] h-[70%]" />
+              <Image
+                src={p.logo}
+                alt={`${p.company} logo`}
+                width={60}
+                height={60}
+                className={`object-contain ${p.company === 'Efektywniejsi' ? 'w-[92%] h-[92%] rounded-full bg-cocoa-900 p-1' : 'w-[70%] h-[70%]'}`}
+              />
             ) : (
               <span className="font-display text-xl text-ink/70">{p.company.slice(0, 2)}</span>
             )}

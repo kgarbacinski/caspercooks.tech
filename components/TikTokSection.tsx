@@ -49,71 +49,72 @@ export default function TikTokSection() {
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
         <div className="flex items-end justify-between gap-8 mb-14 sm:mb-16">
           <SectionHeader index="05" eyebrow="tiktok --lang=pl --content=dev" title="Programming content in Polish" />
-          <RoomCutout room={4} className="hidden md:block w-40 lg:w-52 shrink-0" />
         </div>
 
         <div className="grid md:grid-cols-[1fr_1.05fr] gap-14 lg:gap-20 items-center">
-          {/* studio: ring light + telefon na statywie */}
-          <div ref={stageRef} className="relative flex justify-center pt-6 pb-24">
-            {/* ring light */}
-            <div aria-hidden="true" className="absolute top-[-4%] left-1/2 -translate-x-1/2 w-[330px] h-[330px] sm:w-[400px] sm:h-[400px]">
-              <motion.div
-                className="ring-light absolute inset-0"
-                initial={reduce ? false : { opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 1.2, ease: EASE }}
-              />
-            </div>
-            {/* statyw */}
-            <div aria-hidden="true" className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[200px] h-[120px]">
-              <span className="absolute left-1/2 top-0 w-[3px] h-[70px] -translate-x-1/2 bg-gradient-to-b from-cocoa-500 to-cocoa-600" />
-              <span className="absolute left-1/2 top-[66px] w-[3px] h-[64px] origin-top bg-cocoa-500 rotate-[28deg]" />
-              <span className="absolute left-1/2 top-[66px] w-[3px] h-[64px] origin-top bg-cocoa-500 -rotate-[28deg]" />
-              <span className="absolute left-1/2 top-[66px] w-[3px] h-[58px] -translate-x-1/2 bg-cocoa-600" />
-            </div>
-            <motion.a
-              href={TIKTOK_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Open @kacper.senior.dev on TikTok"
-              className="relative group block"
-              initial={reduce ? false : { y: 40, opacity: 0, rotate: -3 }}
-              whileInView={{ y: 0, opacity: 1, rotate: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.9, ease: EASE, delay: 0.15 }}
-              whileHover={reduce ? undefined : { y: -6, rotate: -1 }}
-            >
-              <div className="relative w-[230px] sm:w-[260px] aspect-[9/18.5] rounded-[34px] p-[9px] bg-gradient-to-b from-[#2a1d15] to-[#130c08] border border-cocoa-500/70 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(232,132,58,0.4)]">
-                <div className="relative w-full h-full rounded-[26px] overflow-hidden bg-cocoa-900">
-                  <Image src="/tiktok-thumbnail.png" alt="TikTok content preview" fill sizes="260px" className="object-cover transition-transform duration-700 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70" />
-                  {/* nagrywanie */}
-                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between font-mono text-[11px] text-white">
-                    <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-black/45 backdrop-blur-sm">
-                      <span className={`w-2 h-2 rounded-full bg-[#ff3b30] ${reduce ? '' : 'animate-rec'}`} />
-                      REC <RecTimer run={inView && !reduce} />
-                    </span>
-                    <FaTiktok className="w-4 h-4" />
-                  </div>
-                  <div className="absolute inset-0 grid place-items-center">
-                    <span
-                      className="w-16 h-16 rounded-full grid place-items-center bg-accent/90 transition-transform duration-300 group-hover:scale-110"
-                      style={{ boxShadow: '0 10px 40px -8px rgb(var(--accent-rgb) / 0.7)' }}
-                    >
-                      <svg className="w-7 h-7 text-night ml-1" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    </span>
-                  </div>
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <p className="text-white font-display text-lg leading-tight">@kacper.senior.dev</p>
-                    <p className="font-mono text-[11px] text-white/70">Polish dev community</p>
-                  </div>
-                </div>
-                <span aria-hidden="true" className="absolute top-[18px] left-1/2 -translate-x-1/2 w-16 h-4 rounded-full bg-black" />
+          {/* studio: pokój "Studio" z dioramy jako plan zdjęciowy, przed nim telefon na statywie */}
+          <div ref={stageRef} className="relative pt-4 pb-10">
+            <div className="relative mx-auto w-full max-w-[520px]">
+              <RoomCutout room={4} hi float={false} className="w-[88%] mx-auto opacity-95" />
+              {/* ciepłe światło planu */}
+              <div aria-hidden="true" className="absolute inset-x-[10%] bottom-[8%] h-1/3 rounded-[50%] blur-3xl bg-[rgba(255,200,140,0.18)]" />
+              {/* ring light nad telefonem */}
+              <div aria-hidden="true" className="absolute right-[3%] top-[18%] w-[200px] h-[200px] sm:w-[240px] sm:h-[240px]">
+                <motion.div
+                  className="ring-light absolute inset-0"
+                  initial={reduce ? false : { opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.2, ease: EASE }}
+                />
               </div>
-            </motion.a>
+              <motion.a
+                href={TIKTOK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open @kacper.senior.dev on TikTok"
+                className="group absolute right-[8%] sm:right-[10%] top-[26%] block"
+                initial={reduce ? false : { y: 40, opacity: 0, rotate: -3 }}
+                whileInView={{ y: 0, opacity: 1, rotate: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.9, ease: EASE, delay: 0.15 }}
+                whileHover={reduce ? undefined : { y: -6, rotate: -1 }}
+              >
+                <div className="relative w-[150px] sm:w-[178px] aspect-[9/18.5] rounded-[26px] p-[7px] bg-gradient-to-b from-[#2a1d15] to-[#130c08] border border-cocoa-500/70 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(232,132,58,0.4)]">
+                  <div className="relative w-full h-full rounded-[20px] overflow-hidden bg-cocoa-900">
+                    <Image src="/tiktok-thumbnail.png" alt="TikTok content preview" fill sizes="180px" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70" />
+                    {/* nagrywanie */}
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between font-mono text-[10px] text-white">
+                      <span className="flex items-center gap-1.5 px-1.5 py-0.5 rounded-full bg-black/45 backdrop-blur-sm">
+                        <span className={`w-2 h-2 rounded-full bg-[#ff3b30] ${reduce ? '' : 'animate-rec'}`} />
+                        REC <RecTimer run={inView && !reduce} />
+                      </span>
+                      <FaTiktok className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="absolute inset-0 grid place-items-center">
+                      <span
+                        className="w-12 h-12 rounded-full grid place-items-center bg-accent/90 transition-transform duration-300 group-hover:scale-110"
+                        style={{ boxShadow: '0 10px 40px -8px rgb(var(--accent-rgb) / 0.7)' }}
+                      >
+                        <svg className="w-5 h-5 text-night ml-0.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </span>
+                    </div>
+                    <div className="absolute bottom-3 left-3 right-3">
+                      <p className="text-white font-display text-sm leading-tight">@kacper.senior.dev</p>
+                      <p className="font-mono text-[9px] text-white/70">Polish dev community</p>
+                    </div>
+                  </div>
+                  <span aria-hidden="true" className="absolute top-[13px] left-1/2 -translate-x-1/2 w-12 h-3 rounded-full bg-black" />
+                </div>
+                {/* statyw */}
+                <span aria-hidden="true" className="absolute left-1/2 top-full w-[3px] h-[70px] -translate-x-1/2 bg-gradient-to-b from-[#6b4a30] to-[#3d2819]" />
+                <span aria-hidden="true" className="absolute left-1/2 top-[calc(100%+60px)] w-[3px] h-[46px] origin-top bg-[#5a3e28] rotate-[28deg]" />
+                <span aria-hidden="true" className="absolute left-1/2 top-[calc(100%+60px)] w-[3px] h-[46px] origin-top bg-[#5a3e28] -rotate-[28deg]" />
+              </motion.a>
+            </div>
           </div>
 
           {/* opis */}

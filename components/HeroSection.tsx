@@ -40,9 +40,9 @@ const COPY = {
 const EASE = [0.22, 1, 0.36, 1] as const
 // nagłówek: przenikanie z rozmyciem (bez maski — w połowie animacji nic nie jest "ucięte")
 const rise = {
-  hidden: { opacity: 0, y: 18, filter: 'blur(8px)' },
-  show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.8, ease: EASE } },
-  exit: { opacity: 0, y: -10, filter: 'blur(6px)', transition: { duration: 0.3, ease: EASE } },
+  hidden: { opacity: 0, y: 16, filter: 'blur(5px)' },
+  show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.55, ease: EASE } },
+  exit: { opacity: 0, y: -8, filter: 'blur(4px)', transition: { duration: 0.2, ease: EASE } },
 }
 const fade = {
   hidden: { opacity: 0, y: 14 },
@@ -139,7 +139,7 @@ export default function HeroSection() {
           initial={{ opacity: 1, y: 30, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
-          className="order-first lg:order-none mt-6 lg:mt-0 -mx-3 sm:mx-0 lg:-mr-[1vw] xl:-mr-[3vw] 2xl:-mr-[6vw]"
+          className="order-first lg:order-none -mt-6 -mb-8 sm:my-0 -mx-3 sm:mx-0 lg:-mr-[1vw] xl:-mr-[3vw] 2xl:-mr-[6vw]"
         >
           <Diorama />
         </motion.div>
