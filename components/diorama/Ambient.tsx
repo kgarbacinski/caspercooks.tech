@@ -239,7 +239,10 @@ function Lamp({ world }: { world: World }) {
   const room = `url(/diorama/v2/room-${world}-${L.room}.webp)`
   return (
     <>
-      <Halo c={L.shade} r={world === 'dev' ? 11 : 13} color="255,196,120" />
+      {/* poświata klosza gaśnie razem z lampą (odwrócone klatki) */}
+      <div className={`amb-lamp-${world}-on absolute inset-0`}>
+        <Halo c={L.shade} r={world === 'dev' ? 11 : 13} color="255,196,120" />
+      </div>
       <Img src={`lamp-${world}`} className={`amb-lamp-${world}`} style={box(L.box)} />
       {/* gdy lampa gaśnie, cały pokój lekko ciemnieje (te same klatki co lampa, maska = kształt pokoju) */}
       <div
@@ -255,7 +258,7 @@ function Leds({ lite }: { lite?: boolean }) {
   const on = LEDS.filter((_, i) => !lite || i % 2 === 0)
   const flash = LEDS.filter((_, i) => i % (lite ? 8 : 4) === 2)
   // dwie kolumny szaf, w których aktywność "biegnie" z góry na dół
-  const chase = LEDS.filter(([x]) => Math.abs(x - 39) < 1 || Math.abs(x - 83) < 1)
+  const chase = LEDS.filter(([x]) => Math.abs(x - 83) < 1 || Math.abs(x - 90) < 1)
     .slice()
     .sort((a, b) => a[0] - b[0] || a[1] - b[1])
   return (
@@ -267,7 +270,8 @@ function Leds({ lite }: { lite?: boolean }) {
           style={{
             left: `${x}%`,
             top: `${y}%`,
-            width: '2.2%',
+            // prawa szafa (niezasłonięta figurką) — większe, wyraźniejsze diody
+            width: x > 60 ? '3.4%' : '2.2%',
             aspectRatio: '1',
             transform: 'translate(-50%,-50%)',
             background: 'radial-gradient(circle, rgba(255,236,190,1) 18%, rgba(255,160,70,0.7) 40%, transparent 72%)',
@@ -288,7 +292,7 @@ function Leds({ lite }: { lite?: boolean }) {
               aspectRatio: '1',
               transform: 'translate(-50%,-50%)',
               background: 'radial-gradient(circle, rgba(255,250,220,1) 14%, rgba(255,190,90,0.6) 38%, transparent 70%)',
-              animationDelay: sec(i * 0.11 + (x > 60 ? 1.1 : 0)),
+              animationDelay: sec(i * 0.11 + (x > 86 ? 1.1 : 0)),
             }}
           />
         ))}
@@ -296,9 +300,9 @@ function Leds({ lite }: { lite?: boolean }) {
       <span
         className="amb-led-a absolute rounded-full mix-blend-screen"
         style={{
-          left: `${LEDS[27][0]}%`,
-          top: `${LEDS[27][1]}%`,
-          width: '6%',
+          left: `${LEDS[11][0]}%`,
+          top: `${LEDS[11][1]}%`,
+          width: '9%',
           aspectRatio: '1',
           transform: 'translate(-50%,-50%)',
           background: 'radial-gradient(circle, rgba(255,150,140,1) 10%, rgba(255,40,30,0.8) 26%, rgba(255,30,20,0.25) 46%, transparent 70%)',
@@ -357,28 +361,79 @@ function Sparkles({ lite }: { lite?: boolean }) {
   )
 }
 
-/** sejf: koło się kręci, drzwi wychylają się na zawiasie, wnętrze świeci; zamyka się (19 s) */
-function VaultArt() {
+/**
+ * Sejf: jeden stan "otwarcia" p ∈ [0,1] (0 = drzwi uchylone jak w grafice, 1 = otwarte na oścież),
+ * który zawsze płynnie dąży do celu: cel = otwarty w oknie cyklu (co 19 s) albo gdy kursor jest nad
+ * pokojem. Dzięki temu hover i zegar nigdy się nie gryzą, a zamykanie po zjechaniu kursorem
+ * zaczyna się z bieżącej fazy (bez przeskoku). Faza 0–0.4: koło robi pełny obrót, od 0.22: drzwi
+ * (nakładają się, więc drzwi ruszają szybko). Cykl 13 s, otwarte ok. 4 s.
+ */
+const VAULT_CYCLE = 13000
+const VAULT_OPEN: [number, number] = [6200, 10600] // okno "otwarte" w cyklu (ms)
+const VAULT_SPEED = 1 / 2300 // pełne otwarcie ≈ 2.3 s (cykl)
+const VAULT_SPEED_HOT = 1 / 1300 // pod kursorem szybciej
+const vault = { p: 0, t: -1, tw: 0, subs: new Set<(p: number) => void>() }
+const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v)
+const easeIO = (v: number) => (v < 0.5 ? 4 * v * v * v : 1 - Math.pow(-2 * v + 2, 3) / 2)
+const vaultDoor = (p: number) => easeIO(clamp01((p - 0.22) / 0.78))
+function stepVault(t: number, hot: boolean) {
+  const dt = vault.t < 0 ? 0 : Math.min(100, t - vault.t)
+  vault.t = t
+  const c = t % VAULT_CYCLE
+  const target = hot || (c >= VAULT_OPEN[0] && c < VAULT_OPEN[1]) ? 1 : 0
+  const sp = hot ? VAULT_SPEED_HOT : VAULT_SPEED
+  const np = target > vault.p ? Math.min(1, vault.p + dt * sp) : Math.max(0, vault.p - dt * sp)
+  // między otwarciami koło co ~3 s "próbuje" się obrócić (krótkie drgnięcie tam i z powrotem)
+  const tw = (t % 3250) / 3250
+  const twitch = vault.p === 0 && np === 0 && tw < 0.16 ? Math.sin((tw / 0.16) * Math.PI) * 26 : 0
+  if (np === vault.p && twitch === vault.tw) return
+  vault.p = np
+  vault.tw = twitch
+  vault.subs.forEach((fn) => fn(np))
+}
+
+function VaultArt({ run, hot }: { run: boolean; hot?: boolean }) {
   const v = VAULT
   const doorMask = `url(${A}vault-door.webp)`
+  const door = useRef<HTMLDivElement>(null)
+  const wheel = useRef<HTMLDivElement>(null)
+  const shade = useRef<HTMLDivElement>(null)
+  const hotRef = useRef(!!hot)
+  hotRef.current = !!hot
+  useEffect(() => {
+    const apply = (p: number) => {
+      const d = vaultDoor(p)
+      if (door.current) door.current.style.transform = `perspective(320cqw) rotateY(${(-78 * d).toFixed(2)}deg)`
+      if (wheel.current) wheel.current.style.transform = `rotate(${(-360 * easeIO(clamp01(p / 0.4)) - vault.tw).toFixed(1)}deg)`
+      if (shade.current) shade.current.style.opacity = (0.55 * d).toFixed(3)
+    }
+    apply(vault.p)
+    vault.subs.add(apply)
+    const off = run ? subscribe((t) => stepVault(t, hotRef.current)) : undefined
+    return () => {
+      vault.subs.delete(apply)
+      off?.()
+      vault.t = -1
+    }
+  }, [run])
   return (
     <>
       {/* wnętrze sejfu + rama i ściana pod drzwiami */}
       <Img src="vault-plate" style={box(v.plate)} />
-      <Pivot o={v.hinge} className="amb-vault-door">
+      <div ref={door} className="absolute inset-0" style={{ transformOrigin: pt(v.hinge), transform: 'perspective(320cqw) rotateY(0deg)', willChange: 'transform' }}>
         <Img src="vault-door" style={box(v.door)} />
         {/* koło z ramionami kręci się tylko w obrysie drzwi (maska = drzwi) */}
         <div className="absolute inset-0" style={{ WebkitMaskImage: doorMask, maskImage: doorMask, WebkitMaskSize: `${v.door.w}% ${v.door.h}%`, maskSize: `${v.door.w}% ${v.door.h}%`, WebkitMaskPosition: `${(v.door.l / (100 - v.door.w)) * 100}% ${(v.door.t / (100 - v.door.h)) * 100}%`, maskPosition: `${(v.door.l / (100 - v.door.w)) * 100}% ${(v.door.t / (100 - v.door.h)) * 100}%`, WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat' }}>
-          <Pivot o={v.hub} className="amb-vault-wheel">
+          <div ref={wheel} className="absolute inset-0" style={{ transformOrigin: pt(v.hub) }}>
             <Img src="vault-wheel" style={box(v.wheel)} />
-          </Pivot>
+          </div>
         </div>
         {/* drzwi odwracają się od światła: cień w kształcie drzwi */}
         <div
-          className="amb-vault-shade"
-          style={{ ...box(v.door), background: '#1a0d08', WebkitMaskImage: doorMask, maskImage: doorMask, WebkitMaskSize: '100% 100%', maskSize: '100% 100%' }}
+          ref={shade}
+          style={{ ...box(v.door), opacity: 0, background: '#1a0d08', WebkitMaskImage: doorMask, maskImage: doorMask, WebkitMaskSize: '100% 100%', maskSize: '100% 100%' }}
         />
-      </Pivot>
+      </div>
       {/* postument z kryształem stoi przed drzwiami */}
       <Img src="vault-pedestal" style={box(v.pedestal)} />
     </>
@@ -387,22 +442,33 @@ function VaultArt() {
 
 function VaultFx() {
   const v = VAULT
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const apply = (p: number) => {
+      if (ref.current) ref.current.style.opacity = vaultDoor(p).toFixed(3)
+    }
+    apply(vault.p)
+    vault.subs.add(apply)
+    return () => {
+      vault.subs.delete(apply)
+    }
+  }, [])
   return (
-    <>
-      {/* zielone światło wylewa się z otwartego sejfu na ścianę i podłogę */}
+    // zielone światło wylewa się z otwartego sejfu na ścianę i podłogę (jasność = stopień otwarcia)
+    <div ref={ref} className="absolute inset-0" style={{ opacity: 0 }}>
       <span
-        className="amb-vault-spill absolute rounded-full mix-blend-screen"
+        className="absolute rounded-full mix-blend-screen"
         style={{
           left: `${v.c[0]}%`,
           top: `${v.c[1]}%`,
           width: `${v.r[0] * 3.4}%`,
           height: `${v.r[1] * 3.4}%`,
           transform: 'translate(-50%,-50%)',
-          background: 'radial-gradient(ellipse, rgba(150,255,200,0.4) 0%, rgba(90,240,160,0.16) 38%, transparent 64%)',
+          background: 'radial-gradient(ellipse, rgba(120,240,180,0.28) 0%, rgba(90,230,160,0.12) 38%, transparent 64%)',
         }}
       />
       <span
-        className="amb-vault-spill absolute rounded-full mix-blend-screen"
+        className="absolute rounded-full mix-blend-screen"
         style={{
           left: `${v.c[0] + 4}%`,
           top: `${v.c[1] + v.r[1] * 1.55}%`,
@@ -412,7 +478,7 @@ function VaultFx() {
           background: 'radial-gradient(ellipse, rgba(120,255,180,0.6) 0%, rgba(90,240,160,0.2) 45%, transparent 70%)',
         }}
       />
-    </>
+    </div>
   )
 }
 
@@ -498,7 +564,8 @@ function Laptops() {
             width: `${w}%`,
             height: `${h}%`,
             borderRadius: '6%',
-            background: i % 2 ? 'rgba(255,150,70,0.8)' : 'rgba(200,225,255,0.7)',
+            background: i % 2 ? 'rgba(255,150,70,1)' : 'rgba(255,220,170,1)',
+            boxShadow: '0 0 1cqw rgba(255,170,90,0.8)',
             animationDelay: sec([0, 3.1, 1.4, 4.6, 2.2, 5.3][i]),
           }}
         />
@@ -522,12 +589,13 @@ function Phone() {
     >
       <div
         className="absolute overflow-hidden"
-        style={{ left: `${ph.cx}%`, top: `${ph.cy}%`, width: `${ph.w}%`, height: `${ph.h}%`, transform: `translate(-50%,-50%) rotate(${ph.rot}deg)` }}
+        // górny pasek z notchem zostaje z grafiki (przewijana treść nie wchodzi pod wycięcie)
+        style={{ left: `${ph.cx}%`, top: `${ph.cy}%`, width: `${ph.w}%`, height: `${ph.h}%`, transform: `translate(-50%,-50%) rotate(${ph.rot}deg)`, clipPath: 'inset(10% 0 0 0 round 6%)' }}
       >
         <Img src="phone-strip" className="amb-phone absolute left-0 w-full" style={{ top: `${ph.stripTop}%`, height: `${ph.stripH}%`, maxWidth: 'none' }} />
         <span
           className="amb-tap absolute rounded-full"
-          style={{ left: '52%', top: '68%', width: '58%', aspectRatio: '1', border: '0.35cqw solid rgba(255,150,70,0.95)', background: 'rgba(255,200,150,0.45)' }}
+          style={{ left: '52%', top: '68%', width: '80%', aspectRatio: '1', border: '0.8cqw solid rgba(255,130,50,1)', background: 'rgba(255,190,130,0.6)', boxShadow: '0 0 1.2cqw rgba(255,140,60,0.9)' }}
         />
       </div>
     </div>
@@ -536,7 +604,9 @@ function Phone() {
 
 /** okna w wieżowcach gasną i zapalają się — sporo z nich, każde w swoim rytmie */
 // grupa = piętro budynku (pas ~2 % szerokości × ~1.5 % wysokości) — gaśnie i zapala się razem
-const winGroup = (x: number, y: number) => Math.floor(x / 2.2) * 100 + Math.floor(y / 1.6)
+// grupa = połowa budynku (górne / dolne piętra) — gaśnie i zapala się razem, więc zmiana jest widoczna z daleka
+const BUILDINGS = [45, 51, 59, 72]
+const winGroup = (x: number, y: number) => BUILDINGS.filter((b) => x > b).length * 10 + (y < 50 ? 0 : 1)
 function Windows({ lite }: { lite?: boolean }) {
   const list = CITY.windows.filter((_, i) => i % (lite ? 4 : 1) === 0)
   return (
@@ -553,8 +623,8 @@ function Windows({ lite }: { lite?: boolean }) {
               width: `${w}%`,
               height: `${h}%`,
               background: `rgb(${c.join(',')})`,
-              animationDuration: sec(5 + hash(g + 7) * 8),
-              animationDelay: sec(-hash(g + 70) * 13 - (i % 3) * 0.12),
+              animationDuration: sec(4 + hash(g + 7) * 4),
+              animationDelay: sec(-hash(g + 70) * 8 - (i % 4) * 0.06),
             }}
           />
         )
@@ -565,7 +635,7 @@ function Windows({ lite }: { lite?: boolean }) {
 
 /** jaśniejsze "zapalone" okna: ciepła albo chłodna poświata na części okien, grupami */
 function WindowGlow({ lite }: { lite?: boolean }) {
-  const list = CITY.windows.filter((_, i) => i % (lite ? 6 : 3) === 1)
+  const list = CITY.windows.filter((_, i) => !lite || i % 2 === 1)
   return (
     <>
       {list.map(([x, y, w, h], i) => {
@@ -582,8 +652,8 @@ function WindowGlow({ lite }: { lite?: boolean }) {
               height: `${h}%`,
               background: warm ? 'rgb(255,214,140)' : 'rgb(160,200,255)',
               boxShadow: `0 0 0.6cqw 0.15cqw ${warm ? 'rgba(255,200,120,0.6)' : 'rgba(150,190,255,0.55)'}`,
-              animationDuration: sec(4 + hash(g + 17) * 6),
-              animationDelay: sec(-hash(g + 71) * 10),
+              animationDuration: sec(5 + hash(g + 17) * 5),
+              animationDelay: sec(-hash(g + 71) * 10 - 1.7),
             }}
           />
         )
@@ -603,7 +673,7 @@ function OfficeSky() {
         style={{
           left: `${o.beacon[0]}%`,
           top: `${o.beacon[1]}%`,
-          width: '7%',
+          width: '11%',
           aspectRatio: '1',
           transform: 'translate(-50%,-50%)',
           background: 'radial-gradient(circle, rgb(255,160,140) 6%, rgba(255,40,30,0.9) 14%, rgba(255,30,20,0.3) 30%, transparent 64%)',
@@ -612,10 +682,10 @@ function OfficeSky() {
       <div className="absolute overflow-hidden" style={{ ...box(o.sky), WebkitMaskImage: m, maskImage: m, WebkitMaskSize: '100% 100%', maskSize: '100% 100%' }}>
         <span
           className="amb-meteor absolute mix-blend-screen"
-          style={{ left: '78%', top: '8%', width: '26%', height: '5%', background: 'linear-gradient(90deg, rgba(255,255,255,1), rgba(200,220,255,0.5) 30%, transparent)', borderRadius: 9 }}
+          style={{ left: '70%', top: '6%', width: '42%', height: '8%', background: 'linear-gradient(90deg, rgba(255,255,255,1), rgba(220,235,255,0.7) 20%, rgba(200,220,255,0.25) 55%, transparent)', borderRadius: 9, boxShadow: '0 0 1cqw rgba(220,235,255,0.6)' }}
         />
       </div>
-      <Halo c={o.lamp} r={9} color="255,190,110" dur={3.6} lo={0.3} />
+      <Halo c={o.lamp} r={11} color="255,190,110" dur={3.6} lo={0.15} />
     </>
   )
 }
@@ -701,6 +771,11 @@ function Slides() {
       <Img src="slide-3" className="amb-s3 absolute inset-0 w-full h-full" />
       <Img src="slide-3b" className="amb-s3b absolute inset-0 w-full h-full" />
       <Img src="slide-4" className="amb-s4 absolute inset-0 w-full h-full" />
+      {/* czerwona kropka wskaźnika laserowego prowadzącego — wędruje po treści slajdu */}
+      <span
+        className="amb-laser absolute rounded-full mix-blend-screen"
+        style={{ left: 0, top: 0, width: '6.5%', aspectRatio: '1', background: 'radial-gradient(circle, rgb(255,210,200) 12%, rgba(255,40,30,0.95) 30%, rgba(255,40,30,0.3) 52%, transparent 72%)' }}
+      />
     </div>
   )
 }
@@ -755,9 +830,9 @@ export default function RoomAmbient({ world, room, run, show, hot, lite, artClas
             className="amb-screenglow absolute rounded-full mix-blend-screen"
             style={{
               left: '60.5%',
-              top: '70%',
-              width: '52%',
-              height: '11%',
+              top: '67%',
+              width: '44%',
+              height: '6%',
               transform: 'translate(-50%,-50%)',
               background: 'radial-gradient(ellipse, rgba(120,255,170,0.42) 0%, rgba(120,255,170,0.14) 45%, transparent 70%)',
             }}
@@ -776,11 +851,11 @@ export default function RoomAmbient({ world, room, run, show, hot, lite, artClas
       )
       break
     case 'dev2':
-      art = <VaultArt />
+      art = <VaultArt run={run} hot={hot} />
       fx = (
         <>
           <Glow p={GLOW.crystal} name="glow-crystal" lo={0.25} hi={1} dur={2.6} />
-          <Glow p={GLOW.vault} name="glow-vault" lo={0.1} hi={0.5} dur={3.4} delay={-1.1} />
+          <Glow p={GLOW.vault} name="glow-vault" lo={0.05} hi={0.75} dur={2.2} delay={-1.1} />
           <VaultFx />
           <Sparkles lite={lite} />
         </>
@@ -797,19 +872,24 @@ export default function RoomAmbient({ world, room, run, show, hot, lite, artClas
           <Halo c={[GLOW.ringDev.l + GLOW.ringDev.w / 2, GLOW.ringDev.t + GLOW.ringDev.h / 2]} r={14} color="255,236,210" dur={2.4} lo={0.1} hi={1} delay={-1.2} />
           <Halo c={[62.6, 58]} r={12} color="255,190,110" dur={4.3} lo={0.3} />
           <Rec p={REC.dev} />
+          {/* tabliczka ON AIR: ciemna płytka na ścianie, co sekundę zapala się na czerwono */}
+          <span
+            className="absolute"
+            style={{ left: '24%', top: '33%', width: '18%', height: '6%', borderRadius: '0.8cqw', background: 'rgb(58,30,26)', boxShadow: '0 0.4cqw 0.6cqw rgba(0,0,0,0.45), inset 0 0 0 0.3cqw rgb(88,52,44)' }}
+          />
           <span
             className="amb-rec absolute flex items-center justify-center font-mono font-bold"
             style={{
-              left: '26%',
-              top: '34%',
-              width: '13%',
-              height: '4.2%',
-              fontSize: '2.3cqw',
+              left: '24%',
+              top: '33%',
+              width: '18%',
+              height: '6%',
+              fontSize: '3.2cqw',
               letterSpacing: '0.1em',
-              color: 'rgb(255,235,225)',
-              background: 'rgb(200,40,30)',
-              borderRadius: '0.6cqw',
-              boxShadow: '0 0 1.6cqw 0.4cqw rgba(255,60,40,0.55)',
+              color: 'rgb(255,240,232)',
+              background: 'rgb(214,44,32)',
+              borderRadius: '0.8cqw',
+              boxShadow: '0 0 2.4cqw 0.8cqw rgba(255,60,40,0.6), inset 0 0 0 0.3cqw rgb(255,120,100)',
             }}
           >
             ON AIR
@@ -877,7 +957,7 @@ export default function RoomAmbient({ world, room, run, show, hot, lite, artClas
   }
   if (!art && !fx) return null
   return (
-    <div aria-hidden="true" className={`absolute inset-0 pointer-events-none ${hot ? 'amb-hot' : ''}`} style={{ containerType: 'inline-size' }}>
+    <div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ containerType: 'inline-size' }}>
       {art && (
         <div className={`absolute inset-0 ${artClass ?? ''}`} style={artStyle}>
           {art}

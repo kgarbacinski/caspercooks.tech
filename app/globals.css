@@ -555,9 +555,9 @@ body.founder-mode {
 .amb-wrist { animation: amb-wrist 9.6s infinite; will-change: transform; }
 @keyframes amb-wrist {
   0%, 16% { transform: rotate(0deg); animation-timing-function: cubic-bezier(.4, 0, .3, 1); }
-  22% { transform: rotate(-30deg); animation-timing-function: ease-in-out; }
-  27% { transform: rotate(-26deg); animation-timing-function: ease-in-out; }
-  31% { transform: rotate(-30deg); animation-timing-function: cubic-bezier(.4, 0, .3, 1); }
+  22% { transform: rotate(-17deg); animation-timing-function: ease-in-out; }
+  27% { transform: rotate(-14deg); animation-timing-function: ease-in-out; }
+  31% { transform: rotate(-17deg); animation-timing-function: cubic-bezier(.4, 0, .3, 1); }
   37%, 70% { transform: rotate(0deg); animation-timing-function: ease-in-out; }
   74% { transform: rotate(12deg); animation-timing-function: ease-in-out; }
   78% { transform: rotate(-8deg); animation-timing-function: ease-in-out; }
@@ -586,24 +586,42 @@ body.founder-mode {
 .amb-lamp-dev { opacity: 0; animation: amb-lamp-dev 18.8s linear infinite; }
 @keyframes amb-lamp-dev {
   0%, 9% { opacity: 0; }
-  9.3% { opacity: 1; } 10.1% { opacity: 1; } 10.4% { opacity: 0; }
-  11.4% { opacity: 0; } 11.7% { opacity: .9; } 12.3% { opacity: .9; } 12.6% { opacity: 0; }
-  13.6% { opacity: 0; } 13.9% { opacity: 1; } 14.8% { opacity: 1; } 15.2% { opacity: .15; }
-  16%, 57% { opacity: 0; }
-  57.3% { opacity: 1; } 61.5% { opacity: 1; }
-  61.8% { opacity: .3; } 62.6% { opacity: .3; } 62.9% { opacity: 1; } 64% { opacity: 1; }
-  64.4%, 100% { opacity: 0; }
+  9.1%, 10.4% { opacity: 1; } 10.5%, 11.4% { opacity: 0; }
+  11.5%, 12.8% { opacity: .95; } 12.9%, 13.6% { opacity: 0; }
+  13.7%, 15.6% { opacity: 1; } 15.7%, 57% { opacity: 0; }
+  57.1%, 61.5% { opacity: 1; }
+  61.6%, 62.8% { opacity: .25; } 62.9%, 64.4% { opacity: 1; }
+  64.5%, 100% { opacity: 0; }
+}
+.amb-lamp-dev-on { animation: amb-lamp-dev-on 18.8s linear infinite; }
+@keyframes amb-lamp-dev-on {
+  0%, 9% { opacity: 1; }
+  9.1%, 10.4% { opacity: 0; } 10.5%, 11.4% { opacity: 1; }
+  11.5%, 12.8% { opacity: .05; } 12.9%, 13.6% { opacity: 1; }
+  13.7%, 15.6% { opacity: 0; } 15.7%, 57% { opacity: 1; }
+  57.1%, 61.5% { opacity: 0; }
+  61.6%, 62.8% { opacity: .75; } 62.9%, 64.4% { opacity: 0; }
+  64.5%, 100% { opacity: 1; }
 }
 .amb-lamp-ceo { opacity: 0; animation: amb-lamp-ceo 23.6s linear infinite; }
 @keyframes amb-lamp-ceo {
   0%, 19% { opacity: 0; }
-  19.2% { opacity: 1; } 22.4% { opacity: 1; }
-  22.6% { opacity: .25; } 23.3% { opacity: .25; } 23.5% { opacity: 1; } 24.3% { opacity: 1; }
+  19.1%, 22.4% { opacity: 1; }
+  22.5%, 23.4% { opacity: .25; } 23.5%, 24.5% { opacity: 1; }
   24.6%, 68% { opacity: 0; }
-  68.3% { opacity: 1; } 69% { opacity: 1; } 69.3% { opacity: 0; }
-  70.1% { opacity: 0; } 70.4% { opacity: 1; } 71% { opacity: 1; } 71.3% { opacity: 0; }
-  72.2% { opacity: 0; } 72.5% { opacity: .9; } 73.3% { opacity: .9; } 73.7% { opacity: 0; }
-  74.5% { opacity: 0; } 74.8% { opacity: 1; } 75.8% { opacity: 1; } 76.2%, 100% { opacity: 0; }
+  68.1%, 69.1% { opacity: 1; } 69.2%, 70% { opacity: 0; }
+  70.1%, 71.1% { opacity: 1; } 71.2%, 71.9% { opacity: 0; }
+  72%, 73.6% { opacity: 1; } 73.7%, 100% { opacity: 0; }
+}
+.amb-lamp-ceo-on { animation: amb-lamp-ceo-on 23.6s linear infinite; }
+@keyframes amb-lamp-ceo-on {
+  0%, 19% { opacity: 1; }
+  19.1%, 22.4% { opacity: 0; }
+  22.5%, 23.4% { opacity: .75; } 23.5%, 24.5% { opacity: 0; }
+  24.6%, 68% { opacity: 1; }
+  68.1%, 69.1% { opacity: 0; } 69.2%, 70% { opacity: 1; }
+  70.1%, 71.1% { opacity: 0; } 71.2%, 71.9% { opacity: 1; }
+  72%, 73.6% { opacity: 0; } 73.7%, 100% { opacity: 1; }
 }
 /* diody serwerów: kilka wzorów "aktywności dysku" */
 .amb-led-a { opacity: 0; animation: amb-led-a 1s steps(1, end) infinite; }
@@ -667,11 +685,13 @@ body.founder-mode {
 @keyframes amb-duck {
   0%, 100% { transform: rotate(-4deg); }
   14% { transform: rotate(4deg); } 28% { transform: rotate(-4deg); } 42% { transform: rotate(4deg); } 56% { transform: rotate(-3deg); }
-  64% { transform: translateY(0) scale(1.1, .85) rotate(0deg); animation-timing-function: cubic-bezier(.2, .7, .4, 1); }
-  71% { transform: translateY(-72%) scale(.92, 1.1) rotate(-16deg); animation-timing-function: cubic-bezier(.6, 0, .8, .4); }
-  78% { transform: translateY(0) scale(1.14, .82) rotate(10deg); animation-timing-function: ease-out; }
-  84% { transform: translateY(-16%) rotate(-6deg); }
-  90% { transform: translateY(0) rotate(3deg); }
+  62% { transform: translateY(0) scale(1, 1) rotate(0deg); animation-timing-function: ease-in; }
+  64% { transform: translateY(0) scale(1.12, .84) rotate(0deg); animation-timing-function: cubic-bezier(.2, .7, .4, 1); }
+  67.3% { transform: translateY(-70%) scale(.94, 1.08) rotate(-5deg); animation-timing-function: cubic-bezier(.6, 0, .8, .4); }
+  70.6% { transform: translateY(0) scale(1.15, .82) rotate(0deg); animation-timing-function: ease-out; }
+  73% { transform: translateY(-14%) scale(1, 1) rotate(0deg); animation-timing-function: ease-in; }
+  75.5% { transform: translateY(0) scale(1.05, .95) rotate(0deg); }
+  80% { transform: translateY(0) rotate(0deg); }
 }
 /* luneta: powolne skanowanie horyzontu z przystankami */
 .amb-scope { animation: amb-scope 11s ease-in-out infinite; }
@@ -681,38 +701,7 @@ body.founder-mode {
   60%, 74% { transform: rotate(6deg); }
   90%, 100% { transform: rotate(0deg); }
 }
-/* sejf (19 s): koło kręci się, drzwi wychylają na zawiasie, zielone światło wylewa się, zamyka */
-.amb-vault-door { animation: amb-vault-door 19s infinite; transform: perspective(320cqw) rotateY(0deg); will-change: transform; }
-@keyframes amb-vault-door {
-  0%, 61% { transform: perspective(320cqw) rotateY(0deg); animation-timing-function: cubic-bezier(.3, .1, .2, 1); }
-  68% { transform: perspective(320cqw) rotateY(-80deg); animation-timing-function: ease-in-out; }
-  70% { transform: perspective(320cqw) rotateY(-75deg); animation-timing-function: ease-in-out; }
-  86% { transform: perspective(320cqw) rotateY(-78deg); animation-timing-function: cubic-bezier(.6, 0, .8, .4); }
-  92.5% { transform: perspective(320cqw) rotateY(2deg); animation-timing-function: ease-out; }
-  94%, 100% { transform: perspective(320cqw) rotateY(0deg); }
-}
-.amb-vault-shade { opacity: 0; animation: amb-vault-shade 19s infinite; }
-@keyframes amb-vault-shade {
-  0%, 61% { opacity: 0; } 68%, 86% { opacity: .55; } 92.5%, 100% { opacity: 0; }
-}
-.amb-vault-wheel { animation: amb-vault-wheel 19s infinite; }
-@keyframes amb-vault-wheel {
-  0%, 54% { transform: rotate(0deg); animation-timing-function: cubic-bezier(.5, 0, .3, 1); }
-  60.5%, 93% { transform: rotate(-360deg); animation-timing-function: cubic-bezier(.5, 0, .3, 1); }
-  99%, 100% { transform: rotate(0deg); }
-}
-.amb-vault-spill { opacity: 0; animation: amb-vault-spill 19s infinite; }
-@keyframes amb-vault-spill {
-  0%, 62% { opacity: 0; } 68% { opacity: 1; } 76% { opacity: .8; } 84% { opacity: 1; } 91%, 100% { opacity: 0; }
-}
-/* najechanie na pokój: sejf otwiera się i czeka otwarty */
-.amb-hot .amb-vault-door { animation: amb-vault-door-hot 1.3s cubic-bezier(.3, .1, .2, 1) forwards; }
-@keyframes amb-vault-door-hot { from { transform: perspective(320cqw) rotateY(0deg); } to { transform: perspective(320cqw) rotateY(-78deg); } }
-.amb-hot .amb-vault-shade { animation: amb-fade-in-42 1.3s forwards; }
-@keyframes amb-fade-in-42 { to { opacity: .55; } }
-.amb-hot .amb-vault-spill { animation: amb-fade-in 1.3s forwards; }
-@keyframes amb-fade-in { to { opacity: 1; } }
-.amb-hot .amb-vault-wheel { animation: none; }
+/* sejf: sterowany z JS (Ambient.tsx → stepVault), odwracalny w każdej chwili (hover i cykl 19 s) */
 /* webinar (20 s): schemat z grafiki → wykres → lista → donut; wejście slajdu krótkim przesunięciem */
 .amb-sbg { opacity: 0; animation: amb-sbg 20s infinite; }
 @keyframes amb-sbg { 0%, 24.2% { opacity: 0; } 25.2%, 98.8% { opacity: 1; } 100% { opacity: 0; } }
@@ -720,9 +709,9 @@ body.founder-mode {
 @keyframes amb-s2 { 0%, 24.2% { opacity: 0; transform: translateX(4%); } 25.6%, 49% { opacity: 1; transform: translateX(0); } 50.4%, 100% { opacity: 0; } }
 .amb-s2b { opacity: 0; animation: amb-s2b 20s infinite; }
 @keyframes amb-s2b {
-  0%, 25.4% { opacity: 0; transform: scaleY(0); }
-  25.8% { opacity: 1; transform: scaleY(0); animation-timing-function: cubic-bezier(.3, 1.4, .5, 1); }
-  30%, 49% { opacity: 1; transform: scaleY(1); }
+  0%, 24.2% { opacity: 0; transform: scaleY(0); }
+  24.6% { opacity: 1; transform: scaleY(0); animation-timing-function: cubic-bezier(.3, 1.4, .5, 1); }
+  28.5%, 49% { opacity: 1; transform: scaleY(1); }
   50.4%, 100% { opacity: 0; transform: scaleY(1); }
 }
 .amb-s3 { opacity: 0; animation: amb-s3 20s infinite; }
@@ -737,24 +726,24 @@ body.founder-mode {
 /* telefon: "dotknięcie" ekranu przed każdym przewinięciem */
 .amb-tap { opacity: 0; animation: amb-tap 8s ease-out infinite; }
 @keyframes amb-tap {
-  0%, 4% { opacity: 0; transform: translate(-50%, -50%) scale(.2); }
-  5% { opacity: .7; } 10%, 25% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
-  26% { opacity: 0; transform: translate(-50%, -50%) scale(.2); } 27% { opacity: .7; }
-  32%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
+  0%, 2% { opacity: 0; transform: translate(-50%, -50%) scale(.2); }
+  3% { opacity: 1; } 5% { opacity: 1; } 9%, 23% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+  24% { opacity: 0; transform: translate(-50%, -50%) scale(.2); } 25% { opacity: 1; } 27% { opacity: 1; }
+  31%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
 }
 /* okna: poświata zapalonego okna (screen) */
 .amb-winglow { opacity: 0; animation: amb-winglow 12s steps(1, end) infinite; }
-@keyframes amb-winglow { 0% { opacity: 1; } 40% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes amb-winglow { 0% { opacity: 1; } 45% { opacity: 0; } 100% { opacity: 0; } }
 /* światło ostrzegawcze na wieżowcu: podwójne mrugnięcie */
 .amb-beacon { opacity: .1; animation: amb-beacon 1.8s steps(1, end) infinite; }
-@keyframes amb-beacon { 0% { opacity: 1; } 10% { opacity: .1; } 20% { opacity: 1; } 30%, 100% { opacity: .1; } }
+@keyframes amb-beacon { 0% { opacity: 1; } 14% { opacity: .1; } 26% { opacity: 1; } 42%, 100% { opacity: .1; } }
 /* spadająca gwiazda nad miastem (co 6.5 s) */
-.amb-meteor { opacity: 0; animation: amb-meteor 6.5s linear infinite; }
+.amb-meteor { opacity: 0; animation: amb-meteor 5.2s linear infinite; }
 @keyframes amb-meteor {
   0%, 60% { opacity: 0; transform: translate(0, 0) rotate(-18deg); }
   61% { opacity: 1; }
   70% { opacity: 1; }
-  72%, 100% { opacity: 0; transform: translate(-260%, 80%) rotate(-18deg); }
+  72%, 100% { opacity: 0; transform: translate(-190%, 70%) rotate(-18deg); }
 }
 /* diody: "wyścig" w dół kolumny szafy */
 .amb-led-chase { opacity: 0; animation: amb-led-chase 2.2s linear infinite; }
@@ -769,3 +758,18 @@ body.founder-mode {
 /* laptopy kursantów: krótki błysk ekranu co 6.4 s, każdy z innym opóźnieniem */
 .amb-laptop { opacity: 0; animation: amb-laptop 6.4s steps(1, end) infinite; }
 @keyframes amb-laptop { 0% { opacity: .9; } 6% { opacity: .2; } 9% { opacity: .9; } 22%, 100% { opacity: 0; } }
+/* webinar: wskaźnik laserowy (20 s, zsynchronizowany ze slajdami): wodzi po schemacie, słupkach, liście i donucie */
+.amb-laser { opacity: 0; animation: amb-laser 20s ease-in-out infinite; }
+@keyframes amb-laser {
+  0% { opacity: 0; transform: translate(1077%, 538%); }
+  3% { opacity: 1; transform: translate(846%, 500%); }
+  9% { transform: translate(615%, 269%); } 15% { transform: translate(1154%, 346%); } 21% { transform: translate(769%, 692%); }
+  24% { opacity: 1; } 25.5% { opacity: 0; transform: translate(846%, 769%); }
+  28% { opacity: 0; transform: translate(769%, 1000%); } 30% { opacity: 1; }
+  36% { transform: translate(1038%, 885%); } 42% { transform: translate(1269%, 538%); } 48% { opacity: 1; transform: translate(1308%, 462%); }
+  50% { opacity: 0; } 53% { opacity: 0; transform: translate(692%, 577%); } 55% { opacity: 1; }
+  60% { transform: translate(692%, 808%); } 66% { transform: translate(692%, 1038%); } 73% { opacity: 1; transform: translate(1000%, 1115%); }
+  75% { opacity: 0; } 78% { opacity: 0; transform: translate(1154%, 769%); } 80% { opacity: 1; }
+  87% { transform: translate(1269%, 577%); } 93% { transform: translate(1038%, 923%); } 98% { opacity: 1; }
+  100% { opacity: 0; transform: translate(1077%, 538%); }
+}
