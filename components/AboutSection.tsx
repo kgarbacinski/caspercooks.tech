@@ -227,7 +227,7 @@ export default function AboutSection() {
   // scena przypięta: postęp scrolla → aktywna notatka + zoom kamery w pokój
   const sceneRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: sceneRef, offset: ['start start', 'end end'] })
-  const zoom = useSpring(useTransform(scrollYProgress, [0, 1], reduce ? [1, 1] : [1.18, 0.96]), { stiffness: 80, damping: 22 })
+  const zoom = useSpring(useTransform(scrollYProgress, [0, 1], reduce ? [1, 1] : [1.06, 0.94]), { stiffness: 80, damping: 22 })
   const panY = useSpring(useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [-10, 10]), { stiffness: 80, damping: 22 })
   const glow = useTransform(scrollYProgress, [0, 0.5, 1], [0.35, 0.8, 0.55])
   const [active, setActive] = useState(0)
@@ -251,7 +251,7 @@ export default function AboutSection() {
                 className="absolute inset-x-[8%] bottom-[6%] h-[40%] rounded-[50%] blur-3xl"
                 style={{ background: 'rgb(var(--accent-rgb) / 0.22)', opacity: glow }}
               />
-              <motion.div className="relative w-[92%] max-w-[580px] mt-10" style={{ scale: zoom, y: panY, transformOrigin: '50% 70%' }}>
+              <motion.div className="relative w-[86%] max-w-[540px] mt-10 -translate-x-[4%]" style={{ scale: zoom, y: panY, transformOrigin: '50% 70%' }}>
                 <AnimatePresence mode="popLayout" initial={false}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <motion.img
