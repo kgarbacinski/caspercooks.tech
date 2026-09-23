@@ -64,7 +64,7 @@ export default function HeroSection() {
   const uiFade = useTransform(scrollY, [0, 200], [1, 0])
 
   return (
-    <section className="relative z-10 min-h-[100svh] lg:min-h-[135vh] lg:items-start lg:pt-[max(6rem,calc((100vh-620px)/2))] flex items-center overflow-x-clip pt-20 sm:pt-24 pb-16 lg:pb-20">
+    <section className="relative z-10 min-h-[100svh] lg:min-h-[125vh] lg:items-start lg:pt-[max(6rem,calc((100vh-620px)/2))] flex items-center overflow-x-clip pt-20 sm:pt-24 pb-16 lg:pb-20">
       {/* daleki grzbiet gór na horyzoncie (motyw ścian dioramy) */}
       {/* góry znikają razem z UI przy wjeździe kamery (inaczej prześwitują przez gasnący pokój) */}
       <motion.div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ opacity: uiFade }}>
@@ -92,7 +92,7 @@ export default function HeroSection() {
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 grid lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)] gap-8 lg:gap-6 items-center">
         {/* przy przełączeniu stara treść gaśnie razem ze światłami wyspy, nowa wjeżdża po zmianie motywu */}
         <motion.div style={{ opacity: uiFade }} className="max-lg:!opacity-100">
-        <motion.div animate={{ opacity: phase === 'leaving' ? 0.3 : 1, y: 0 }} transition={{ duration: 0.45, ease: EASE }}>
+        <motion.div animate={{ opacity: phase === 'leaving' ? 0.2 : 1, y: 0 }} transition={{ duration: 0.45, ease: EASE }}>
         <AnimatePresence mode={reduce ? 'popLayout' : 'wait'}>
           <motion.div key={theme} initial={reduce ? false : 'hidden'} animate="show" exit={reduce ? undefined : 'exit'} variants={{ show: { transition: { staggerChildren: 0.08, delayChildren: phase === 'idle' ? 0 : 0.3 } }, exit: { transition: { staggerChildren: 0.03 } } }}>
             <motion.p variants={fade} className="eyebrow mb-5">

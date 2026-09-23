@@ -47,11 +47,11 @@ const Figure = forwardRef<FigureHandle, { theme: Theme; dim: boolean; reduce: bo
     await animate(scope.current, { scaleY: 0.84, scaleX: 1.1, y: '3%' }, { duration: 0.16, ease: 'easeOut' })
     if (gen.current !== run) return
     setPose('jump')
-    await animate(scope.current, { scaleY: 1.08, scaleX: 0.95, y: '-115%', x: '60%', rotate: 14 }, { duration: 0.32, ease: [0.2, 0.8, 0.4, 1] })
+    await animate(scope.current, { scaleY: 1.08, scaleX: 0.95, y: '-70%', x: '60%', rotate: 14 }, { duration: 0.32, ease: [0.2, 0.8, 0.4, 1] })
     if (gen.current !== run) return
     // łukiem w górę i w prawo, nad pokojami, z dala od tekstu (nie przez skałę)
     setPresent(false)
-    await animate(scope.current, { y: '-150%', x: '320%', rotate: 60, scaleY: 0.9, scaleX: 0.9, opacity: 0 }, { duration: 0.6, ease: [0.3, 0, 0.7, 1] })
+    await animate(scope.current, { y: '-85%', x: '320%', rotate: 60, scaleY: 0.9, scaleX: 0.9, opacity: 0 }, { duration: 0.6, ease: [0.3, 0, 0.7, 1] })
   }, [animate, scope])
 
   const hide = useCallback(() => {
