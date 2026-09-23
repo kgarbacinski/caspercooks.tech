@@ -235,6 +235,9 @@ export default function AboutSection() {
   // ten sam pokój pokazuje powiększona wyspa z hero (podmiana 1:1, bez skoku)
   const { scrollYProgress: pinIn } = useScroll({ target: sceneRef, offset: ['start end', 'start start'] })
   const shown = useTransform(pinIn, (v): number => (reduce ? 1 : v >= 0.985 ? 1 : 0))
+  // położenie kolumny = 100vh·(1−q)^2.5 zamiast 100vh·(1−q): monotonicznie, szybciej na starcie,
+  // z miękkim dojazdem do przypięcia (q = postęp wjazdu sceny od dołu ekranu do góry)
+  const colY = useTransform(pinIn, (v) => (reduce ? '0vh' : `${(Math.pow(1 - v, 2.5) - (1 - v)) * 100}vh`))
   const glowBase = useTransform(scrollYProgress, [0, 0.5, 1], [0.35, 0.8, 0.55])
   const glow = useTransform([glowBase, shown], ([g, v]: number[]) => g * v)
   // figurka w tym samym miejscu względem pokoju co na wyspie
@@ -259,7 +262,7 @@ export default function AboutSection() {
 
       {/* ——— desktop: przypięta scena ——— */}
       <div ref={sceneRef} className="relative hidden lg:block" style={{ height: `${steps * 62 + 60}vh` }}>
-        <div data-dive-stage className="sticky top-0 h-screen overflow-hidden">
+        <div data-dive-stage className="sticky top-0 h-screen overflow-x-clip">
           <div className="max-w-6xl mx-auto px-8 h-full grid grid-cols-[1.05fr_1fr] gap-10 items-center">
             {/* pokój, w który wjeżdża kamera */}
             <div className="relative h-[80vh] flex items-center justify-center">
@@ -297,8 +300,9 @@ export default function AboutSection() {
               </div>
             </div>
 
-            {/* tablica z notatkami */}
-            <div className="relative">
+            {/* tablica z notatkami — przed przypięciem wjeżdża szybciej niż scroll, żeby prawa połowa
+                kadru nie stała pusta, gdy kamera z hero dojeżdża do pokoju */}
+            <motion.div className="relative" style={{ y: colY }}>
               <SectionHeader index="01" eyebrow="about.txt" title="About" className="mb-8" />
               <div className="flex items-center justify-between gap-4 mb-10">
                 <StoryTabs story={story} setStory={setStory} lid="story-tab-d" />
@@ -321,7 +325,7 @@ export default function AboutSection() {
                         reduce
                           ? { opacity: depth === 0 ? 1 : 0 }
                           : shown
-                            ? { opacity: depth > 3 ? 0 : 1 - depth * 0.2, y: depth * 16, scale: 1 - depth * 0.045, rotateX: 0, filter: `brightness(${1 - depth * 0.16})` }
+                            ? { opacity: depth > 2 ? 0 : 1, y: depth * 16, scale: 1 - depth * 0.045, rotateX: 0, filter: `brightness(${1 - depth * 0.16})` }
                             : { opacity: 0, y: 90, scale: 1.04, rotateX: -35, filter: 'brightness(1)' }
                       }
                       transition={{ duration: 0.6, ease: EASE }}
@@ -337,7 +341,7 @@ export default function AboutSection() {
               <div className="mt-8 h-px bg-cocoa-500/50 relative overflow-hidden" aria-hidden="true">
                 <motion.div className="absolute inset-y-0 left-0 w-full bg-accent shadow-glow origin-left" style={{ scaleX: scrollYProgress }} />
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

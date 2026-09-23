@@ -66,7 +66,7 @@ export default function Diorama() {
   // mobile: startowo pokazujemy pokój z figurką
   useEffect(() => {
     const el = panRef.current
-    if (el && el.scrollWidth > el.clientWidth) el.scrollLeft = (el.scrollWidth - el.clientWidth) * 0.12
+    if (el && el.scrollWidth > el.clientWidth) el.scrollLeft = (el.scrollWidth - el.clientWidth) * 0.05
   }, [])
   const [bounceRef, animateBounce] = useAnimate()
   const k = KEY[theme]
@@ -236,10 +236,10 @@ export default function Diorama() {
     const t = clamp01(p / 0.85)
     return 1 - (1 - t) * (1 - t)
   })
-  // tor pokoju biegnie szybciej niż zbliżenie: pokój od razu zajmuje miejsce gasnącego tekstu po lewej
+  // tor pokoju: rusza łagodnie (tekst hero najpierw gaśnie), potem szybko zajmuje lewą kolumnę
   const camPos = useTransform(diveP, (p) => {
-    const t = clamp01(p / 0.7)
-    return 1 - Math.pow(1 - t, 3)
+    const t = clamp01(p / 0.62)
+    return t * t * (3 - 2 * t)
   })
   const cam = (e: number, q: number) => {
     const g = geo.current
@@ -256,7 +256,7 @@ export default function Diorama() {
   const camY = useTransform([camE, camPos], ([e, q]: number[]) => cam(e, q).y)
   const camS = useTransform([camE, camPos], ([e, q]: number[]) => cam(e, q).s)
   // reszta wyspy gaśnie w pierwszej połowie drogi — zanim obok pojawią się notatki
-  const rest = useTransform(diveP, [0.05, 0.27], [1, 0])
+  const rest = useTransform(diveP, [0.03, 0.2], [1, 0])
   // podmiana na scenę About dokładnie w chwili jej przypięcia
   const handoff = useTransform([scrollY, geoTick], ([v]: number[]) => (v >= span.current - 1 ? 0 : 1))
 

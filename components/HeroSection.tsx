@@ -39,13 +39,15 @@ const COPY = {
 
 const EASE = [0.22, 1, 0.36, 1] as const
 // nagłówek: samo przenikanie z uniesieniem (bez rozmycia — filtr na dużym tekście to zbędny koszt i szum)
+// warianty grają tylko przy zmianie motywu (pierwszy render jest bez wejścia): nowa treść podmienia
+// starą w tej samej klatce i startuje od półprzezroczystości — kolumna nigdy nie jest pusta ani podwójna
 const rise = {
-  hidden: { opacity: 0, y: 14 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE } },
+  hidden: { opacity: 0.4, y: 10 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE } },
 }
 const fade = {
-  hidden: { opacity: 0, y: 14 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } },
+  hidden: { opacity: 0.4, y: 8 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE } },
 }
 const pop = {
   hidden: { opacity: 0, y: 18, rotateX: -60 },
@@ -57,8 +59,8 @@ type Part = 'head' | 'lines' | 'stats' | 'cta'
 /**
  * Jedna część treści hero. Przy przełączeniu DEV ⇄ CEO:
  *  - przed zmianą motywu cała treść przygasa razem ze światłami wyspy (wciąż czytelna),
- *  - nagłówek i linie: stara wersja gaśnie w 0,15 s, nowa wjeżdża tuż po niej; obie leżą w tej samej
- *    komórce siatki ([grid-area:1/1]), więc wysokość się nie zmienia i nic pod spodem nie skacze,
+ *  - nagłówek i linie: nowa wersja zastępuje starą w tej samej klatce (od 40% krycia, z lekkim
+ *    uniesieniem); obie leżą w jednej komórce siatki ([grid-area:1/1]), więc nic pod spodem nie skacze,
  *  - karty statystyk i przyciski zostają na miejscu — zmienia się tylko napis w kartach
  *    i kolor akcentu, więc kolumna nigdy nie jest pusta.
  */
@@ -68,11 +70,13 @@ function CopyPart({ part, className = '' }: { part: Part; className?: string }) 
   const reduce = useReducedMotion()
   // desktop: przy "wjeździe kamery" w pokój tekst hero znika jako pierwszy
   const { scrollY } = useScroll()
-  const uiFade = useTransform(scrollY, [0, 150], [1, 0])
+  const uiFade = useTransform(scrollY, [0, 110], [1, 0])
+  const uiShift = useTransform(scrollY, [0, 140], [0, -70])
   const swaps = part === 'head' || part === 'lines'
 
   return (
-    <motion.div style={{ opacity: uiFade }} className={`max-lg:!opacity-100 ${className}`}>
+    // desktop: tekst gaśnie i odsuwa się w lewo przed nadjeżdżającą wyspą (mobile: bez zmian)
+    <motion.div style={{ opacity: uiFade, x: uiShift }} className={`max-lg:!opacity-100 max-lg:![transform:none] ${className}`}>
       {/* zwykły div z przejściem CSS: przygaszenie na czas gaszenia świateł */}
       <div className="grid" style={{ opacity: phase === 'leaving' ? 0.45 : 1, transition: 'opacity .45s ease' }}>
         {/* bez animacji wejścia przy pierwszym renderze: nagłówek i przyciski są widoczne od pierwszego
@@ -85,8 +89,8 @@ function CopyPart({ part, className = '' }: { part: Part; className?: string }) 
             animate="show"
             exit={reduce ? undefined : 'exit'}
             variants={{
-              show: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.04 } },
-              exit: { opacity: 0, transition: { duration: 0.12, ease: EASE } },
+              show: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0 } },
+              exit: { opacity: 0, transition: { duration: 0 } },
             }}
           >
             {part === 'head' && (
@@ -131,9 +135,9 @@ function CopyPart({ part, className = '' }: { part: Part; className?: string }) 
                       <motion.div
                         key={s.value}
                         className="[grid-area:1/1]"
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0, transition: { duration: 0.3, delay: 0.05 * i } }}
-                        exit={{ opacity: 0, y: -6, transition: { duration: 0.2 } }}
+                        initial={{ opacity: 0.4, y: 5 }}
+                        animate={{ opacity: 1, y: 0, transition: { duration: 0.35, delay: 0.04 * i } }}
+                        exit={{ opacity: 0, transition: { duration: 0 } }}
                       >
                         <div className="text-accent text-[12px] xl:text-[13px] whitespace-nowrap">{s.value}</div>
                         <div className="text-paper-dim text-[10px] sm:text-xs whitespace-nowrap">{s.label}</div>
