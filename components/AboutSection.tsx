@@ -3,7 +3,9 @@
 import { motion, useInView } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useRef, useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import { FaLaptopCode, FaRocket, FaGraduationCap, FaMobileAlt, FaBullseye, FaRobot } from 'react-icons/fa'
+import { Section } from '@/components/ui/Section'
 
 function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
   const [count, setCount] = useState(0)
@@ -31,205 +33,158 @@ function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: strin
   }, [isInView, value])
 
   return (
-    <div ref={ref} className="text-4xl font-bold">
+    <div ref={ref} className="font-display text-3xl sm:text-4xl text-accent tabular-nums">
       {count}{suffix}
     </div>
   )
 }
 
+function Stats({ items }: { items: { value: number; suffix?: string; label: string }[] }) {
+  return (
+    <div className="grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-cocoa-500/40">
+      {items.map((s) => (
+        <div key={s.label} className="text-center">
+          <AnimatedCounter value={s.value} suffix={s.suffix} />
+          <div className="font-mono text-[11px] uppercase tracking-wider text-paper-dim mt-2">{s.label}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function CardHeader({ icon, title }: { icon: ReactNode; title: string }) {
+  return (
+    <div className="flex items-center gap-4 mb-6">
+      <div className="w-11 h-11 grid place-items-center border border-cocoa-500/60 bg-cocoa-800 text-accent">
+        {icon}
+      </div>
+      <h3 className="font-display text-2xl text-paper">{title}</h3>
+    </div>
+  )
+}
+
+const reveal = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-80px' },
+}
+
 export default function AboutSection() {
   const { theme } = useTheme()
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-100px' })
-  const [isMobile, setIsMobile] = useState(false)
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  const cardBase = 'paper-card p-6 sm:p-8 transition duration-300 hover:border-accent/50 hover:-translate-y-1'
+  const strong = 'text-paper font-medium'
 
   return (
-    <section id="about" className="py-16 sm:py-24 md:py-32 px-4 sm:px-8" ref={ref}>
-      <div className="max-w-7xl mx-auto">
-        <motion.h2
-          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={isMobile ? {} : { duration: 0.5 }}
-          className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-12 sm:mb-16 md:mb-20 font-mono"
+    <Section id="about" index="01" eyebrow="about.txt" title="About">
+      <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
+        {/* Developer Bio */}
+        <motion.div
+          {...reveal}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className={`${cardBase} ${theme === 'developer' ? 'border-accent/40' : ''} ${
+            theme === 'founder' ? 'hidden md:block' : ''
+          }`}
         >
-          <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
-            {'$ cat '}
-          </span>
-          about.txt
-        </motion.h2>
+          <CardHeader icon={<FaLaptopCode className="w-5 h-5" />} title="Developer Journey" />
 
-        <div className="grid md:grid-cols-2 gap-8 sm:gap-12 md:gap-16">
-          {/* Developer Bio */}
-          <motion.div
-            initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={isMobile ? {} : { duration: 0.6, delay: 0.2 }}
-            className={`
-              p-8 rounded-2xl
-              ${isMobile ? '' : 'transition-all duration-500'}
-              ${theme === 'developer'
-                ? 'bg-developer-secondary border-2 border-developer-accent'
-                : 'bg-white/5 border-2 border-transparent'}
-              ${theme === 'founder' ? 'hidden md:block' : ''}
-            `}
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                theme === 'developer' ? 'bg-developer-accent text-developer-bg' : 'bg-gray-700'
-              }`}>
-                <FaLaptopCode className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold">Developer Journey</h3>
-            </div>
+          <div className="space-y-4 text-sm sm:text-base leading-relaxed text-paper-muted">
+            <p>
+              <strong className="text-accent font-medium">Since 2015</strong>, I&apos;ve been crafting
+              digital experiences and solving complex problems with code. Started my full-time
+              career while still in high school, driven by passion and curiosity.
+            </p>
 
-            <div className="space-y-4 text-sm sm:text-base text-gray-300">
-              <p>
-                <strong className="text-developer-accent">Since 2015</strong>, I've been crafting
-                digital experiences and solving complex problems with code. Started my full-time
-                career while still in high school, driven by passion and curiosity.
-              </p>
+            <p>
+              For me, <strong className={strong}>programming languages are just tools</strong>. With deep domain
+              knowledge and adaptability, I write efficient code in any stack - from C++ and
+              Python to production LLM agents.
+            </p>
 
-              <p>
-                For me, <strong>programming languages are just tools</strong>. With deep domain
-                knowledge and adaptability, I write efficient code in any stack - from C++ and
-                Python to production LLM agents.
-              </p>
+            <p>
+              Built systems from scratch for companies like <strong className={strong}>Invicta</strong> (microservices),
+              <strong className={strong}> Nokia</strong> (5G R&amp;D) and <strong className={strong}> Red Bull</strong> (data + backend platform).
+              Led technical teams and architected solutions for top-tier brands.
+            </p>
 
-              <p>
-                Built systems from scratch for companies like <strong>Invicta</strong> (microservices),
-                <strong> Nokia</strong> (5G R&amp;D) and <strong> Red Bull</strong> (data + backend platform).
-                Led technical teams and architected solutions for top-tier brands.
-              </p>
+            <p>
+              Currently focused on <strong className="text-accent font-medium">production AI</strong> -
+              agentic, LLM-based systems on Temporal and RAG pipelines - alongside Web3 (dApps,
+              Solidity, subgraphs). Always pushing boundaries and learning new paradigms.
+            </p>
 
-              <p>
-                Currently focused on <strong className="text-developer-accent">production AI</strong> -
-                agentic, LLM-based systems on Temporal and RAG pipelines - alongside Web3 (dApps,
-                Solidity, subgraphs). Always pushing boundaries and learning new paradigms.
-              </p>
+            <p>
+              As a mentor at <strong className={strong}>devs-mentoring.pl</strong>, I help Mid and Senior backend
+              developers level up, change projects, and achieve their career goals.
+            </p>
+          </div>
 
-              <p>
-                As a mentor at <strong>devs-mentoring.pl</strong>, I help Mid and Senior backend
-                developers level up, change projects, and achieve their career goals.
-              </p>
-            </div>
+          <Stats
+            items={[
+              { value: 10, suffix: '+', label: 'Years' },
+              { value: 9, label: 'Projects' },
+              { value: 5, label: 'From Scratch' },
+            ]}
+          />
+        </motion.div>
 
-            {/* Developer Stats */}
-            <div className="grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-gray-700">
-              <div className="text-center">
-                <div className="text-developer-accent">
-                  <AnimatedCounter value={10} suffix="+" />
-                </div>
-                <div className="text-sm text-gray-500 mt-1">Years</div>
-              </div>
-              <div className="text-center">
-                <div className="text-developer-accent">
-                  <AnimatedCounter value={9} />
-                </div>
-                <div className="text-sm text-gray-500 mt-1">Projects</div>
-              </div>
-              <div className="text-center">
-                <div className="text-developer-accent">
-                  <AnimatedCounter value={5} />
-                </div>
-                <div className="text-sm text-gray-500 mt-1">From Scratch</div>
-              </div>
-            </div>
-          </motion.div>
+        {/* Founder Bio */}
+        <motion.div
+          {...reveal}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className={`${cardBase} ${theme === 'founder' ? 'border-accent/40' : ''} ${
+            theme === 'developer' ? 'hidden md:block' : ''
+          }`}
+        >
+          <CardHeader icon={<FaRocket className="w-5 h-5" />} title="Founder Story" />
 
-          {/* Founder Bio */}
-          <motion.div
-            initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={isMobile ? {} : { duration: 0.6, delay: 0.4 }}
-            className={`
-              p-8 rounded-2xl
-              ${isMobile ? '' : 'transition-all duration-500'}
-              ${theme === 'founder'
-                ? 'bg-gray-900/40 border-2 border-founder-accent shadow-xl'
-                : 'bg-white/5 border-2 border-transparent'}
-              ${theme === 'developer' ? 'hidden md:block' : ''}
-            `}
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                theme === 'founder' ? 'bg-founder-accent text-white' : 'bg-gray-700'
-              }`}>
-                <FaRocket className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold">Founder Story</h3>
-            </div>
+          <div className="space-y-4 text-sm sm:text-base leading-relaxed text-paper-muted">
+            <p>
+              Building products is one thing. <strong className="text-accent font-medium">Building
+              companies that empower others</strong> is what drives me.
+            </p>
 
-            <div className={`space-y-4 text-sm sm:text-base ${theme === 'founder' ? 'text-gray-200' : 'text-gray-300'}`}>
-              <p>
-                Building products is one thing. <strong className="text-founder-accent">Building
-                companies that empower others</strong> is what drives me.
-              </p>
+            <p className="flex items-start gap-3">
+              <FaGraduationCap className="w-4 h-4 mt-1 shrink-0 text-ember" />
+              <span><strong className={strong}>devs-mentoring.pl</strong> - Assembled a team of 15 expert programming
+              mentors, creating a platform where developers accelerate their careers through
+              personalized guidance.</span>
+            </p>
 
-              <p className="flex items-start gap-2">
-                <FaGraduationCap className="w-4 h-4 mt-1 shrink-0 text-founder-accent" />
-                <span><strong>devs-mentoring.pl</strong> - Assembled a team of 15 expert programming
-                mentors, creating a platform where developers accelerate their careers through
-                personalized guidance.</span>
-              </p>
+            <p className="flex items-start gap-3">
+              <FaMobileAlt className="w-4 h-4 mt-1 shrink-0 text-ember" />
+              <span><strong className={strong}>coderiv.com</strong> - Envisioned and building a mobile application that
+              will revolutionize how developers learn and collaborate.</span>
+            </p>
 
-              <p className="flex items-start gap-2">
-                <FaMobileAlt className="w-4 h-4 mt-1 shrink-0 text-founder-accent" />
-                <span><strong>coderiv.com</strong> - Envisioned and building a mobile application that
-                will revolutionize how developers learn and collaborate.</span>
-              </p>
+            <p className="flex items-start gap-3">
+              <FaBullseye className="w-4 h-4 mt-1 shrink-0 text-ember" />
+              <span><strong className={strong}>devs-hunting.com</strong> - Evaluated and coordinated project delivery
+              for clients like Redsoft, connecting top talent with meaningful opportunities.</span>
+            </p>
 
-              <p className="flex items-start gap-2">
-                <FaBullseye className="w-4 h-4 mt-1 shrink-0 text-founder-accent" />
-                <span><strong>devs-hunting.com</strong> - Evaluated and coordinated project delivery
-                for clients like Redsoft, connecting top talent with meaningful opportunities.</span>
-              </p>
+            <p className="flex items-start gap-3">
+              <FaRobot className="w-4 h-4 mt-1 shrink-0 text-ember" />
+              <span><strong className={strong}>Efektywniejsi</strong> - Co-founded with
+              2 partners to teach people how to harness AI agents and n8n automation. Delivered
+              numerous webinars, sharing knowledge with live audiences.</span>
+            </p>
 
-              <p className="flex items-start gap-2">
-                <FaRobot className="w-4 h-4 mt-1 shrink-0 text-founder-accent" />
-                <span><strong>Efektywniejsi</strong> - Co-founded with
-                2 partners to teach people how to harness AI agents and n8n automation. Delivered
-                numerous webinars, sharing knowledge with live audiences.</span>
-              </p>
+            <p>
+              My mission: <strong className={strong}>Create ecosystems where developers thrive</strong>, combining
+              technical expertise with business acumen to build sustainable, impactful ventures.
+            </p>
+          </div>
 
-              <p>
-                My mission: <strong>Create ecosystems where developers thrive</strong>, combining
-                technical expertise with business acumen to build sustainable, impactful ventures.
-              </p>
-            </div>
-
-            {/* Founder Stats */}
-            <div className={`grid grid-cols-3 gap-4 mt-8 pt-8 border-t ${theme === 'founder' ? 'border-gray-700' : 'border-gray-300'}`}>
-              <div className="text-center">
-                <div className="text-founder-accent">
-                  <AnimatedCounter value={4} />
-                </div>
-                <div className={`text-sm mt-1 ${theme === 'founder' ? 'text-gray-500' : 'text-gray-500'}`}>Brands</div>
-              </div>
-              <div className="text-center">
-                <div className="text-founder-accent">
-                  <AnimatedCounter value={15} suffix="+" />
-                </div>
-                <div className={`text-sm mt-1 ${theme === 'founder' ? 'text-gray-500' : 'text-gray-500'}`}>Mentors</div>
-              </div>
-              <div className="text-center">
-                <div className="text-founder-accent">
-                  <AnimatedCounter value={300} suffix="+" />
-                </div>
-                <div className={`text-sm mt-1 ${theme === 'founder' ? 'text-gray-500' : 'text-gray-500'}`}>Devs Helped</div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
+          <Stats
+            items={[
+              { value: 4, label: 'Brands' },
+              { value: 15, suffix: '+', label: 'Mentors' },
+              { value: 300, suffix: '+', label: 'Devs Helped' },
+            ]}
+          />
+        </motion.div>
       </div>
-    </section>
+    </Section>
   )
 }

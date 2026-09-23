@@ -1,25 +1,21 @@
 'use client'
 
-import { motion, useInView } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
-import { useRef, useState, useEffect } from 'react'
-import { FaTiktok, FaGraduationCap, FaRocket, FaCode, FaBookOpen, FaFlag } from 'react-icons/fa'
+import { FaTiktok, FaGraduationCap, FaRocket, FaCode, FaBookOpen, FaFlag, FaArrowRight } from 'react-icons/fa'
 import Image from 'next/image'
+import { Section } from '@/components/ui/Section'
+
+const reveal = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-80px' },
+}
+
+const TIKTOK_URL = 'https://www.tiktok.com/@kacper.senior.dev'
 
 export default function TikTokSection() {
   const { theme } = useTheme()
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
 
   const contentTypes = [
     { icon: FaGraduationCap, text: 'Mentor insights' },
@@ -29,222 +25,138 @@ export default function TikTokSection() {
   ]
 
   return (
-    <section id="tiktok" className="py-16 sm:py-24 md:py-32 px-4 sm:px-8 relative overflow-hidden" ref={ref}>
-      {/* Background grid */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'linear-gradient(to right, #333 1px, transparent 1px), linear-gradient(to bottom, #333 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-        }} />
-      </div>
-
-      <div className="max-w-7xl mx-auto relative z-10">
-        {/* Terminal Header */}
+    <Section
+      id="tiktok"
+      index="05"
+      eyebrow="tiktok --lang=pl --content=dev"
+      title="Programming content in Polish"
+    >
+      <div className="grid md:grid-cols-2 gap-10 sm:gap-14 items-center">
+        {/* Phone with thumbnail */}
         <motion.div
-          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={isMobile ? {} : { duration: 0.5 }}
-          className="text-center mb-12 sm:mb-16 md:mb-20"
+          {...reveal}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          className="flex justify-center"
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 font-mono">
-            <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
-              {'$ tiktok '}
-            </span>
-            --lang=pl --content=dev
-          </h2>
-          <p className={`max-w-2xl mx-auto font-mono text-sm sm:text-base px-4 ${theme === 'founder' ? 'text-gray-300' : 'text-gray-400'}`}>
-            {'// Programming content in Polish'}
-          </p>
-        </motion.div>
-
-        <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
-          {/* Phone Mockup with Thumbnail */}
-          <motion.div
-            initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={isMobile ? {} : { duration: 0.6, delay: 0.2 }}
-            className="flex justify-center"
+          <a
+            href={TIKTOK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative group block transition-transform duration-300 hover:-translate-y-1"
           >
-            <motion.a
-              href="https://www.tiktok.com/@kacper.senior.dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={isMobile ? {} : { scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="relative group cursor-pointer"
-            >
-              {/* Phone Frame */}
-              <div className={`
-                relative w-[240px] sm:w-[280px] h-[480px] sm:h-[560px] rounded-[40px] p-2
-                ${theme === 'developer'
-                  ? 'bg-gradient-to-b from-gray-800 to-gray-900 shadow-[0_0_60px_rgba(0,255,136,0.2)]'
-                  : 'bg-gradient-to-b from-gray-700 to-gray-800 shadow-[0_0_60px_rgba(255,107,53,0.2)]'}
-              `}>
-                {/* Screen */}
-                <div className={`
-                  relative w-full h-full rounded-[32px] overflow-hidden
-                  ${theme === 'developer' ? 'bg-developer-bg' : 'bg-gray-900'}
-                `}>
-                  {/* Thumbnail */}
-                  <Image
-                    src="/tiktok-thumbnail.png"
-                    alt="TikTok content preview"
-                    fill
-                    className="object-cover"
-                  />
+            {/* Phone frame: paper-card surface */}
+            <div className="paper-card relative w-[240px] sm:w-[280px] h-[480px] sm:h-[560px] rounded-[36px] p-2 shadow-paper">
+              {/* Screen */}
+              <div className="relative w-full h-full rounded-[28px] overflow-hidden bg-cocoa-900 border border-cocoa-500/40">
+                <Image
+                  src="/tiktok-thumbnail.png"
+                  alt="TikTok content preview"
+                  fill
+                  className="object-cover"
+                />
 
-                  {/* Play Button Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-all duration-300">
-                    <motion.div
-                      className={`
-                        w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center
-                        ${theme === 'developer'
-                          ? 'bg-developer-accent/90'
-                          : 'bg-founder-accent/90'}
-                      `}
-                      whileHover={{ scale: 1.1 }}
-                    >
-                      <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    </motion.div>
-                  </div>
-
-                  {/* TikTok Logo Badge */}
-                  <div className="absolute top-4 right-4">
-                    <div className={`
-                      w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center
-                      ${theme === 'developer' ? 'bg-developer-accent' : 'bg-founder-accent'}
-                    `}>
-                      <FaTiktok className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                    </div>
-                  </div>
-
-                  {/* Username */}
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <div className="bg-black/60 backdrop-blur-sm rounded-lg px-3 py-2">
-                      <p className="text-white font-bold text-sm sm:text-base">@kacper.senior.dev</p>
-                      <p className="text-gray-300 text-xs">Polish dev community</p>
-                    </div>
+                {/* Play overlay */}
+                <div className="absolute inset-0 flex items-center justify-center bg-night/35 group-hover:bg-night/15 transition-colors duration-300">
+                  <div
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center bg-accent/90 transition-transform duration-300 group-hover:scale-105"
+                    style={{ boxShadow: '0 10px 40px -8px rgb(var(--accent-rgb) / 0.6)' }}
+                  >
+                    <svg className="w-8 h-8 sm:w-10 sm:h-10 text-night ml-1" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
                   </div>
                 </div>
 
-                {/* Notch */}
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 w-20 h-6 bg-black rounded-full" />
-              </div>
-            </motion.a>
-          </motion.div>
+                {/* TikTok badge */}
+                <div className="absolute top-4 right-4 w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-cocoa-900/80 border border-cocoa-500/60 backdrop-blur-sm">
+                  <FaTiktok className="w-4 h-4 sm:w-5 sm:h-5 text-paper" />
+                </div>
 
-          {/* Info Card */}
-          <motion.div
-            initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={isMobile ? {} : { duration: 0.6, delay: 0.4 }}
-            className="space-y-6"
-          >
-            {/* Main Card */}
-            <div className={`
-              p-6 sm:p-8 rounded-2xl
-              ${theme === 'founder'
-                ? 'bg-gray-900/40 border-2 border-founder-accent'
-                : 'bg-developer-secondary border-2 border-developer-accent/20'}
-            `}>
-              {/* Polish Badge */}
-              <div className="flex items-center gap-2 mb-4">
-                <span className={`
-                  px-3 py-1 rounded-full text-xs font-bold
-                  ${theme === 'developer'
-                    ? 'bg-developer-accent/20 text-developer-accent'
-                    : 'bg-founder-accent/20 text-founder-accent'}
-                `}>
-                  <FaFlag className="inline-block w-3 h-3 mr-1" /> Polish Content
-                </span>
+                {/* Username */}
+                <div className="absolute bottom-4 left-4 right-4 bg-cocoa-900/85 border border-cocoa-500/50 backdrop-blur-sm px-3 py-2">
+                  <p className="text-paper font-display text-base sm:text-lg leading-tight">@kacper.senior.dev</p>
+                  <p className="font-mono text-[11px] text-paper-muted">Polish dev community</p>
+                </div>
               </div>
 
-              {/* Theme-aware Title & Description */}
-              <h3 className="text-xl sm:text-2xl font-bold mb-3">
-                {theme === 'developer'
-                  ? 'Programming Mentor on TikTok'
-                  : 'Devs-Mentoring on TikTok'}
-              </h3>
-              <p className={`mb-6 text-sm sm:text-base ${theme === 'founder' ? 'text-gray-300' : 'text-gray-400'}`}>
-                {theme === 'developer'
-                  ? 'Sharing knowledge and experience with the Polish dev community. Short, practical content for learning.'
-                  : 'We promote programming mentorship through valuable content. TikTok is our platform for sharing knowledge.'}
-              </p>
-
-              {/* Content Types */}
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                {contentTypes.map((item, index) => (
-                  <motion.div
-                    key={item.text}
-                    initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : {}}
-                    transition={isMobile ? {} : { delay: 0.6 + index * 0.1 }}
-                    className={`
-                      flex items-center gap-2 p-2 rounded-lg
-                      ${theme === 'founder' ? 'bg-gray-800/50' : 'bg-gray-700/30'}
-                    `}
-                  >
-                    <item.icon className={`w-4 h-4 ${theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}`} />
-                    <span className="text-xs sm:text-sm font-medium">{item.text}</span>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* CTA Button */}
-              <motion.a
-                href="https://www.tiktok.com/@kacper.senior.dev"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`
-                  w-full px-6 py-3 sm:px-8 sm:py-4 rounded-lg font-bold text-sm sm:text-base
-                  flex items-center justify-center gap-2 transition-all duration-300
-                  ${theme === 'developer'
-                    ? 'bg-developer-accent text-developer-bg hover:bg-developer-accent/90'
-                    : 'bg-founder-accent text-white hover:bg-founder-accent/90'}
-                `}
-              >
-                <FaTiktok className="w-5 h-5" />
-                Follow on TikTok
-              </motion.a>
+              {/* Notch */}
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 w-20 h-5 bg-night rounded-full" />
             </div>
+          </a>
+        </motion.div>
 
-            {/* Bottom link - different for each mode */}
-            <motion.a
-              href={theme === 'founder' ? 'https://devs-mentoring.pl/' : 'https://www.tiktok.com/@kacper.senior.dev'}
+        {/* Info */}
+        <motion.div
+          {...reveal}
+          transition={{ duration: 0.6, delay: 0.15, ease: 'easeOut' }}
+          className="space-y-5"
+        >
+          <div className="paper-card p-6 sm:p-8">
+            {/* Polish badge */}
+            <span className="inline-flex items-center gap-1.5 font-mono text-[11px] px-2 py-1 border border-accent/40 text-accent mb-5">
+              <FaFlag className="w-3 h-3" /> Polish Content
+            </span>
+
+            <h3 className="font-display text-2xl sm:text-3xl text-paper mb-3 leading-tight">
+              {theme === 'developer'
+                ? 'Programming Mentor on TikTok'
+                : 'Devs-Mentoring on TikTok'}
+            </h3>
+            <p className="text-paper-muted mb-7 text-sm sm:text-base leading-relaxed">
+              {theme === 'developer'
+                ? 'Sharing knowledge and experience with the Polish dev community. Short, practical content for learning.'
+                : 'We promote programming mentorship through valuable content. TikTok is our platform for sharing knowledge.'}
+            </p>
+
+            {/* Content types */}
+            <ul className="grid grid-cols-2 gap-2 sm:gap-3 mb-7">
+              {contentTypes.map((item) => (
+                <li
+                  key={item.text}
+                  className="flex items-center gap-2 px-3 py-2.5 border border-cocoa-500/50 bg-cocoa-900/40"
+                >
+                  <item.icon className="w-3.5 h-3.5 shrink-0 text-ember" />
+                  <span className="text-xs sm:text-sm text-paper">{item.text}</span>
+                </li>
+              ))}
+            </ul>
+
+            {/* CTA */}
+            <a
+              href={TIKTOK_URL}
               target="_blank"
               rel="noopener noreferrer"
-              initial={isMobile ? { opacity: 1 } : { opacity: 0 }}
-              animate={isInView ? { opacity: 1 } : {}}
-              transition={isMobile ? {} : { delay: 0.8 }}
-              whileHover={{ scale: 1.02 }}
-              className={`
-                block p-4 rounded-xl text-center transition-all duration-300
-                ${theme === 'founder'
-                  ? 'bg-gradient-to-r from-founder-accent/20 to-orange-500/20 border border-founder-accent/30 hover:border-founder-accent/50'
-                  : 'bg-gradient-to-r from-developer-accent/20 to-cyan-500/20 border border-developer-accent/30 hover:border-developer-accent/50'}
-              `}
+              className="btn-accent w-full justify-center"
             >
-              <p className={`text-sm ${theme === 'founder' ? 'text-gray-300' : 'text-gray-400'}`}>
-                {theme === 'founder' ? (
-                  <>
-                    Want more? Visit{' '}
-                    <span className="text-founder-accent font-bold">devs-mentoring.pl</span>
-                  </>
-                ) : (
-                  <>
-                    Join the{' '}
-                    <span className="text-developer-accent font-bold">Polish dev community</span>
-                  </>
-                )}
-              </p>
-            </motion.a>
-          </motion.div>
-        </div>
+              <FaTiktok className="w-4 h-4" />
+              Follow on TikTok
+            </a>
+          </div>
+
+          {/* Bottom link - different for each mode */}
+          <a
+            href={theme === 'founder' ? 'https://devs-mentoring.pl/' : TIKTOK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center justify-between gap-4 px-5 py-4 border border-cocoa-500/50 hover:border-accent/50 transition-colors"
+          >
+            <p className="text-sm text-paper-muted">
+              {theme === 'founder' ? (
+                <>
+                  Want more? Visit{' '}
+                  <span className="text-paper group-hover:text-accent transition-colors">devs-mentoring.pl</span>
+                </>
+              ) : (
+                <>
+                  Join the{' '}
+                  <span className="text-paper group-hover:text-accent transition-colors">Polish dev community</span>
+                </>
+              )}
+            </p>
+            <FaArrowRight className="w-3.5 h-3.5 text-paper-dim group-hover:text-accent group-hover:translate-x-1 transition" />
+          </a>
+        </motion.div>
       </div>
-    </section>
+    </Section>
   )
 }

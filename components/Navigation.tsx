@@ -3,197 +3,125 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useState, useEffect } from 'react'
-import SteamAnimation from './SteamAnimation'
+
+const navLinks = [
+  { href: '#about', label: 'about' },
+  { href: '#projects', label: 'projects' },
+  { href: '#brands', label: 'brands' },
+  { href: '#contact', label: 'contact' },
+]
 
 export default function Navigation() {
   const { theme, toggleTheme } = useTheme()
   const [activeSection, setActiveSection] = useState('')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isMobileScreen, setIsMobileScreen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
-    const checkScreen = () => {
-      setIsMobileScreen(window.innerWidth < 768) // md breakpoint
-    }
-    checkScreen()
-    window.addEventListener('resize', checkScreen)
-    return () => window.removeEventListener('resize', checkScreen)
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   useEffect(() => {
-    const sections = ['about', 'projects', 'brands', 'contact']
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id)
-          }
+          if (entry.isIntersecting) setActiveSection(entry.target.id)
         })
       },
-      {
-        rootMargin: '-20% 0px -60% 0px',
-        threshold: 0
-      }
+      { rootMargin: '-20% 0px -60% 0px', threshold: 0 },
     )
-
-    sections.forEach((section) => {
-      const element = document.getElementById(section)
-      if (element) {
-        observer.observe(element)
-      }
+    navLinks.forEach(({ label }) => {
+      const el = document.getElementById(label)
+      if (el) observer.observe(el)
     })
-
     return () => observer.disconnect()
   }, [])
 
-  const navLinks = [
-    { href: '#about', label: 'about' },
-    { href: '#projects', label: 'projects' },
-    { href: '#brands', label: 'brands' },
-    { href: '#contact', label: 'contact' },
-  ]
-
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 py-4 sm:py-6 backdrop-blur-sm bg-black/20">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="font-mono text-sm relative"
-        >
-          <SteamAnimation theme={theme} />
-          <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
-            $ caspercooks.tech
+    <nav
+      className={`fixed top-0 inset-x-0 z-50 transition-colors duration-300 ${
+        scrolled ? 'bg-night/80 backdrop-blur-md border-b border-cocoa-500/40' : 'bg-transparent'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between">
+        <a href="#" className="flex items-center gap-3 group">
+          {/* pieczęć KG — ta sama co na froncie wyspy */}
+          <span className="grid place-items-center w-9 h-9 rounded-full bg-terracotta text-paper font-display text-sm shadow-[inset_0_-2px_0_rgba(0,0,0,0.25),0_0_0_3px_rgba(184,102,63,0.25)]">
+            KG
           </span>
-          <span className="animate-pulse ml-1">_</span>
-        </motion.div>
+          <span className="font-mono text-sm text-paper group-hover:text-accent transition-colors">
+            caspercooks<span className="text-accent">.tech</span>
+          </span>
+        </a>
 
-        {/* Desktop Navigation Links */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="hidden md:flex items-center gap-8 font-mono text-sm"
-        >
+        <div className="hidden md:flex items-center gap-8 font-mono text-sm">
           {navLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}
-              className={`
-                transition-all duration-300
-                ${activeSection === link.label
-                  ? theme === 'developer'
-                    ? 'text-developer-accent opacity-100'
-                    : 'text-founder-accent opacity-100'
-                  : 'opacity-70 hover:opacity-100'}
-              `}
+              className={`relative py-1 transition-colors ${
+                activeSection === link.label ? 'text-accent' : 'text-paper-muted hover:text-paper'
+              }`}
             >
-              [{link.label}]
+              {link.label}
+              {activeSection === link.label && (
+                <motion.span layoutId="nav-underline" className="absolute -bottom-1 inset-x-0 h-px bg-accent shadow-glow" />
+              )}
             </a>
           ))}
-        </motion.div>
+        </div>
 
-        {/* Mobile Menu Button & Theme Toggle */}
-        <div className="flex items-center gap-2 sm:gap-4">
-          {/* Mobile Menu Button */}
-          <motion.button
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`
-              md:hidden w-10 h-10 flex items-center justify-center relative
-              ${theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}
-            `}
-            aria-label="Toggle menu"
-          >
-            <div className="relative w-6 h-6 flex items-center justify-center">
-              <motion.span
-                animate={isMobileMenuOpen ? { rotate: 45, y: 0 } : { rotate: 0, y: -6 }}
-                className={`absolute w-6 h-0.5 transition-colors ${
-                  theme === 'developer' ? 'bg-developer-accent' : 'bg-founder-accent'
-                }`}
-              />
-              <motion.span
-                animate={isMobileMenuOpen ? { opacity: 0 } : { opacity: 1 }}
-                className={`w-6 h-0.5 transition-colors ${
-                  theme === 'developer' ? 'bg-developer-accent' : 'bg-founder-accent'
-                }`}
-              />
-              <motion.span
-                animate={isMobileMenuOpen ? { rotate: -45, y: 0 } : { rotate: 0, y: 6 }}
-                className={`absolute w-6 h-0.5 transition-colors ${
-                  theme === 'developer' ? 'bg-developer-accent' : 'bg-founder-accent'
-                }`}
-              />
-            </div>
-          </motion.button>
-
-          {/* Theme Toggle */}
-          <motion.button
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+        <div className="flex items-center gap-3">
+          {/* przełącznik trybu: DEV / CEO */}
+          <button
             onClick={toggleTheme}
-            className={`
-              relative w-20 sm:w-24 h-10 sm:h-12 rounded-full transition-all duration-300 flex items-center p-1
-              ${theme === 'developer'
-                ? 'bg-developer-secondary border-2 border-developer-accent/40 shadow-lg shadow-developer-accent/20'
-                : 'bg-founder-secondary border-2 border-founder-accent/40 shadow-lg shadow-founder-accent/20'}
-            `}
+            aria-label={`Switch to ${theme === 'developer' ? 'founder' : 'developer'} view`}
+            className="relative flex items-center w-[104px] h-10 p-1 border border-cocoa-500 bg-cocoa-800 font-mono text-[11px]"
           >
-            <motion.div
+            <motion.span
               layout
-              className={`
-                w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold
-                ${theme === 'developer' ? 'bg-developer-accent text-developer-bg' : 'bg-founder-accent text-white'}
-                shadow-md
-              `}
-              animate={{
-                x: theme === 'developer' ? 0 : isMobileScreen ? 40 : 52
-              }}
-              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-            >
-              {theme === 'developer' ? 'DEV' : 'CEO'}
-            </motion.div>
-          </motion.button>
+              transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+              className="absolute top-1 bottom-1 w-[48px] bg-accent"
+              style={{ left: theme === 'developer' ? 4 : 52 }}
+            />
+            <span className={`relative z-10 w-1/2 text-center ${theme === 'developer' ? 'text-night' : 'text-paper-muted'}`}>DEV</span>
+            <span className={`relative z-10 w-1/2 text-center ${theme === 'founder' ? 'text-night' : 'text-paper-muted'}`}>CEO</span>
+          </button>
+
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden w-10 h-10 grid place-items-center border border-cocoa-500 text-paper"
+            aria-label="Toggle menu"
+            aria-expanded={isMobileMenuOpen}
+          >
+            <span className="font-mono text-lg leading-none">{isMobileMenuOpen ? '×' : '≡'}</span>
+          </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className={`
-              md:hidden overflow-hidden
-              ${theme === 'developer' ? 'bg-developer-bg/95' : 'bg-founder-bg/95'}
-              backdrop-blur-lg border-t
-              ${theme === 'developer' ? 'border-developer-accent/20' : 'border-founder-accent/20'}
-            `}
+            className="md:hidden overflow-hidden bg-night/95 backdrop-blur-lg border-t border-cocoa-500/40"
           >
-            <div className="px-4 py-6 space-y-4">
-              {navLinks.map((link, index) => (
-                <motion.a
+            <div className="px-4 py-4">
+              {navLinks.map((link) => (
+                <a
                   key={link.label}
                   href={link.href}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ delay: index * 0.1 }}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`
-                    block py-3 px-4 rounded-lg font-mono text-lg transition-all duration-300
-                    ${activeSection === link.label
-                      ? theme === 'developer'
-                        ? 'bg-developer-accent/20 text-developer-accent border-l-4 border-developer-accent'
-                        : 'bg-founder-accent/20 text-founder-accent border-l-4 border-founder-accent'
-                      : 'opacity-70 hover:opacity-100 hover:pl-6'}
-                  `}
+                  className={`block py-3 font-mono text-lg border-b border-cocoa-500/30 ${
+                    activeSection === link.label ? 'text-accent' : 'text-paper'
+                  }`}
                 >
-                  [{link.label}]
-                </motion.a>
+                  {link.label}
+                </a>
               ))}
             </div>
           </motion.div>

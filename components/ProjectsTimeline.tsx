@@ -5,6 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { useInView } from 'framer-motion'
+import { Section } from '@/components/ui/Section'
 import { FaLaptopCode, FaRocket } from 'react-icons/fa'
 
 interface Project {
@@ -170,7 +171,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
   const [isFlipped, setIsFlipped] = useState(false)
   const { theme } = useTheme()
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-50px' })
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -186,50 +187,58 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
     (theme === 'developer' && project.type === 'developer') ||
     (theme === 'founder' && project.type === 'founder')
 
+  const isDev = project.type === 'developer'
+
   return (
     <motion.div
       ref={ref}
-      initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+      initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={isMobile ? {} : { 
-        duration: 0.6, 
-        delay: index * 0.1,
-        ease: 'easeOut' 
+      transition={isMobile ? {} : {
+        duration: 0.6,
+        delay: index * 0.08,
+        ease: 'easeOut'
       }}
-      className={`relative ${project.type === 'developer' ? 'md:pr-8 md:text-right' : 'md:pl-8'}`}
+      className={`relative pl-8 ${isDev ? 'md:pl-0 md:pr-10 md:text-right' : 'md:pl-10'}`}
     >
-      <motion.div
-        className={`
-          p-4 sm:p-6 rounded-xl cursor-pointer transition-all duration-500
-          min-h-[320px] sm:min-h-[380px]
-          ${isActive
-            ? project.type === 'developer'
-              ? 'bg-developer-secondary border-2 border-developer-accent shadow-lg shadow-developer-accent/20'
-              : 'bg-gray-900/40 border-2 border-founder-accent shadow-lg shadow-founder-accent/20'
-            : 'bg-gray-800/30 border-2 border-gray-700 opacity-50'}
-        `}
-        whileHover={{ scale: isActive ? 1.02 : 1, opacity: isActive ? 1 : 0.7 }}
+      <div
+        role="button"
+        tabIndex={0}
+        aria-pressed={isFlipped}
         onClick={() => setIsFlipped(!isFlipped)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            setIsFlipped(!isFlipped)
+          }
+        }}
+        className={`
+          paper-card p-6 sm:p-8 cursor-pointer transition duration-300
+          min-h-[320px] sm:min-h-[380px]
+          focus:outline-none focus-visible:border-accent
+          ${isActive
+            ? 'hover:border-accent/50 hover:-translate-y-1'
+            : 'opacity-50 hover:opacity-70'}
+        `}
       >
         {!isFlipped ? (
           // Front of card
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between mb-3">
+            <div className={`flex items-center justify-between gap-4 mb-5 ${isDev ? 'md:flex-row-reverse' : ''}`}>
               <div className="flex items-center gap-2">
-                {project.type === 'developer'
-                  ? <FaLaptopCode className="w-6 h-6 text-white" />
-                  : <FaRocket className="w-6 h-6 text-white" />
+                {isDev
+                  ? <FaLaptopCode className="w-4 h-4 text-paper-muted" />
+                  : <FaRocket className="w-4 h-4 text-paper-muted" />
                 }
-                <span className={`text-sm font-mono ${
-                  project.type === 'developer' ? 'text-developer-accent' : 'text-founder-accent'
-                }`}>
+                <span className={`font-mono text-xs ${isActive ? 'text-accent' : 'text-paper-dim'}`}>
                   {project.year}
                 </span>
               </div>
               {project.logo && (
                 <div className={`
-                  relative w-12 h-12 flex items-center justify-center rounded-full overflow-hidden
-                  ${project.company === 'Efektywniejsi' ? 'bg-gray-800 p-0.5' : 'bg-gray-100'}
+                  relative w-11 h-11 shrink-0 flex items-center justify-center rounded-full overflow-hidden
+                  border border-cocoa-500/60
+                  ${project.company === 'Efektywniejsi' ? 'bg-cocoa-900 p-0.5' : 'bg-paper'}
                   ${project.company === 'coderiv.com' ? 'p-0.5' : project.company === 'Efektywniejsi' ? '' : 'p-1'}
                 `}>
                   <Image
@@ -243,69 +252,65 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
               )}
             </div>
 
-            <h3 className="text-lg sm:text-xl font-bold mb-1">{project.title}</h3>
-            <p className={`text-xs sm:text-sm mb-3 ${theme === 'founder' && isActive ? 'text-gray-300' : 'text-gray-400'}`}>
+            <h3 className="font-display text-2xl leading-tight text-paper mb-2">{project.title}</h3>
+            <p className="font-mono text-xs text-paper-dim mb-4">
               {project.company} • {project.role}
             </p>
 
-            <p className={`text-xs sm:text-sm mb-4 ${theme === 'founder' && isActive ? 'text-gray-200' : 'text-gray-300'}`}>
+            <p className="text-sm text-paper-muted leading-relaxed mb-5">
               {project.description}
             </p>
 
-            <div className="flex flex-wrap gap-2">
+            <div className={`flex flex-wrap gap-2 ${isDev ? 'md:justify-end' : ''}`}>
               {project.tech.map((tech, i) => (
                 <span
                   key={i}
-                  className={`
-                    text-xs px-2 py-1 rounded-full
-                    ${project.type === 'developer'
-                      ? 'bg-developer-accent/20 text-developer-accent'
-                      : 'bg-founder-accent/20 text-founder-accent'}
-                  `}
+                  className="font-mono text-[11px] px-2 py-1 border border-cocoa-500/60 text-paper-muted"
                 >
                   {tech}
                 </span>
               ))}
             </div>
 
-            <div className="mt-4 text-xs text-gray-500 flex items-center gap-1">
+            <div className={`mt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-paper-dim flex items-center gap-1.5 ${isDev ? 'md:justify-end' : ''}`}>
               <span>Click to see impact</span>
-              <span>↻</span>
+              <span className="text-accent">↻</span>
             </div>
           </div>
         ) : (
           // Back of card - Impact
           <motion.div
-            initial={{ rotateY: 180 }}
-            animate={{ rotateY: 0 }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
             className="h-full flex flex-col justify-center py-8"
           >
             <div>
-              <h4 className="text-lg font-bold mb-4">Impact & Results</h4>
-              <p className={`text-sm ${theme === 'founder' && isActive ? 'text-gray-200' : 'text-gray-300'}`}>
+              <p className="eyebrow mb-3">{project.company}</p>
+              <h4 className="font-display text-2xl text-paper mb-4">Impact & Results</h4>
+              <p className="text-base text-paper-muted leading-relaxed">
                 {project.impact || 'Successfully delivered complex solution with high code quality and performance. Collaborated with cross-functional teams to exceed client expectations.'}
               </p>
 
-              <div className="mt-6 text-xs text-gray-500 flex items-center gap-1">
+              <div className={`mt-8 font-mono text-[11px] uppercase tracking-[0.14em] text-paper-dim flex items-center gap-1.5 ${isDev ? 'md:justify-end' : ''}`}>
                 <span>Click to see details</span>
-                <span>↻</span>
+                <span className="text-accent">↻</span>
               </div>
             </div>
           </motion.div>
         )}
-      </motion.div>
+      </div>
 
       {/* Timeline dot */}
       <div
+        aria-hidden="true"
         className={`
-          hidden md:block absolute top-8 w-4 h-4 rounded-full border-4
-          ${project.type === 'developer' ? 'right-0 translate-x-1/2' : 'left-0 -translate-x-1/2'}
-          ${isActive
-            ? project.type === 'developer'
-              ? 'bg-developer-accent border-developer-bg'
-              : 'bg-founder-accent border-founder-bg'
-            : 'bg-gray-700 border-gray-900'}
+          absolute top-9 w-2.5 h-2.5 rounded-full ring-4 ring-night
+          left-0 -translate-x-1/2
+          ${isDev ? 'md:left-auto md:right-0 md:translate-x-1/2' : 'md:left-0 md:-translate-x-1/2'}
+          ${isActive ? 'bg-accent' : 'bg-cocoa-500'}
         `}
+        style={isActive ? { boxShadow: '0 0 12px rgb(var(--accent-rgb) / 0.6)' } : undefined}
       />
     </motion.div>
   )
@@ -314,7 +319,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
 export default function ProjectsTimeline() {
   const { theme } = useTheme()
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
   const [showAll, setShowAll] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -338,90 +343,65 @@ export default function ProjectsTimeline() {
   const visibleFounderProjects = showAll ? founderProjects : founderProjects.slice(0, 3)
 
   return (
-    <section id="projects" className="py-16 sm:py-24 md:py-32 px-4 sm:px-8 relative overflow-hidden" ref={ref}>
-      {/* Background decoration */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full blur-3xl" />
-      </div>
+    <Section
+      id="projects"
+      index="02"
+      eyebrow="Projects"
+      title={<span className="font-mono text-3xl sm:text-4xl md:text-5xl tracking-normal">git log --all --oneline</span>}
+      lead={
+        <>
+          Dual-track journey: technical excellence + entrepreneurial ventures
+          <br />
+          <span className="text-paper-dim text-base">Click cards to flip and see impact metrics</span>
+        </>
+      }
+    >
+      <div ref={ref} className="relative">
+        {/* Timeline line: left on mobile, centered on desktop */}
+        <div
+          aria-hidden="true"
+          className="absolute top-0 bottom-0 left-0 w-px bg-cocoa-500/60 md:left-1/2 md:-translate-x-1/2"
+        />
 
-      <div className="max-w-7xl mx-auto relative z-10">
-        <motion.div
-          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={isMobile ? {} : { duration: 0.6, ease: 'easeOut' }}
-          className="text-center mb-12 sm:mb-16 md:mb-20"
-        >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 font-mono">
-            <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
-              {'$ git log '}
-            </span>
-            --all --oneline
-          </h2>
-          <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto font-mono px-4">
-            {'// Dual-track journey: technical excellence + entrepreneurial ventures'}
-            <br />
-            {'// Click cards to flip and see impact metrics'}
-          </p>
-        </motion.div>
+        {/* Projects Grid */}
+        <div className="grid md:grid-cols-2 gap-8 md:gap-0">
+          {/* Developer Column - always render on desktop, conditionally on mobile */}
+          {(theme === 'developer' || isDesktop) && (
+            <div className="space-y-8">
+              {visibleDeveloperProjects.map((project, index) => (
+                <ProjectCard key={project.id} project={project} index={index} />
+              ))}
+            </div>
+          )}
 
-        {/* Timeline */}
-        <div className="relative">
-          {/* Central line */}
-          <div className={`
-            hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 -translate-x-1/2
-            ${theme === 'developer' ? 'bg-developer-accent/30' : 'bg-founder-accent/30'}
-          `} />
-
-          {/* Projects Grid */}
-          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 md:gap-16">
-            {/* Developer Column - always render on desktop, conditionally on mobile */}
-            {(theme === 'developer' || isDesktop) && (
-              <div className="space-y-6 sm:space-y-8">
-                {visibleDeveloperProjects.map((project, index) => (
-                  <ProjectCard key={project.id} project={project} index={index} />
-                ))}
-              </div>
-            )}
-
-            {/* Founder Column - always render on desktop, conditionally on mobile */}
-            {(theme === 'founder' || isDesktop) && (
-              <div className="space-y-6 sm:space-y-8">
-                {visibleFounderProjects.map((project, index) => (
-                  <ProjectCard key={project.id} project={project} index={index} />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Show More/Less Button */}
-          {(developerProjects.length > 4 || founderProjects.length > 3) && (
-            <motion.div
-              initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={isMobile ? {} : { 
-                duration: 0.6, 
-                delay: 0.8,
-                ease: 'easeOut' 
-              }}
-              className="flex justify-center mt-12"
-            >
-              <button
-                onClick={() => setShowAll(!showAll)}
-                className={`
-                  px-8 py-4 rounded-full font-mono font-medium transition-all duration-300
-                  ${theme === 'developer'
-                    ? 'bg-developer-accent text-developer-bg hover:bg-developer-accent/90'
-                    : 'bg-founder-accent text-white hover:bg-founder-accent/90'}
-                  shadow-lg hover:scale-105 transform
-                `}
-              >
-                {showAll ? '↑ Show Less' : '↓ Show More Projects'}
-              </button>
-            </motion.div>
+          {/* Founder Column - always render on desktop, conditionally on mobile */}
+          {(theme === 'founder' || isDesktop) && (
+            <div className="space-y-8 md:pt-24">
+              {visibleFounderProjects.map((project, index) => (
+                <ProjectCard key={project.id} project={project} index={index} />
+              ))}
+            </div>
           )}
         </div>
+
+        {/* Show More/Less Button */}
+        {(developerProjects.length > 4 || founderProjects.length > 3) && (
+          <motion.div
+            initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={isMobile ? {} : {
+              duration: 0.6,
+              delay: 0.6,
+              ease: 'easeOut'
+            }}
+            className="relative flex justify-center mt-14 bg-night py-2"
+          >
+            <button onClick={() => setShowAll(!showAll)} className="btn-ghost bg-night">
+              {showAll ? '↑ Show Less' : '↓ Show More Projects'}
+            </button>
+          </motion.div>
+        )}
       </div>
-    </section>
+    </Section>
   )
 }

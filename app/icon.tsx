@@ -14,19 +14,21 @@ export default function Icon() {
     (
       <div
         style={{
-          fontSize: 24,
-          background: '#0a0a0a',
+          fontSize: 14,
+          background: '#b8663f',
+          borderRadius: '50%',
+          boxShadow: 'inset 0 -2px 0 rgba(0,0,0,0.25)',
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#00ff88',
-          fontFamily: 'monospace',
+          color: '#f1e4cf',
+          fontFamily: 'serif',
           fontWeight: 'bold',
         }}
       >
-        $
+        KG
       </div>
     ),
     {

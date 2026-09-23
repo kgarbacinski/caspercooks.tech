@@ -1,8 +1,9 @@
 'use client'
 
-import { motion, useInView } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
-import { useRef, useState, useEffect } from 'react'
+import { useState } from 'react'
+import { Section } from '@/components/ui/Section'
 import {
   SiPython, SiJavascript, SiTypescript, SiCplusplus, SiSolidity, SiGo,
   SiDjango, SiFastapi, SiNextdotjs, SiDocker, SiKubernetes, SiPostgresql,
@@ -88,181 +89,125 @@ const categories = {
   tools: { name: 'Tools & Frameworks', color: 'orange' },
 }
 
-export default function TechStack() {
-  const { theme } = useTheme()
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
-  const [activeCategory, setActiveCategory] = useState<string | null>('languages')
-  const [isMobile, setIsMobile] = useState(false)
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+const reveal = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-80px' },
+}
+
+export default function TechStack() {
+  // motyw przełącza tylko kolor akcentu (przez zmienne CSS), wygląd jest wspólny
+  useTheme()
+  const [activeCategory, setActiveCategory] = useState<string | null>('languages')
 
   const filteredTechs = activeCategory
     ? technologies.filter(t => t.category === activeCategory)
     : []
 
   return (
-    <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-8 relative overflow-hidden" ref={ref}>
-      {/* Background */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle, #888 1px, transparent 1px)',
-          backgroundSize: '30px 30px',
-        }} />
-      </div>
-
-      <div className="max-w-7xl mx-auto relative z-10">
-        <motion.div
-          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={isMobile ? {} : { duration: 0.6, ease: 'easeOut' }}
-          className="text-center mb-12"
-        >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 font-mono">
-            <span className="text-developer-accent">
-              {'$ ls -la '}
-            </span>
-            /usr/bin/skills
-          </h2>
-          <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto mb-8 font-mono px-4">
-            {'// Languages = tools | Domain knowledge = power'}
-            <br />
-            {'// Adaptability allows writing efficient code in any stack'}
-          </p>
-        </motion.div>
-
-        {/* Category Filter */}
-        <motion.div
-          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={isMobile ? {} : { 
-            duration: 0.6, 
-            delay: 0.2,
-            ease: 'easeOut' 
-          }}
-          className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-12 sm:mb-16 px-4"
-        >
-          {Object.entries(categories).map(([key, cat]) => (
+    <Section
+      id="stack"
+      index="03"
+      eyebrow="ls -la /usr/bin/skills"
+      title={
+        <>
+          Languages = tools.
+          <br />
+          <span className="text-paper-muted">Domain knowledge = power.</span>
+        </>
+      }
+      lead="Adaptability allows writing efficient code in any stack"
+    >
+      {/* Category Filter */}
+      <motion.div
+        {...reveal}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="flex flex-wrap gap-2 mb-10 sm:mb-12"
+        role="tablist"
+      >
+        {Object.entries(categories).map(([key, cat]) => {
+          const active = activeCategory === key
+          return (
             <button
               key={key}
+              role="tab"
+              aria-selected={active}
               onClick={() => setActiveCategory(key)}
-              className={`
-                px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium text-sm sm:text-base transition-all duration-300
-                ${activeCategory === key
-                  ? 'bg-developer-accent text-developer-bg'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}
-              `}
+              className={`px-3 sm:px-4 py-2 font-mono text-xs sm:text-sm border transition-colors duration-200 ${
+                active
+                  ? 'border-accent text-accent bg-accent/10'
+                  : 'border-cocoa-500/60 text-paper-muted hover:border-accent/50 hover:text-paper'
+              }`}
             >
               {cat.name}
             </button>
-          ))}
-        </motion.div>
+          )
+        })}
+      </motion.div>
 
-        {/* Tech Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {filteredTechs.map((tech, index) => (
-            <motion.div
-              key={tech.name}
-              initial={isMobile ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.8, y: 20 }}
-              animate={isInView ? { opacity: 1, scale: 1, y: 0 } : {}}
-              transition={isMobile ? {} : { 
-                duration: 0.4, 
-                delay: index * 0.05,
-                ease: 'easeOut' 
-              }}
-              whileHover={isMobile ? {} : {
-                scale: 1.05,
-                rotate: [0, -2, 2, 0],
-                transition: { duration: 0.3 }
-              }}
-              className="relative group p-4 sm:p-6 rounded-2xl cursor-pointer transition-all duration-300 bg-developer-secondary border-2 border-developer-accent/20 hover:border-developer-accent"
-            >
-              {/* Category Badge */}
-              <div className="absolute -top-2 -right-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full text-xs flex items-center justify-center bg-developer-accent text-developer-bg">
-                {tech.category === 'web2' ? '2' : tech.category === 'web3' ? '3' : tech.category === 'ai' ? 'AI' : '•'}
-              </div>
+      {/* Tech Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+        {filteredTechs.map((tech, index) => (
+          <motion.div
+            key={tech.name}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: index * 0.04, ease: 'easeOut' }}
+            tabIndex={0}
+            className="paper-card group p-4 sm:p-6 cursor-default transition duration-300 hover:border-accent/50 hover:-translate-y-1 focus:outline-none focus-visible:border-accent/60"
+          >
+            {/* Category marker */}
+            <span className="absolute top-3 right-3 font-mono text-[10px] text-paper-dim group-hover:text-accent transition-colors">
+              {tech.category === 'web2' ? '2' : tech.category === 'web3' ? '3' : tech.category === 'ai' ? 'AI' : '•'}
+            </span>
 
-              <div className="text-center">
-                <div className="text-3xl sm:text-5xl mb-2 sm:mb-3 flex items-center justify-center">
-                  <tech.icon className="w-8 h-8 sm:w-12 sm:h-12" />
-                </div>
-                <h3 className="font-bold text-sm sm:text-lg mb-1 sm:mb-2">{tech.name}</h3>
-                <p className="text-[10px] sm:text-xs text-gray-400 line-clamp-1">
-                  {tech.projects[0]}
-                </p>
-              </div>
+            <tech.icon className="w-7 h-7 sm:w-9 sm:h-9 mb-4 text-paper-muted group-hover:text-accent transition-colors" />
+            <h3 className="font-display text-lg sm:text-xl text-paper mb-1 leading-tight">{tech.name}</h3>
+            <p className="font-mono text-[10px] sm:text-xs text-paper-dim line-clamp-1">
+              {tech.projects[0]}
+            </p>
 
-              {/* Hover Info */}
-              <div className={`
-                absolute inset-0 bg-gradient-to-t from-black/90 to-transparent
-                rounded-2xl p-4 flex flex-col justify-end
-                opacity-0 group-hover:opacity-100 transition-opacity duration-300
-              `}>
-                <p className="text-xs text-white">
-                  <strong>Used in:</strong>
-                </p>
-                <ul className="text-xs text-gray-300 mt-1 space-y-1">
-                  {tech.projects.map((project, i) => (
-                    <li key={i}>• {project}</li>
-                  ))}
-                </ul>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Stats */}
-        <motion.div
-          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={isMobile ? {} : { 
-            duration: 0.6, 
-            delay: 0.6,
-            ease: 'easeOut' 
-          }}
-          className="mt-12 sm:mt-16 md:mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center"
-        >
-          <div>
-            <div className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2 text-developer-accent">
-              5+
+            {/* Hover Info */}
+            <div className="absolute inset-0 bg-cocoa-900/95 p-4 sm:p-5 flex flex-col justify-end opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-300">
+              <p className="eyebrow !text-[10px] mb-2">
+                <strong className="font-normal text-accent">Used in:</strong>
+              </p>
+              <ul className="text-xs text-paper-muted space-y-1">
+                {tech.projects.map((project, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span className="text-ember">•</span>
+                    <span>{project}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="text-xs sm:text-sm text-gray-400">
-              Programming Languages
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2 text-developer-accent">
-              10+
-            </div>
-            <div className="text-xs sm:text-sm text-gray-400">
-              Frameworks & Tools
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2 text-developer-accent">
-              Web2 + Web3
-            </div>
-            <div className="text-xs sm:text-sm text-gray-400">
-              Full Spectrum
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2 text-developer-accent">
-              10+
-            </div>
-            <div className="text-xs sm:text-sm text-gray-400">
-              Years Experience
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        ))}
       </div>
-    </section>
+
+      {/* Stats */}
+      <motion.div
+        {...reveal}
+        transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
+        className="mt-14 sm:mt-20 grid grid-cols-2 md:grid-cols-4 border-t border-cocoa-500/40"
+      >
+        {[
+          { value: '5+', label: 'Programming Languages' },
+          { value: '10+', label: 'Frameworks & Tools' },
+          { value: 'Web2 + Web3', label: 'Full Spectrum' },
+          { value: '10+', label: 'Years Experience' },
+        ].map((stat) => (
+          <div key={stat.label} className="pt-6 sm:pt-8 pb-2 pr-4">
+            <div className="font-display text-3xl sm:text-4xl text-accent mb-2 leading-none">
+              {stat.value}
+            </div>
+            <div className="font-mono text-[11px] sm:text-xs uppercase tracking-wider text-paper-dim">
+              {stat.label}
+            </div>
+          </div>
+        ))}
+      </motion.div>
+    </Section>
   )
 }

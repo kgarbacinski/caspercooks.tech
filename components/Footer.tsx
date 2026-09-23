@@ -1,8 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
-import SteamAnimation from './SteamAnimation'
 import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope, FaTiktok } from 'react-icons/fa'
 
 export default function Footer() {
@@ -18,48 +16,32 @@ export default function Footer() {
   ]
 
   return (
-    <footer className={`
-      py-8 sm:py-12 px-4 sm:px-8 border-t transition-colors duration-500
-      ${theme === 'developer'
-        ? 'border-developer-accent/20 bg-developer-bg'
-        : 'border-founder-accent/20 bg-founder-bg'}
-    `}>
-      <div className="max-w-7xl mx-auto">
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8">
+    <footer className="bg-night border-t border-cocoa-500/40 py-12 sm:py-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-10 sm:gap-8 mb-10">
           {/* Brand */}
           <div>
-            <motion.div
-              className="font-mono text-base sm:text-lg mb-4 relative inline-block"
-              whileHover={{ scale: 1.05 }}
-            >
-              <SteamAnimation theme={theme} />
-              <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
-                $ caspercooks.tech
+            <a href="#" className="inline-flex items-center gap-3 mb-5 group">
+              <span className="grid place-items-center w-9 h-9 rounded-full bg-terracotta text-paper font-display text-sm">
+                KG
               </span>
-              <span className="animate-pulse ml-1">_</span>
-            </motion.div>
-            <p className={`text-sm font-mono ${theme === 'founder' ? 'text-gray-700' : 'text-gray-400'}`}>
-              {'> Full-Stack Developer & Serial Founder'}
-            </p>
-            <p className={`text-sm font-mono ${theme === 'founder' ? 'text-gray-700' : 'text-gray-400'}`}>
-              {'> Building systems and companies that matter.'}
-            </p>
+              <span className="font-mono text-sm text-paper group-hover:text-accent transition-colors">
+                caspercooks<span className="text-accent">.tech</span>
+              </span>
+            </a>
+            <p className="text-sm text-paper-muted">Full-Stack Developer &amp; Serial Founder</p>
+            <p className="text-sm text-paper-muted mt-1">Building systems and companies that matter.</p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className={`font-bold mb-4 ${theme === 'founder' ? 'text-gray-800' : 'text-white'}`}>Quick Links</h3>
+            <h3 className="eyebrow mb-4">Quick Links</h3>
             <div className="space-y-2">
               {['About', 'Projects', 'Brands', 'Contact'].map((link) => (
                 <a
                   key={link}
                   href={`#${link.toLowerCase()}`}
-                  className={`
-                    block text-sm transition-colors
-                    ${theme === 'founder'
-                      ? 'text-gray-700 hover:text-founder-accent'
-                      : 'text-gray-400 hover:text-developer-accent'}
-                  `}
+                  className="block text-sm text-paper-muted hover:text-accent transition-colors"
                 >
                   {link}
                 </a>
@@ -69,46 +51,30 @@ export default function Footer() {
 
           {/* Social */}
           <div>
-            <h3 className={`font-bold mb-4 ${theme === 'founder' ? 'text-gray-800' : 'text-white'}`}>Connect</h3>
-            <div className="flex gap-4">
+            <h3 className="eyebrow mb-4">Connect</h3>
+            <div className="flex flex-wrap gap-3">
               {socialLinks.map((social) => (
-                <motion.a
+                <a
                   key={social.name}
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  whileHover={{ scale: 1.2, rotate: 5 }}
-                  whileTap={{ scale: 0.9 }}
-                  className={`
-                    w-10 h-10 rounded-full flex items-center justify-center
-                    transition-colors duration-300
-                    ${theme === 'developer'
-                      ? 'bg-developer-secondary hover:bg-developer-accent hover:text-developer-bg'
-                      : 'bg-gray-800 hover:bg-founder-accent hover:text-white'}
-                  `}
                   title={social.name}
+                  aria-label={social.name}
+                  className="w-10 h-10 grid place-items-center border border-cocoa-500/60 bg-cocoa-900 text-paper-muted hover:text-accent hover:border-accent/50 hover:-translate-y-0.5 transition"
                 >
-                  <social.icon className="w-5 h-5" />
-                </motion.a>
+                  <social.icon className="w-4 h-4" />
+                </a>
               ))}
             </div>
           </div>
         </div>
 
         {/* Bottom */}
-        <div className={`
-          pt-6 sm:pt-8 border-t text-center text-xs sm:text-sm font-mono
-          ${theme === 'developer'
-            ? 'border-developer-accent/10 text-gray-500'
-            : 'border-founder-accent/10 text-gray-700'}
-        `}>
+        <div className="pt-6 border-t border-cocoa-500/40 flex flex-col sm:flex-row sm:justify-between gap-2 text-center sm:text-left font-mono text-xs text-paper-dim">
+          <p>© {currentYear} caspercooks.tech // Built with Next.js + TypeScript + Framer Motion</p>
           <p>
-            © {currentYear} caspercooks.tech // Built with Next.js + TypeScript + Framer Motion
-          </p>
-          <p className="mt-2">
-            <span className={theme === 'developer' ? 'text-developer-accent' : 'text-founder-accent'}>
-              {theme === 'developer' ? '0x' : '#'}
-            </span>
+            <span className="text-accent">{theme === 'developer' ? '0x' : '#'}</span>
             {theme === 'developer' ? 'CODED' : 'BUILT'} with passion
           </p>
         </div>
