@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion } from 'framer-motion'
+import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { SectionHeader, RoomCutout, EASE } from '@/components/ui/Section'
 import { FaGraduationCap, FaMobileAlt, FaBullseye, FaRobot } from 'react-icons/fa'
 import type { IconType } from 'react-icons'
@@ -173,9 +174,9 @@ function Shop({ brand, index }: { brand: Brand; index: number }) {
         <p className="text-paper-muted leading-relaxed text-[14.5px] mb-5">{brand.description}</p>
         <div className="grid grid-cols-3 gap-2 pt-4 mt-auto border-t border-dashed border-cocoa-500/60">
           {brand.stats.map((stat) => (
-            <div key={stat.label}>
-              <div className="font-display text-lg sm:text-xl text-accent leading-tight">{stat.value}</div>
-              <div className="font-mono text-[10px] text-paper-dim leading-tight mt-0.5">{stat.label}</div>
+            <div key={stat.label} className="min-w-0">
+              <div className="font-display text-[15px] xl:text-base text-accent leading-tight break-words">{stat.value}</div>
+              <div className="font-mono text-[9.5px] text-paper-dim leading-tight mt-0.5 break-words">{stat.label}</div>
             </div>
           ))}
         </div>
@@ -224,6 +225,7 @@ export default function BrandsShowcase() {
             <Shop key={brand.name} brand={brand} index={index} />
           ))}
         </div>
+        <p className="sm:hidden px-4 font-mono text-[11px] uppercase tracking-[0.18em] text-paper-dim text-center">swipe → 4 shops</p>
         {/* chodnik pod sklepami */}
         <div aria-hidden="true" className="hidden lg:block mx-8 -mt-[1px] h-2 rounded-full bg-gradient-to-r from-transparent via-kraft/25 to-transparent" />
       </div>

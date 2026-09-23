@@ -385,6 +385,14 @@ body.founder-mode {
     display: none;
   }
 
+  /* papierowa zawieszka (podpisy w dioramie) — kremowy papier z akcentem u dołu */
+  .paper-tag {
+    @apply relative block px-4 py-2.5 text-center;
+    background: #efe2c7;
+    box-shadow: 0 18px 30px -10px rgba(0, 0, 0, 0.85), inset 0 -3px 0 rgb(var(--accent-rgb) / 0.85);
+    clip-path: polygon(0 4%, 3% 0, 97% 0, 100% 5%, 100% 100%, 0 100%);
+  }
+
   .eyebrow {
     @apply font-mono text-[11px] uppercase tracking-[0.18em] text-paper-muted;
   }

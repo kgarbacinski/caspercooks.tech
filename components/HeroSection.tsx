@@ -58,7 +58,7 @@ export default function HeroSection() {
   const c = COPY[theme]
 
   return (
-    <section className="relative min-h-[100svh] flex items-center overflow-hidden pt-24 pb-16 lg:pb-20">
+    <section className="relative min-h-[100svh] flex items-center overflow-hidden pt-20 sm:pt-24 pb-16 lg:pb-20">
       {/* daleki grzbiet gór na horyzoncie (motyw ścian dioramy) */}
       <div
         aria-hidden="true"
@@ -81,14 +81,16 @@ export default function HeroSection() {
           />
         </span>
       </a>
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] gap-12 lg:gap-8 items-center">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 grid lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)] gap-8 lg:gap-6 items-center">
+        {/* przy przełączeniu stara treść gaśnie razem ze światłami wyspy, nowa wjeżdża po zmianie motywu */}
+        <motion.div animate={{ opacity: phase === 'leaving' ? 0 : 1, y: phase === 'leaving' ? -10 : 0 }} transition={{ duration: 0.45, ease: EASE }}>
         <AnimatePresence mode="wait">
           <motion.div key={theme} initial="hidden" animate="show" exit="exit" variants={{ show: { transition: { staggerChildren: 0.08, delayChildren: phase === 'idle' ? 0 : 0.55 } }, exit: { transition: { staggerChildren: 0.03 } } }}>
             <motion.p variants={fade} className="eyebrow mb-5">
               <span className="inline-block px-3 py-1.5 border border-accent/50 text-accent">{c.eyebrow}</span>
             </motion.p>
 
-            <h1 className="font-display text-5xl sm:text-6xl lg:text-[3.6rem] 2xl:text-7xl [@media(max-height:760px)]:2xl:text-6xl leading-[1.02] tracking-tight mb-6">
+            <h1 className="font-display text-[2.75rem] sm:text-6xl lg:text-[3.1rem] xl:text-[3.4rem] 2xl:text-[4rem] leading-[1.02] tracking-tight mb-6">
               {c.title.map((line, i) => (
                 <span key={line} className="block overflow-hidden pb-[0.08em]">
                   <motion.span
@@ -109,11 +111,11 @@ export default function HeroSection() {
               ))}
             </p>
 
-            <div className="flex flex-wrap gap-3 mb-7">
+            <div className="grid grid-cols-3 lg:flex lg:flex-wrap gap-2 sm:gap-3 mb-7">
               {c.stats.map((s) => (
-                <motion.div key={s.value} variants={pop} className="paper-card px-4 py-3 font-mono">
-                  <div className="text-accent text-sm">{s.value}</div>
-                  <div className="text-paper-dim text-xs">{s.label}</div>
+                <motion.div key={s.value} variants={pop} className="paper-card px-2.5 sm:px-4 py-3 font-mono">
+                  <div className="text-accent text-[12px] sm:text-sm whitespace-nowrap">{s.value}</div>
+                  <div className="text-paper-dim text-[10px] sm:text-xs whitespace-nowrap">{s.label}</div>
                 </motion.div>
               ))}
             </div>
@@ -128,12 +130,13 @@ export default function HeroSection() {
             </motion.div>
           </motion.div>
         </AnimatePresence>
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 40, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
-          className="lg:-mr-6 2xl:-mr-16"
+          className="order-first lg:order-none mt-6 lg:mt-0 -mx-3 sm:mx-0 lg:-mr-[5vw] xl:-mr-[8vw] 2xl:-mr-[10vw]"
         >
           <Diorama />
         </motion.div>

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { motion, useMotionValueEvent, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion'
+import { motion, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
+import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { SectionHeader, EASE } from '@/components/ui/Section'
 
@@ -263,7 +264,7 @@ export default function ProjectsTimeline() {
     return () => window.removeEventListener('resize', measure)
   }, [theme])
   const { scrollYProgress } = useScroll({ target: wrapRef, offset: ['start start', 'end end'] })
-  const x = useSpring(useTransform(scrollYProgress, [0.02, 0.98], [0, -dist]), { stiffness: 90, damping: 24, mass: 0.6 })
+  const x = useSpring(useTransform(scrollYProgress, [0.08, 0.96], [0, -dist]), { stiffness: 90, damping: 24, mass: 0.6 })
   const [idx, setIdx] = useState(0)
   useMotionValueEvent(scrollYProgress, 'change', (v) => setIdx(Math.min(ordered.length - 1, Math.floor(v * ordered.length))))
 

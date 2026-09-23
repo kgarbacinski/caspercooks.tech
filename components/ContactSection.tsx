@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { AnimatePresence, motion, useAnimate, useReducedMotion } from 'framer-motion'
+import { AnimatePresence, motion, useAnimate } from 'framer-motion'
+import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { FaEnvelope, FaLinkedin, FaGithub, FaTwitter, FaUserTie, FaRocket, FaComments } from 'react-icons/fa'
 import { SectionHeader, EASE } from '@/components/ui/Section'
 
@@ -276,10 +277,16 @@ export default function ContactSection() {
                   exit={{ opacity: 0 }}
                   role="status"
                 >
-                  <div className="text-center">
-                    <div className="font-display text-4xl text-paper mb-2">✓ Message Sent!</div>
-                    <div className="font-mono text-xs uppercase tracking-[0.2em] text-accent">the envelope is on its way</div>
-                  </div>
+                  <motion.div
+                    className="text-center"
+                    initial={{ scale: 1.6, rotate: -8, opacity: 0 }}
+                    animate={{ scale: 1, rotate: -3, opacity: 1, transition: { delay: 2.3, type: 'spring', stiffness: 380, damping: 16 } }}
+                  >
+                    <div className="inline-block px-8 py-6 border-[3px] border-double border-accent/80 text-accent" style={{ boxShadow: '0 0 40px -10px rgb(var(--accent-rgb) / 0.6)' }}>
+                      <div className="font-display text-5xl sm:text-6xl mb-2">✓ Message Sent!</div>
+                      <div className="font-mono text-xs uppercase tracking-[0.24em] text-paper-muted">the envelope is on its way</div>
+                    </div>
+                  </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>

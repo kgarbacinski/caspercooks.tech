@@ -36,12 +36,12 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 /** Oś czasu przełączenia w ms — komponenty liczą swoje animacje względem początku fazy. */
 export const SWITCH = {
-  inplace: { covered: 1180, entering: 1260, done: 3300 },
+  inplace: { covered: 960, entering: 1020, done: 2900 },
   curtain: { sheetIn: 0, covered: 560, sheetOut: 900, entering: 1150, done: 3200 },
   /** trwanie fazy "entering" rozpisane dla dioramy (od początku fazy) */
-  enter: { popUp: 0, figure: 520, lights: 1000 },
+  enter: { popUp: 0, figure: 380, lights: 700 },
   /** trwanie fazy "leaving" (tryb inplace) */
-  leave: { figure: 0, lightsOff: 180, fold: 520 },
+  leave: { figure: 0, lightsOff: 120, fold: 360 },
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {

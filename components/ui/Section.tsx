@@ -1,7 +1,8 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { roomSrc } from '@/components/diorama/rooms'
 

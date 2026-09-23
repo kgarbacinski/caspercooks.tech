@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef, useCallback, useImperativeHandle, useState } from 'react'
+import { forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react'
 import { motion, useAnimate } from 'framer-motion'
 import type { Theme } from '@/contexts/ThemeContext'
 import { FIG, FRAME } from './layout'
@@ -33,50 +33,71 @@ const Figure = forwardRef<FigureHandle, { theme: Theme; dim: boolean; reduce: bo
   const [pose, setPose] = useState<'stand' | 'jump'>('stand')
   const [dust, setDust] = useState(0)
   const [busy, setBusy] = useState(false)
+  // numer bieżącej sekwencji — starsza sekwencja przerywa się po najbliższym await
+  const gen = useRef(0)
   const k = KEY[theme]
   const f = FIG[k]
   // klatka skoku ma inne proporcje: ta sama wysokość, szerokość z proporcji, stopy w tym samym punkcie
   const jumpW = f.h * ASPECT * f.jumpAspect
 
   const leave = useCallback(async () => {
+    const run = ++gen.current
     setBusy(true)
     await animate(scope.current, { scaleY: 0.84, scaleX: 1.1, y: '3%' }, { duration: 0.16, ease: 'easeOut' })
+    if (gen.current !== run) return
     setPose('jump')
     await animate(scope.current, { scaleY: 1.08, scaleX: 0.95, y: '-95%', x: '45%', rotate: 12 }, { duration: 0.32, ease: [0.2, 0.8, 0.4, 1] })
+    if (gen.current !== run) return
     await animate(scope.current, { y: '240%', x: '170%', rotate: 48, scaleY: 1, scaleX: 1, opacity: 0 }, { duration: 0.5, ease: [0.55, 0, 0.9, 0.4] })
   }, [animate, scope])
 
   const hide = useCallback(() => {
+    gen.current++
     if (scope.current) animate(scope.current, { opacity: 0 }, { duration: 0 })
   }, [animate, scope])
 
   const show = useCallback(() => {
+    gen.current++
     setPose('stand')
     if (scope.current) animate(scope.current, { opacity: 1, x: '0%', y: '0%', rotate: 0, scaleX: 1, scaleY: 1 }, { duration: 0 })
   }, [animate, scope])
 
   const arrive = useCallback(async () => {
+    const run = ++gen.current
     setBusy(true)
     setPose('jump')
-    await animate(scope.current, { opacity: 1, y: '-330%', x: '-25%', rotate: -14, scaleX: 0.94, scaleY: 1.06 }, { duration: 0 })
-    await animate(scope.current, { y: '0%', x: '0%', rotate: 0 }, { duration: 0.46, ease: [0.45, 0, 0.95, 0.55] })
+    // jawne klatki startowe: niezależnie od tego, gdzie skończyła poprzednia sekwencja
+    await animate(
+      scope.current,
+      { opacity: [1, 1], y: ['-330%', '0%'], x: ['-25%', '0%'], rotate: [-14, 0], scaleX: [0.94, 0.94], scaleY: [1.06, 1.06] },
+      { duration: 0.46, ease: [0.45, 0, 0.95, 0.55] },
+    )
+    if (gen.current !== run) return
     setPose('stand')
     setDust((d) => d + 1)
     await animate(scope.current, { scaleY: 0.78, scaleX: 1.2 }, { duration: 0.09, ease: 'easeOut' })
+    if (gen.current !== run) return
     await animate(scope.current, { scaleY: 1.07, scaleX: 0.95, y: '-6%' }, { duration: 0.16, ease: 'easeOut' })
+    if (gen.current !== run) return
     await animate(scope.current, { scaleY: 1, scaleX: 1, y: '0%' }, { type: 'spring', stiffness: 420, damping: 14 })
+    if (gen.current !== run) return
     setBusy(false)
   }, [animate, scope])
 
   const hop = useCallback(async () => {
     if (busy || reduce) return
+    const run = ++gen.current
     setBusy(true)
     await animate(scope.current, { scaleY: 0.9, scaleX: 1.06 }, { duration: 0.1 })
+    if (gen.current !== run) return
     setPose('jump')
     await animate(scope.current, { scaleY: 1, scaleX: 1, y: '-16%' }, { duration: 0.2, ease: 'easeOut' })
+    if (gen.current !== run) return
     await animate(scope.current, { y: '0%' }, { duration: 0.18, ease: 'easeIn' })
+    if (gen.current !== run) return
     setPose('stand')
     await animate(scope.current, { scaleY: 0.92, scaleX: 1.05 }, { duration: 0.07 })
+    if (gen.current !== run) return
     await animate(scope.current, { scaleY: 1, scaleX: 1 }, { type: 'spring', stiffness: 500, damping: 16 })
     setBusy(false)
   }, [animate, scope, busy, reduce])

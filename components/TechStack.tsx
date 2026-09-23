@@ -1,6 +1,7 @@
 'use client'
 
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { useState } from 'react'
 import { SectionHeader, RoomCutout, EASE } from '@/components/ui/Section'
 import {

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { AnimatePresence, motion, useInView, useMotionValueEvent, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion'
+import { AnimatePresence, motion, useInView, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
+import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { FaGraduationCap, FaMobileAlt, FaBullseye, FaRobot } from 'react-icons/fa'
 import type { IconType } from 'react-icons'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -226,8 +227,8 @@ export default function AboutSection() {
   // scena przypięta: postęp scrolla → aktywna notatka + zoom kamery w pokój
   const sceneRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: sceneRef, offset: ['start start', 'end end'] })
-  const zoom = useSpring(useTransform(scrollYProgress, [0, 1], [0.92, 1.28]), { stiffness: 80, damping: 22 })
-  const panY = useSpring(useTransform(scrollYProgress, [0, 1], [30, -40]), { stiffness: 80, damping: 22 })
+  const zoom = useSpring(useTransform(scrollYProgress, [0, 1], reduce ? [1, 1] : [0.9, 1.12]), { stiffness: 80, damping: 22 })
+  const panY = useSpring(useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [40, 0]), { stiffness: 80, damping: 22 })
   const glow = useTransform(scrollYProgress, [0, 0.5, 1], [0.35, 0.8, 0.55])
   const [active, setActive] = useState(0)
   const steps = s.notes.length + 1 // ostatni krok = statystyki
@@ -235,7 +236,7 @@ export default function AboutSection() {
 
   return (
     <section id="about" className="relative scroll-mt-20">
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-24 sm:pt-32">
+      <div className="lg:hidden max-w-6xl mx-auto px-4 sm:px-8 pt-20 sm:pt-28">
         <SectionHeader index="01" eyebrow="about.txt" title="About" />
       </div>
 
@@ -248,9 +249,9 @@ export default function AboutSection() {
               <motion.div
                 aria-hidden="true"
                 className="absolute inset-x-[8%] bottom-[6%] h-[40%] rounded-[50%] blur-3xl"
-                style={{ background: 'rgb(var(--accent-rgb) / 0.22)', opacity: reduce ? 0.5 : glow }}
+                style={{ background: 'rgb(var(--accent-rgb) / 0.22)', opacity: glow }}
               />
-              <motion.div className="relative w-[88%] max-w-[520px]" style={reduce ? undefined : { scale: zoom, y: panY, transformOrigin: '50% 70%' }}>
+              <motion.div className="relative w-[88%] max-w-[520px]" style={{ scale: zoom, y: panY, transformOrigin: '50% 70%' }}>
                 <AnimatePresence mode="popLayout" initial={false}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <motion.img
@@ -282,13 +283,14 @@ export default function AboutSection() {
 
             {/* tablica z notatkami */}
             <div className="relative">
+              <SectionHeader index="01" eyebrow="about.txt" title="About" className="mb-8" />
               <div className="flex items-center justify-between gap-4 mb-10">
                 <StoryTabs story={story} setStory={setStory} lid="story-tab-d" />
                 <span className="font-mono text-[11px] text-paper-dim tabular-nums">
                   {String(Math.min(active + 1, s.notes.length)).padStart(2, '0')} / {String(s.notes.length).padStart(2, '0')}
                 </span>
               </div>
-              <div className="relative h-[46vh] min-h-[330px]">
+              <div className="relative h-[34vh] min-h-[250px]">
                 {s.notes.map((n, i) => {
                   const depth = Math.min(active, s.notes.length - 1) - i // 0 = na wierzchu
                   const shown = i <= active

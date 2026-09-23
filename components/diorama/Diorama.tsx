@@ -1,13 +1,15 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion'
+import { AnimatePresence, motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion'
+import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { SWITCH, useTheme } from '@/contexts/ThemeContext'
 import type { Theme } from '@/contexts/ThemeContext'
 import { FRAME, ROOM_BOX } from './layout'
 import { KEY, ROOMS, roomSrc, scrollToHash } from './rooms'
 import Figure, { type FigureHandle } from './Figure'
 import Sparks from './Sparks'
+import PaperBurst from './PaperBurst'
 
 /**
  * Lewitująca diorama v2 — złożona z warstw zamiast jednego obrazka:
@@ -24,7 +26,7 @@ import Sparks from './Sparks'
 const ASPECT = `${FRAME.w} / ${FRAME.h}`
 const ACCENT: Record<Theme, string> = { developer: '0,255,136', founder: '255,107,53' }
 const FOLDED = 86 // kąt złożonego pokoju (leży płasko do tyłu)
-const OFF = 0.16 // jasność pokoju ze zgaszonym światłem
+const OFF = 0.3 // jasność pokoju ze zgaszonym światłem (półmrok, nie czerń)
 
 type RoomState = { up: boolean; lit: boolean; flicker: boolean }
 const allRooms = (s: RoomState) => Array.from({ length: 5 }, () => ({ ...s }))
@@ -42,6 +44,7 @@ export default function Diorama() {
   const [baseLit, setBaseLit] = useState(false)
   const [finePointer, setFinePointer] = useState(true)
   const [ready, setReady] = useState(false)
+  const [burst, setBurst] = useState(0)
   const k = KEY[theme]
   const info = ROOMS[theme]
   const boxes = ROOM_BOX[k]
@@ -82,11 +85,11 @@ export default function Diorama() {
   const enter = useCallback(
     (delay = 0) => {
       const E = SWITCH.enter
-      for (let i = 0; i < 5; i++) at(delay + E.popUp + i * 85, () => setRooms((r) => r.map((s, j) => (j === i ? { ...s, up: true } : s))))
+      for (let i = 0; i < 5; i++) at(delay + E.popUp + i * 70, () => setRooms((r) => r.map((s, j) => (j === i ? { ...s, up: true } : s))))
       at(delay + E.figure, () => figRef.current?.arrive())
       for (let i = 0; i < 5; i++)
-        at(delay + E.lights + i * 140, () => setRooms((r) => r.map((s, j) => (j === i ? { ...s, lit: true, flicker: true } : s))))
-      at(delay + E.lights + 4 * 140 + 120, () => setBaseLit(true))
+        at(delay + E.lights + i * 110, () => setRooms((r) => r.map((s, j) => (j === i ? { ...s, lit: true, flicker: true } : s))))
+      at(delay + E.lights + 4 * 110 + 100, () => setBaseLit(true))
     },
     [at],
   )
@@ -108,7 +111,8 @@ export default function Diorama() {
     Promise.race([wait, new Promise((r) => setTimeout(r, 2500))]).then(() => {
       if (cancelled) return
       setReady(true)
-      if (reduce) {
+      // stan z media query czytamy bezpośrednio (hook zwraca prawdę dopiero po montażu)
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         setRooms(allRooms({ up: true, lit: true, flicker: false }))
         setBaseLit(true)
         figRef.current?.show()
@@ -135,7 +139,7 @@ export default function Diorama() {
       for (let i = 0; i < 5; i++)
         at(L.lightsOff + i * 70, () => setRooms((r) => r.map((s, j) => (j === i ? { ...s, lit: false, flicker: false } : s))))
       at(L.lightsOff, () => setBaseLit(false))
-      for (let i = 0; i < 5; i++) at(L.fold + i * 80, () => setRooms((r) => r.map((s, j) => (j === i ? { ...s, up: false } : s))))
+      for (let i = 0; i < 5; i++) at(L.fold + i * 60, () => setRooms((r) => r.map((s, j) => (j === i ? { ...s, up: false } : s))))
     }
     if (phase === 'covered') {
       // nowy świat startuje złożony i ciemny (w trybie kurtyny od razu, bez animacji)
@@ -143,7 +147,11 @@ export default function Diorama() {
       setBaseLit(false)
       figRef.current?.hide()
     }
-    if (phase === 'entering') enter(mode === 'curtain' ? 150 : 0)
+    if (phase === 'entering') {
+      // papierowe ścinki wystrzeliwują z wyspy, gdy wyskakuje nowy świat
+      setBurst((b) => b + 1)
+      enter(mode === 'curtain' ? 150 : 0)
+    }
   }, [phase, mode, reduce, at, enter])
 
   // pochylenie za kursorem + paralaksa scrolla
@@ -222,7 +230,7 @@ export default function Diorama() {
       <div
         aria-hidden="true"
         className="absolute left-[12%] right-[12%] bottom-[2%] h-[34%] rounded-[50%] blur-3xl transition-opacity duration-700"
-        style={{ background: `rgba(${accent},0.26)`, opacity: baseLit ? 1 : 0 }}
+        style={{ background: `rgba(${accent},0.16)`, opacity: baseLit ? 1 : 0 }}
       >
         {!reduce && <div className="absolute inset-0 rounded-[50%] animate-cable-pulse" style={{ background: `rgba(${accent},0.2)` }} />}
       </div>
@@ -268,7 +276,7 @@ export default function Diorama() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5 }}
                 style={{
-                  filter: `brightness(${!baseLit ? 0.4 : spot ? 0.55 : 1}) saturate(${spot ? 0.75 : 1})`,
+                  filter: `brightness(${!baseLit ? 0.55 : spot ? 0.55 : 1}) saturate(${spot || !baseLit ? 0.75 : 1})`,
                   transition: 'filter .45s ease',
                 }}
               />
@@ -324,12 +332,12 @@ export default function Diorama() {
                     <div
                       aria-hidden="true"
                       className="absolute inset-0 transition-opacity duration-500"
-                      style={{ ...maskStyle, background: `rgb(${accent})`, filter: 'blur(9px)', transform: 'scale(1.03)', opacity: isHover ? 0.85 : 0 }}
+                      style={{ ...maskStyle, background: `rgb(${accent})`, filter: 'blur(14px)', transform: 'scale(1.04)', opacity: isHover ? 0.7 : 0 }}
                     />
                     <div
                       aria-hidden="true"
                       className="absolute inset-0 transition-opacity duration-300"
-                      style={{ ...maskStyle, background: `rgb(${accent})`, transform: 'scale(1.012)', opacity: isHover ? 1 : 0 }}
+                      style={{ ...maskStyle, background: 'linear-gradient(180deg, #ffe2b8, #ffb56b)', filter: 'blur(1.5px)', transform: 'scale(1.014)', opacity: isHover ? 0.9 : 0 }}
                     />
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -350,6 +358,8 @@ export default function Diorama() {
                 </motion.div>
               )
             })}
+
+            {burst > 0 && <PaperBurst key={burst} accent={accent} />}
 
             {/* figurka — własna warstwa i paralaksa */}
             <motion.div className="absolute inset-0 pointer-events-none" style={{ x: reduce ? 0 : figX, zIndex: 20 }}>
@@ -397,9 +407,9 @@ export default function Diorama() {
                   className="absolute pointer-events-none z-40"
                   style={{ left: `${boxes[hover].l + boxes[hover].w / 2}%`, top: `${boxes[hover].t - 5}%`, x: '-50%', y: '-100%' }}
                 >
-                  <div className="tag-card">
-                    <span className="block font-display text-lg leading-tight text-paper">{info[hover].label}</span>
-                    <span className="block font-mono text-[11px] text-accent">
+                  <div className="paper-tag">
+                    <span className="block font-display text-lg leading-tight text-ink">{info[hover].label}</span>
+                    <span className="block font-mono text-[11px] text-ink/60">
                       {info[hover].hint} <span aria-hidden="true">→</span>
                     </span>
                   </div>
@@ -412,11 +422,11 @@ export default function Diorama() {
                   animate={{ opacity: 1, y: 0, rotate: -2 }}
                   exit={{ opacity: 0, transition: { duration: 0.1 } }}
                   className="absolute pointer-events-none z-40"
-                  style={{ left: '26.8%', top: '14%', x: '-50%', y: '-100%' }}
+                  style={{ left: '31.5%', top: '30%', y: '-50%' }}
                 >
-                  <div className="tag-card whitespace-nowrap">
-                    <span className="block font-mono text-[11px] text-paper-muted">psst — click me</span>
-                    <span className="block font-display text-base text-accent">
+                  <div className="paper-tag whitespace-nowrap">
+                    <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-ink/55">psst — click me</span>
+                    <span className="block font-display text-base text-ink">
                       change into {theme === 'developer' ? 'the CEO suit' : 'dev clothes'}
                     </span>
                   </div>
@@ -427,7 +437,7 @@ export default function Diorama() {
         </div>
       </motion.div>
 
-      <figcaption className="mt-5 flex items-center justify-between gap-4 eyebrow">
+      <figcaption className="mt-4 sm:mt-5 px-3 sm:px-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 eyebrow !text-[10px] sm:!text-[11px]">
         <AnimatePresence mode="wait">
           <motion.span key={theme} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
             {theme === 'developer' ? 'My very normal workspace' : 'The companies I build'}

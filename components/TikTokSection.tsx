@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { motion, useInView, useReducedMotion } from 'framer-motion'
+import { motion, useInView } from 'framer-motion'
+import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { FaTiktok, FaGraduationCap, FaRocket, FaCode, FaBookOpen, FaFlag, FaArrowRight } from 'react-icons/fa'
 import { useTheme } from '@/contexts/ThemeContext'
 import { SectionHeader, RoomCutout, EASE } from '@/components/ui/Section'
@@ -44,7 +45,7 @@ export default function TikTokSection() {
   ]
 
   return (
-    <section id="studio" className="relative py-24 sm:py-32 scroll-mt-20 overflow-hidden">
+    <section id="studio" className="relative pt-24 sm:pt-32 pb-12 sm:pb-16 scroll-mt-20 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
         <div className="flex items-end justify-between gap-8 mb-14 sm:mb-16">
           <SectionHeader index="05" eyebrow="tiktok --lang=pl --content=dev" title="Programming content in Polish" />

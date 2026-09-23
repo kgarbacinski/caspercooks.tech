@@ -13,6 +13,7 @@ import { CableDivider } from '@/components/ui/Section'
 import ThemeWipe from '@/components/ThemeWipe'
 import PageEffects from '@/components/PageEffects'
 import SparkTrail from '@/components/SparkTrail'
+import { MotionConfig } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
 
 /*
@@ -24,7 +25,8 @@ export default function Home() {
   const { theme } = useTheme()
 
   return (
-    <>
+    // reducedMotion="user": przy prefers-reduced-motion framer pomija ruch (zostaje przenikanie)
+    <MotionConfig reducedMotion="user">
       <PageEffects />
       <SparkTrail />
       <ThemeWipe />
@@ -33,22 +35,14 @@ export default function Home() {
         <HeroSection />
         <CableDivider />
         <AboutSection />
-        <CableDivider />
         <ProjectsTimeline />
-        {theme === 'developer' && (
-          <>
-            <CableDivider />
-            <TechStack />
-          </>
-        )}
-        <CableDivider />
+        {theme === 'developer' && <TechStack />}
         <BrandsShowcase />
-        <CableDivider />
         <TikTokSection />
         <CableDivider />
         <ContactSection />
       </main>
       <Footer />
-    </>
+    </MotionConfig>
   )
 }
