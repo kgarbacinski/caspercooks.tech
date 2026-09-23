@@ -565,7 +565,7 @@ body.founder-mode {
 }
 .amb-steam {
   opacity: 0;
-  background: radial-gradient(ellipse 50% 50% at 50% 55%, rgba(255, 246, 236, .85), rgba(255, 246, 236, 0) 100%);
+  background: radial-gradient(ellipse 50% 50% at 50% 55%, rgba(255, 248, 240, 1), rgba(255, 246, 236, 0) 100%);
   animation: amb-steam 2.8s ease-out infinite;
 }
 @keyframes amb-steam {
@@ -753,7 +753,7 @@ body.founder-mode {
 .amb-led-chase { opacity: 0; animation: amb-led-chase 2.2s linear infinite; }
 @keyframes amb-led-chase { 0% { opacity: 1; } 8% { opacity: .2; } 14%, 100% { opacity: 0; } }
 /* lewy telefon: powiadomienie wjeżdża z góry, chwilę wisi, znika */
-.amb-toast { opacity: 0; animation: amb-toast 8s cubic-bezier(.2, .8, .3, 1.2) infinite; animation-delay: -3s; }
+.amb-toast { opacity: 0; animation: amb-toast 4.6s cubic-bezier(.2, .8, .3, 1.2) infinite; animation-delay: -1.7s; }
 @keyframes amb-toast {
   0%, 40% { opacity: 0; transform: translateY(-120%); }
   46%, 70% { opacity: 1; transform: translateY(0); }
@@ -808,4 +808,4 @@ body.founder-mode {
 
 /* reflektory nad miastem: powolne wahadło */
 .amb-searchlight { animation: amb-searchlight 10s ease-in-out infinite alternate; }
-@keyframes amb-searchlight { from { transform: rotate(-38deg); } to { transform: rotate(34deg); } }
+@keyframes amb-searchlight { from { transform: rotate(-30deg); } to { transform: rotate(28deg); } }

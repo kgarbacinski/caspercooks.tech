@@ -110,7 +110,7 @@ const CFG: Record<keyof typeof SCREENS, ScreenCfg> = {
     num: 'rgb(170,98,62)',
     glow: 'rgba(255,170,100,0.55)',
     hl: 'rgba(255,160,80,0.22)',
-    flash: 'rgb(255,232,205)',
+    flash: 'rgb(255,176,96)',
     seed: 3,
     bar: 0.46,
   },
@@ -567,14 +567,14 @@ function Laptops() {
       {LAPTOPS.map(([x, y, w, h], i) => (
         <span
           key={i}
-          className="amb-laptop absolute mix-blend-screen"
+          className="amb-laptop absolute mix-blend-overlay"
           style={{
             left: `${x}%`,
             top: `${y}%`,
             width: `${w}%`,
             height: `${h}%`,
             borderRadius: '6%',
-            background: i % 2 ? 'rgba(255,150,70,1)' : 'rgba(255,184,96,1)',
+            background: i % 2 ? 'rgba(255,140,50,0.55)' : 'rgba(255,165,70,0.55)',
             boxShadow: '0 0 2cqw 0.6cqw rgba(255,170,90,0.75)',
             animationDelay: sec([0, 3.2, 1.6, 0.05, 3.25, 1.65][i]),
           }}
@@ -605,7 +605,15 @@ function Phone() {
         <Img src="phone-strip" className="amb-phone absolute left-0 w-full" style={{ top: `${ph.stripTop}%`, height: `${ph.stripH}%`, maxWidth: 'none' }} />
         <span
           className="amb-tap absolute rounded-full"
-          style={{ left: '52%', top: '68%', width: '80%', aspectRatio: '1', border: '0.9cqw solid rgba(255,120,40,1)', background: 'rgba(255,180,110,0.8)', boxShadow: '0 0 1.2cqw rgba(255,140,60,0.9)' }}
+          style={{ left: '52%', top: '68%', width: '105%', aspectRatio: '1', border: '0.9cqw solid rgba(255,120,40,1)', boxShadow: '0 0 1cqw rgba(255,140,60,0.9)' }}
+        />
+        <span
+          className="amb-tap absolute rounded-full"
+          style={{ left: '52%', top: '68%', width: '60%', aspectRatio: '1', border: '0.7cqw solid rgba(255,150,70,0.9)', animationDelay: '0.12s' }}
+        />
+        <span
+          className="amb-tap absolute rounded-full"
+          style={{ left: '52%', top: '68%', width: '24%', aspectRatio: '1', background: 'rgba(255,245,235,0.95)', animationDelay: '-0.05s' }}
         />
       </div>
     </div>
@@ -696,17 +704,19 @@ function OfficeSky() {
             key={k}
             className="amb-searchlight absolute mix-blend-screen"
             style={{
-              left: k ? '70%' : '28%',
-              top: '100%',
-              width: '14%',
-              height: '260%',
+              left: k ? '72%' : '30%',
+              top: '96%',
+              width: '34%',
+              height: '130%',
               transformOrigin: '50% 100%',
               translate: '-50% -100%',
               animationDuration: k ? '9s' : '11s',
               animationDelay: k ? '-4s' : '0s',
               animationDirection: k ? 'alternate-reverse' : 'alternate',
-              background: 'linear-gradient(0deg, rgba(200,220,255,0.55), rgba(200,220,255,0.2) 55%, transparent)',
-              clipPath: 'polygon(42% 100%, 58% 100%, 100% 0, 0 0)',
+              // miękki stożek światła: jasny u podstawy (między wieżowcami), gaśnie ku górze
+              background: 'linear-gradient(0deg, rgba(225,238,255,0.55), rgba(210,226,255,0.3) 50%, rgba(200,220,255,0.08) 90%, transparent)',
+              clipPath: 'polygon(46% 100%, 54% 100%, 100% 0, 0 0)',
+              filter: 'blur(0.6cqw)',
             }}
           />
         ))}
@@ -871,7 +881,7 @@ export default function RoomAmbient({ world, room, run, show, hot, lite, artClas
               width: '44%',
               height: '6%',
               transform: 'translate(-50%,-50%)',
-              background: 'radial-gradient(ellipse, rgba(120,255,170,0.42) 0%, rgba(120,255,170,0.14) 45%, transparent 70%)',
+              background: 'radial-gradient(ellipse, rgba(120,255,170,0.6) 0%, rgba(120,255,170,0.2) 45%, transparent 70%)',
             }}
           />
           {!lite && <Steam x={82.6} y={67.9} w={5} h={9} />}
@@ -924,7 +934,9 @@ export default function RoomAmbient({ world, room, run, show, hot, lite, artClas
               fontSize: '3.2cqw',
               letterSpacing: '0.1em',
               color: 'rgb(255,240,232)',
-              background: 'rgb(214,44,32)',
+              textShadow: '0 0 0.8cqw rgba(255,210,190,0.9)',
+              filter: 'blur(0.06cqw)',
+              background: 'radial-gradient(ellipse at 50% 40%, rgb(236,64,44), rgb(190,34,24))',
               borderRadius: '0.8cqw',
               boxShadow: '0 0 2.4cqw 0.8cqw rgba(255,60,40,0.6), inset 0 0 0 0.3cqw rgb(255,120,100)',
             }}
