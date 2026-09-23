@@ -70,7 +70,7 @@ function CopyPart({ part, className = '' }: { part: Part; className?: string }) 
   const reduce = useReducedMotion()
   // desktop: przy "wjeździe kamery" w pokój tekst hero znika jako pierwszy
   const { scrollY } = useScroll()
-  const uiFade = useTransform(scrollY, [0, 110], [1, 0])
+  const uiFade = useTransform(scrollY, [0, 80], [1, 0])
   const uiShift = useTransform(scrollY, [0, 140], [0, -70])
   const swaps = part === 'head' || part === 'lines'
 

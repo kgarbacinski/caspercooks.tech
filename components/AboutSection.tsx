@@ -294,11 +294,12 @@ export default function AboutSection() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`/diorama/v2/fig-${KEY[theme]}.webp`} alt="" className="absolute inset-0 w-full h-full" />
                 </div>
+                {/* podpis przypięty do podstawy pokoju (pojawia się razem z pokojem) */}
+                <div className="absolute -left-[6%] -bottom-[7%] z-10 paper-tag !text-left -rotate-2">
+                  <span className="block font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">room 01</span>
+                  <span className="block font-display text-lg text-ink">{room.label}</span>
+                </div>
               </motion.div>
-              <div className="absolute left-0 bottom-6 paper-tag !text-left -rotate-2">
-                <span className="block font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">room 01</span>
-                <span className="block font-display text-lg text-ink">{room.label}</span>
-              </div>
             </div>
 
             {/* tablica z notatkami — przed przypięciem wjeżdża szybciej niż scroll, żeby prawa połowa

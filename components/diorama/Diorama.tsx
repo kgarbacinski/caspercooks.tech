@@ -200,7 +200,7 @@ export default function Diorama() {
     return () => mq.removeEventListener('change', sync)
   }, [])
   const dive = wide && !reduce
-  const capFade = useTransform(scrollY, [0, 70], [1, 0]) // podpisy gasną razem z tekstem hero
+  const capFade = useTransform(scrollY, [0, 50], [1, 0]) // podpisy gasną razem z tekstem hero
 
   /*
    * Desktop: "wjazd kamery" w pierwszy pokój. Hero jest przypięte (sticky) przez D px scrolla,
@@ -236,8 +236,11 @@ export default function Diorama() {
     const t = clamp01(p / 0.65)
     return 1 - (1 - t) * (1 - t)
   })
-  // tor pokoju idzie w tym samym tempie co zbliżenie (tekst hero zdąży zgasnąć i odsunąć się w lewo)
-  const camPos = camE
+  // tor pokoju wyprzedza zbliżenie: pokój od pierwszych pikseli jedzie w lewo, na miejsce gasnącego tekstu
+  const camPos = useTransform(diveP, (p) => {
+    const t = clamp01(p / 0.5)
+    return 1 - Math.pow(1 - t, 3)
+  })
   const cam = (e: number, q: number) => {
     const g = geo.current
     if (!g) return { s: 1, x: 0, y: 0 }
