@@ -349,7 +349,7 @@ function Sparkles({ lite }: { lite?: boolean }) {
           style={{
             left: `${x}%`,
             top: `${y}%`,
-            width: '2%',
+            width: '3.2%',
             aspectRatio: '1',
             background: 'radial-gradient(circle, rgba(240,255,245,1) 18%, rgba(130,255,200,0.7) 42%, transparent 70%)',
             animationDuration: `${d}s`,
@@ -366,22 +366,32 @@ function Sparkles({ lite }: { lite?: boolean }) {
  * który zawsze płynnie dąży do celu: cel = otwarty w oknie cyklu (co 19 s) albo gdy kursor jest nad
  * pokojem. Dzięki temu hover i zegar nigdy się nie gryzą, a zamykanie po zjechaniu kursorem
  * zaczyna się z bieżącej fazy (bez przeskoku). Faza 0–0.4: koło robi pełny obrót, od 0.22: drzwi
- * (nakładają się, więc drzwi ruszają szybko). Cykl 13 s, otwarte ok. 4 s.
+ * (nakładają się, więc drzwi ruszają szybko). Sam otwiera się co 13 s na ~4.4 s; po interakcji kursorem
+ * własny cykl odczekuje 9 s (drzwi nie odbijają z powrotem zaraz po zamknięciu).
  */
-const VAULT_CYCLE = 13000
-const VAULT_OPEN: [number, number] = [6200, 10600] // okno "otwarte" w cyklu (ms)
+const VAULT_EVERY = 13000 // co ile sam się otwiera (ms)
+const VAULT_HOLD = 4400 // ile stoi otwarty
+const VAULT_QUIET = 9000 // po interakcji kursorem: tyle spokoju, zanim otworzy się sam
 const VAULT_SPEED = 1 / 2300 // pełne otwarcie ≈ 2.3 s (cykl)
-const VAULT_SPEED_HOT = 1 / 1300 // pod kursorem szybciej
-const vault = { p: 0, t: -1, tw: 0, subs: new Set<(p: number) => void>() }
+const VAULT_SPEED_HOT = 1 / 1200 // przy kursorze szybciej (w obie strony)
+const vault = { p: 0, t: -1, tw: 0, nextOpen: 6200, openUntil: 0, lastHot: -1e9, subs: new Set<(p: number) => void>() }
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v)
 const easeIO = (v: number) => (v < 0.5 ? 4 * v * v * v : 1 - Math.pow(-2 * v + 2, 3) / 2)
 const vaultDoor = (p: number) => easeIO(clamp01((p - 0.22) / 0.78))
 function stepVault(t: number, hot: boolean) {
   const dt = vault.t < 0 ? 0 : Math.min(100, t - vault.t)
   vault.t = t
-  const c = t % VAULT_CYCLE
-  const target = hot || (c >= VAULT_OPEN[0] && c < VAULT_OPEN[1]) ? 1 : 0
-  const sp = hot ? VAULT_SPEED_HOT : VAULT_SPEED
+  if (hot) {
+    // kursor przejmuje sejf: własny cykl czeka, aż minie chwila po odjechaniu
+    vault.lastHot = t
+    vault.openUntil = 0
+    vault.nextOpen = Math.max(vault.nextOpen, t + VAULT_QUIET)
+  } else if (t >= vault.nextOpen) {
+    vault.openUntil = t + VAULT_HOLD
+    vault.nextOpen = t + VAULT_EVERY
+  }
+  const target = hot || t < vault.openUntil ? 1 : 0
+  const sp = t - vault.lastHot < 2500 ? VAULT_SPEED_HOT : VAULT_SPEED
   const np = target > vault.p ? Math.min(1, vault.p + dt * sp) : Math.max(0, vault.p - dt * sp)
   // między otwarciami koło co ~3 s "próbuje" się obrócić (krótkie drgnięcie tam i z powrotem)
   const tw = (t % 3250) / 3250
@@ -564,7 +574,7 @@ function Laptops() {
             width: `${w}%`,
             height: `${h}%`,
             borderRadius: '6%',
-            background: i % 2 ? 'rgba(255,150,70,1)' : 'rgba(255,220,170,1)',
+            background: i % 2 ? 'rgba(255,150,70,1)' : 'rgba(255,184,96,1)',
             boxShadow: '0 0 1cqw rgba(255,170,90,0.8)',
             animationDelay: sec([0, 3.1, 1.4, 4.6, 2.2, 5.3][i]),
           }}
@@ -595,7 +605,7 @@ function Phone() {
         <Img src="phone-strip" className="amb-phone absolute left-0 w-full" style={{ top: `${ph.stripTop}%`, height: `${ph.stripH}%`, maxWidth: 'none' }} />
         <span
           className="amb-tap absolute rounded-full"
-          style={{ left: '52%', top: '68%', width: '80%', aspectRatio: '1', border: '0.8cqw solid rgba(255,130,50,1)', background: 'rgba(255,190,130,0.6)', boxShadow: '0 0 1.2cqw rgba(255,140,60,0.9)' }}
+          style={{ left: '52%', top: '68%', width: '80%', aspectRatio: '1', border: '0.9cqw solid rgba(255,120,40,1)', background: 'rgba(255,180,110,0.8)', boxShadow: '0 0 1.2cqw rgba(255,140,60,0.9)' }}
         />
       </div>
     </div>
@@ -774,7 +784,7 @@ function Slides() {
       {/* czerwona kropka wskaźnika laserowego prowadzącego — wędruje po treści slajdu */}
       <span
         className="amb-laser absolute rounded-full mix-blend-screen"
-        style={{ left: 0, top: 0, width: '6.5%', aspectRatio: '1', background: 'radial-gradient(circle, rgb(255,210,200) 12%, rgba(255,40,30,0.95) 30%, rgba(255,40,30,0.3) 52%, transparent 72%)' }}
+        style={{ left: 0, top: 0, width: '12%', aspectRatio: '1', background: 'radial-gradient(circle, rgb(255,255,255) 9%, rgb(255,20,20) 20%, rgba(255,20,20,0.55) 34%, rgba(255,20,20,0.18) 52%, transparent 70%)' }}
       />
     </div>
   )

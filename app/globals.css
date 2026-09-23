@@ -588,20 +588,24 @@ body.founder-mode {
   0%, 9% { opacity: 0; }
   9.1%, 10.4% { opacity: 1; } 10.5%, 11.4% { opacity: 0; }
   11.5%, 12.8% { opacity: .95; } 12.9%, 13.6% { opacity: 0; }
-  13.7%, 15.6% { opacity: 1; } 15.7%, 57% { opacity: 0; }
+  13.7%, 15.6% { opacity: 1; } 15.7%, 34% { opacity: 0; }
+  34.1%, 34.9% { opacity: .9; } 35%, 35.9% { opacity: 0; } 36%, 36.8% { opacity: .9; } 36.9%, 57% { opacity: 0; }
   57.1%, 61.5% { opacity: 1; }
   61.6%, 62.8% { opacity: .25; } 62.9%, 64.4% { opacity: 1; }
-  64.5%, 100% { opacity: 0; }
+  64.5%, 81% { opacity: 0; }
+  81.1%, 81.9% { opacity: .9; } 82%, 82.8% { opacity: 0; } 82.9%, 83.7% { opacity: .9; } 83.8%, 100% { opacity: 0; }
 }
 .amb-lamp-dev-on { animation: amb-lamp-dev-on 18.8s linear infinite; }
 @keyframes amb-lamp-dev-on {
   0%, 9% { opacity: 1; }
   9.1%, 10.4% { opacity: 0; } 10.5%, 11.4% { opacity: 1; }
   11.5%, 12.8% { opacity: .05; } 12.9%, 13.6% { opacity: 1; }
-  13.7%, 15.6% { opacity: 0; } 15.7%, 57% { opacity: 1; }
+  13.7%, 15.6% { opacity: 0; } 15.7%, 34% { opacity: 1; }
+  34.1%, 34.9% { opacity: .1; } 35%, 35.9% { opacity: 1; } 36%, 36.8% { opacity: .1; } 36.9%, 57% { opacity: 1; }
   57.1%, 61.5% { opacity: 0; }
   61.6%, 62.8% { opacity: .75; } 62.9%, 64.4% { opacity: 0; }
-  64.5%, 100% { opacity: 1; }
+  64.5%, 81% { opacity: 1; }
+  81.1%, 81.9% { opacity: .10; } 82%, 82.8% { opacity: 1; } 82.9%, 83.7% { opacity: .10; } 83.8%, 100% { opacity: 1; }
 }
 .amb-lamp-ceo { opacity: 0; animation: amb-lamp-ceo 23.6s linear infinite; }
 @keyframes amb-lamp-ceo {
@@ -672,8 +676,8 @@ body.founder-mode {
 }
 .amb-flow { opacity: 0; animation: amb-flow 20s linear infinite; }
 /* lampka "REC" kamery: równe, spokojne 1 Hz */
-.amb-rec { animation: amb-rec 2s steps(1, end) infinite; }
-@keyframes amb-rec { 0% { opacity: 1; } 50% { opacity: .08; } 100% { opacity: .08; } }
+.amb-rec { animation: amb-rec 6s steps(1, end) infinite; }
+@keyframes amb-rec { 0% { opacity: 1; } 38% { opacity: .08; } 43% { opacity: 1; } 46% { opacity: .08; } 50% { opacity: 1; } 82% { opacity: .08; } 100% { opacity: .08; } }
 /* poświata monitorów na biurku: nieregularne drganie jasności */
 .amb-screenglow { animation: amb-screenglow 5.3s linear infinite; }
 @keyframes amb-screenglow {
@@ -757,19 +761,48 @@ body.founder-mode {
 }
 /* laptopy kursantów: krótki błysk ekranu co 6.4 s, każdy z innym opóźnieniem */
 .amb-laptop { opacity: 0; animation: amb-laptop 6.4s steps(1, end) infinite; }
-@keyframes amb-laptop { 0% { opacity: .9; } 6% { opacity: .2; } 9% { opacity: .9; } 22%, 100% { opacity: 0; } }
+@keyframes amb-laptop { 0% { opacity: .9; } 6% { opacity: .3; } 9% { opacity: .9; } 22%, 100% { opacity: 0; } }
 /* webinar: wskaźnik laserowy (20 s, zsynchronizowany ze slajdami): wodzi po schemacie, słupkach, liście i donucie */
-.amb-laser { opacity: 0; animation: amb-laser 20s ease-in-out infinite; }
+.amb-laser { opacity: 0; animation: amb-laser 20s cubic-bezier(.4, 0, .2, 1) infinite; }
 @keyframes amb-laser {
-  0% { opacity: 0; transform: translate(1077%, 538%); }
-  3% { opacity: 1; transform: translate(846%, 500%); }
-  9% { transform: translate(615%, 269%); } 15% { transform: translate(1154%, 346%); } 21% { transform: translate(769%, 692%); }
-  24% { opacity: 1; } 25.5% { opacity: 0; transform: translate(846%, 769%); }
-  28% { opacity: 0; transform: translate(769%, 1000%); } 30% { opacity: 1; }
-  36% { transform: translate(1038%, 885%); } 42% { transform: translate(1269%, 538%); } 48% { opacity: 1; transform: translate(1308%, 462%); }
-  50% { opacity: 0; } 53% { opacity: 0; transform: translate(692%, 577%); } 55% { opacity: 1; }
-  60% { transform: translate(692%, 808%); } 66% { transform: translate(692%, 1038%); } 73% { opacity: 1; transform: translate(1000%, 1115%); }
-  75% { opacity: 0; } 78% { opacity: 0; transform: translate(1154%, 769%); } 80% { opacity: 1; }
-  87% { transform: translate(1269%, 577%); } 93% { transform: translate(1038%, 923%); } 98% { opacity: 1; }
-  100% { opacity: 0; transform: translate(1077%, 538%); }
+  0% { opacity: 0; transform: translate(287%, 196%); }
+  1.5% { opacity: 1; transform: translate(287%, 196%); }
+  4.5% { opacity: 1; transform: translate(287%, 196%); }
+  6% { opacity: 1; transform: translate(454%, 70%); }
+  9% { opacity: 1; transform: translate(454%, 70%); }
+  10.5% { opacity: 1; transform: translate(621%, 152%); }
+  13.5% { opacity: 1; transform: translate(621%, 152%); }
+  15% { opacity: 1; transform: translate(380%, 336%); }
+  18% { opacity: 1; transform: translate(380%, 336%); }
+  19.5% { opacity: 1; transform: translate(512%, 385%); }
+  23% { opacity: 1; transform: translate(512%, 385%); }
+  24% { opacity: 0; transform: translate(512%, 385%); }
+  26% { opacity: 0; transform: translate(370%, 298%); }
+  29% { opacity: 1; transform: translate(370%, 298%); }
+  32% { opacity: 1; transform: translate(370%, 298%); }
+  34% { opacity: 1; transform: translate(512%, 233%); }
+  38% { opacity: 1; transform: translate(512%, 233%); }
+  40% { opacity: 1; transform: translate(629%, 147%); }
+  47.5% { opacity: 1; transform: translate(629%, 147%); }
+  48.5% { opacity: 0; transform: translate(629%, 147%); }
+  51% { opacity: 0; transform: translate(463%, 190%); }
+  53% { opacity: 1; transform: translate(463%, 190%); }
+  56% { opacity: 1; transform: translate(463%, 190%); }
+  57.5% { opacity: 1; transform: translate(463%, 272%); }
+  60.5% { opacity: 1; transform: translate(463%, 272%); }
+  62% { opacity: 1; transform: translate(463%, 352%); }
+  65% { opacity: 1; transform: translate(463%, 352%); }
+  66.5% { opacity: 1; transform: translate(463%, 434%); }
+  72.5% { opacity: 1; transform: translate(463%, 434%); }
+  73.5% { opacity: 0; transform: translate(463%, 434%); }
+  76% { opacity: 0; transform: translate(562%, 190%); }
+  78% { opacity: 1; transform: translate(562%, 190%); }
+  82% { opacity: 1; transform: translate(562%, 190%); }
+  84% { opacity: 1; transform: translate(629%, 342%); }
+  88% { opacity: 1; transform: translate(629%, 342%); }
+  90% { opacity: 1; transform: translate(380%, 277%); }
+  96.5% { opacity: 1; transform: translate(380%, 277%); }
+  97.5% { opacity: 0; transform: translate(380%, 277%); }
+  100% { opacity: 0; transform: translate(287%, 196%); }
 }
+
