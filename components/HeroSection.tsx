@@ -66,8 +66,9 @@ export default function HeroSection() {
   return (
     <section className="relative z-10 min-h-[100svh] lg:min-h-[135vh] lg:items-start lg:pt-[max(6rem,calc((100vh-620px)/2))] flex items-center overflow-x-clip pt-20 sm:pt-24 pb-16 lg:pb-20">
       {/* daleki grzbiet gór na horyzoncie (motyw ścian dioramy) */}
+      {/* góry znikają razem z UI przy wjeździe kamery (inaczej prześwitują przez gasnący pokój) */}
+      <motion.div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ opacity: uiFade }}>
       <div
-        aria-hidden="true"
         className="absolute inset-x-0 bottom-0 h-[38%] opacity-[0.07] pointer-events-none"
         style={{
           background: 'linear-gradient(180deg, #c9a882, transparent)',
@@ -76,6 +77,7 @@ export default function HeroSection() {
           mask: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 300' preserveAspectRatio='none'%3E%3Cpath d='M0 300 L0 190 L90 120 L160 170 L260 60 L360 160 L430 110 L540 190 L640 40 L760 170 L840 120 L940 180 L1040 70 L1130 150 L1200 110 L1200 300Z'/%3E%3C/svg%3E\") bottom / 100% 100% no-repeat",
         }}
       />
+      </motion.div>
       {/* sygnał scrolla: kabel, po którym spływa impuls */}
       <motion.a style={{ opacity: uiFade }} href="#about" aria-label="Scroll to about" className="absolute top-[calc(100svh-6.5rem)] left-1/2 -translate-x-1/2 hidden lg:flex [@media(max-height:760px)]:!hidden flex-col items-center gap-2 eyebrow hover:text-accent transition-colors">
         <span>scroll</span>
@@ -92,7 +94,7 @@ export default function HeroSection() {
         <motion.div style={{ opacity: uiFade }} className="max-lg:!opacity-100">
         <motion.div animate={{ opacity: phase === 'leaving' ? 0.3 : 1, y: 0 }} transition={{ duration: 0.45, ease: EASE }}>
         <AnimatePresence mode={reduce ? 'popLayout' : 'wait'}>
-          <motion.div key={theme} initial={reduce ? false : 'hidden'} animate="show" exit={reduce ? undefined : 'exit'} variants={{ show: { transition: { staggerChildren: 0.08, delayChildren: phase === 'idle' ? 0 : 0.05 } }, exit: { transition: { staggerChildren: 0.03 } } }}>
+          <motion.div key={theme} initial={reduce ? false : 'hidden'} animate="show" exit={reduce ? undefined : 'exit'} variants={{ show: { transition: { staggerChildren: 0.08, delayChildren: phase === 'idle' ? 0 : 0.3 } }, exit: { transition: { staggerChildren: 0.03 } } }}>
             <motion.p variants={fade} className="eyebrow mb-5">
               <span className="inline-block px-3 py-1.5 border border-accent/50 text-accent">{c.eyebrow}</span>
             </motion.p>

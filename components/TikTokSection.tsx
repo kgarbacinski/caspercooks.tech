@@ -63,7 +63,7 @@ export default function TikTokSection() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Open @kacper.senior.dev on TikTok"
-                className="group absolute right-[10%] sm:right-[12%] bottom-[9%] block"
+                className="group absolute right-[16%] sm:right-[12%] bottom-[9%] block"
                 initial={reduce ? false : { y: 40, opacity: 0, rotate: -3 }}
                 whileInView={{ y: 0, opacity: 1, rotate: 0 }}
                 viewport={{ once: true, margin: '-60px' }}
@@ -75,7 +75,7 @@ export default function TikTokSection() {
                     <Image src="/tiktok-thumbnail.png" alt="TikTok content preview" fill sizes="180px" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70" />
                     {/* nagrywanie */}
-                    <div className="absolute top-2.5 left-2 right-2 flex items-center justify-between font-mono text-[8px] sm:text-[9px] text-white">
+                    <div className="absolute top-6 left-2 right-2 flex items-center justify-between font-mono text-[8px] sm:text-[9px] text-white">
                       <span className="flex items-center gap-1.5 px-1.5 py-0.5 rounded-full bg-black/45 backdrop-blur-sm">
                         <span className={`w-2 h-2 rounded-full bg-[#ff3b30] ${reduce ? '' : 'animate-rec'}`} />
                         REC <RecTimer run={inView && !reduce} />
@@ -93,7 +93,7 @@ export default function TikTokSection() {
                       </span>
                     </div>
                     <div className="absolute bottom-2.5 left-2.5 right-2.5">
-                      <p className="text-white font-display text-[11px] sm:text-[13px] leading-tight truncate">@kacper.senior.dev</p>
+                      <p className="text-white font-display text-[9.5px] sm:text-[13px] leading-tight truncate">@kacper.senior.dev</p>
                       <p className="font-mono text-[8px] sm:text-[9px] text-white/70 truncate">Polish dev community</p>
                     </div>
                   </div>
