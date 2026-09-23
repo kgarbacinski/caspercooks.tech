@@ -46,9 +46,10 @@ const Figure = forwardRef<FigureHandle, { theme: Theme; dim: boolean; reduce: bo
     await animate(scope.current, { scaleY: 0.84, scaleX: 1.1, y: '3%' }, { duration: 0.16, ease: 'easeOut' })
     if (gen.current !== run) return
     setPose('jump')
-    await animate(scope.current, { scaleY: 1.08, scaleX: 0.95, y: '-95%', x: '45%', rotate: 12 }, { duration: 0.32, ease: [0.2, 0.8, 0.4, 1] })
+    await animate(scope.current, { scaleY: 1.08, scaleX: 0.95, y: '-105%', x: '-40%', rotate: -12 }, { duration: 0.32, ease: [0.2, 0.8, 0.4, 1] })
     if (gen.current !== run) return
-    await animate(scope.current, { y: '240%', x: '170%', rotate: 48, scaleY: 1, scaleX: 1, opacity: 0 }, { duration: 0.5, ease: [0.55, 0, 0.9, 0.4] })
+    // łukiem w górę i w lewo, poza wyspę (nie przez skałę)
+    await animate(scope.current, { y: '-40%', x: '-340%', rotate: -50, scaleY: 1, scaleX: 1, opacity: 0 }, { duration: 0.55, ease: [0.4, 0, 0.8, 0.6] })
   }, [animate, scope])
 
   const hide = useCallback(() => {

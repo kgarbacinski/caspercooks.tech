@@ -10,19 +10,19 @@ import { useMemo } from 'react'
 export default function PaperBurst({ accent }: { accent: string }) {
   const bits = useMemo(
     () =>
-      Array.from({ length: 38 }, (_, i) => {
+      Array.from({ length: 56 }, (_, i) => {
         const a = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.25
         const v = 120 + Math.random() * 220
         return {
-          x0: 8 + (i / 38) * 84, // start wzdłuż podłogi pokoi (% szerokości)
+          x0: 6 + Math.random() * 88, // start wzdłuż podłogi pokoi (% szerokości)
           dx: Math.cos(a) * v,
           dy: Math.sin(a) * v,
           fall: 140 + Math.random() * 160,
-          w: 5 + Math.random() * 9,
-          h: 3 + Math.random() * 6,
+          w: 9 + Math.random() * 12,
+          h: 6 + Math.random() * 9,
           rx: (Math.random() - 0.5) * 900,
           ry: (Math.random() - 0.5) * 900,
-          c: [`rgb(${accent})`, '#efe2c7', '#c9a882', '#b8663f', `rgb(${accent})`][i % 5],
+          c: ['#efe2c7', '#e2cda8', '#c9a882', '#b8663f', '#efe2c7', `rgb(${accent})`][i % 6],
           d: Math.random() * 0.18,
         }
       }),

@@ -123,7 +123,7 @@ export default function ContactSection() {
   ]
 
   return (
-    <section id="contact" className="relative py-24 sm:py-32 scroll-mt-20 overflow-hidden">
+    <section id="contact" className="relative py-16 sm:py-24 scroll-mt-20 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
         <SectionHeader
           index="06"
@@ -282,10 +282,21 @@ export default function ContactSection() {
                     initial={{ scale: 1.6, rotate: -8, opacity: 0 }}
                     animate={{ scale: 1, rotate: -3, opacity: 1, transition: { delay: 2.3, type: 'spring', stiffness: 380, damping: 16 } }}
                   >
-                    <div className="inline-block px-8 py-6 border-[3px] border-double border-accent/80 text-accent" style={{ boxShadow: '0 0 40px -10px rgb(var(--accent-rgb) / 0.6)' }}>
-                      <div className="font-display text-5xl sm:text-6xl mb-2">✓ Message Sent!</div>
-                      <div className="font-mono text-xs uppercase tracking-[0.24em] text-paper-muted">the envelope is on its way</div>
+                    {/* pieczątka pocztowa: tusz w kolorze wosku, lekko przesunięty jak prawdziwy odcisk */}
+                    <div className="relative inline-grid place-items-center w-72 h-72 rounded-full border-[5px] border-double border-[#c2541f]/85 text-[#d8662c]" style={{ filter: 'url(#ink)' }}>
+                      <div className="absolute inset-4 rounded-full border border-dashed border-[#c2541f]/60" />
+                      <div className="text-center px-6">
+                        <div className="font-mono text-[9px] uppercase tracking-[0.2em] mb-2 whitespace-nowrap">caspercooks.tech · post</div>
+                        <div className="font-display text-[28px] leading-tight whitespace-nowrap">✓ Message Sent!</div>
+                        <div className="font-mono text-[9px] uppercase tracking-[0.16em] mt-2 opacity-80 whitespace-nowrap">the envelope is on its way</div>
+                      </div>
                     </div>
+                    <svg width="0" height="0" className="absolute" aria-hidden="true">
+                      <filter id="ink">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" />
+                        <feDisplacementMap in="SourceGraphic" scale="3" />
+                      </filter>
+                    </svg>
                   </motion.div>
                 </motion.div>
               )}

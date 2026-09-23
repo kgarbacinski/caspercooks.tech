@@ -105,7 +105,7 @@ export default function TechStack() {
   const filteredTechs = technologies.filter((t) => t.category === activeCategory)
 
   return (
-    <section id="stack" className="relative py-24 sm:py-32 scroll-mt-20">
+    <section id="stack" className="relative py-16 sm:py-24 scroll-mt-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
         <div className="flex items-end justify-between gap-8 mb-12 sm:mb-14">
           <SectionHeader

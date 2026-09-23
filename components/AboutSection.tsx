@@ -326,7 +326,7 @@ export default function AboutSection() {
 
       {/* ——— mobile / tablet: pokój + notatki w pionie ——— */}
       <div className="lg:hidden max-w-2xl mx-auto px-4 sm:px-8 pb-8">
-        <div className="relative mx-auto w-[78%] max-w-[380px] mt-10 mb-12">
+        <div className="relative mx-auto w-[74%] max-w-[380px] mt-10 mb-16">
           <div aria-hidden="true" className="absolute inset-x-[5%] bottom-0 h-1/3 rounded-[50%] blur-3xl" style={{ background: 'rgb(var(--accent-rgb) / 0.22)' }} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={roomSrc(theme, 0, true)} alt={`${room.label} — a papercraft room from the diorama`} className="relative w-full h-auto drop-shadow-[0_30px_30px_rgba(0,0,0,0.7)]" />

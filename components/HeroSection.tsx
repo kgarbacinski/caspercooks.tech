@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
+import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import Diorama from './diorama/Diorama'
 
 /** Treść obu trybów bez zmian względem poprzedniej wersji — zmienił się tylko wygląd. */
@@ -37,10 +38,11 @@ const COPY = {
 } as const
 
 const EASE = [0.22, 1, 0.36, 1] as const
+// nagłówek: przenikanie z rozmyciem (bez maski — w połowie animacji nic nie jest "ucięte")
 const rise = {
-  hidden: { y: '105%' },
-  show: { y: '0%', transition: { duration: 0.9, ease: EASE } },
-  exit: { y: '-105%', transition: { duration: 0.35, ease: EASE } },
+  hidden: { opacity: 0, y: 18, filter: 'blur(8px)' },
+  show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.8, ease: EASE } },
+  exit: { opacity: 0, y: -10, filter: 'blur(6px)', transition: { duration: 0.3, ease: EASE } },
 }
 const fade = {
   hidden: { opacity: 0, y: 14 },
@@ -56,9 +58,10 @@ const pop = {
 export default function HeroSection() {
   const { theme, phase } = useTheme()
   const c = COPY[theme]
+  const reduce = useReducedMotion()
 
   return (
-    <section className="relative min-h-[100svh] flex items-center overflow-hidden pt-20 sm:pt-24 pb-16 lg:pb-20">
+    <section className="relative z-10 min-h-[100svh] flex items-center overflow-x-clip pt-20 sm:pt-24 pb-16 lg:pb-20">
       {/* daleki grzbiet gór na horyzoncie (motyw ścian dioramy) */}
       <div
         aria-hidden="true"
@@ -83,16 +86,16 @@ export default function HeroSection() {
       </a>
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 grid lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)] gap-8 lg:gap-6 items-center">
         {/* przy przełączeniu stara treść gaśnie razem ze światłami wyspy, nowa wjeżdża po zmianie motywu */}
-        <motion.div animate={{ opacity: phase === 'leaving' ? 0 : 1, y: phase === 'leaving' ? -10 : 0 }} transition={{ duration: 0.45, ease: EASE }}>
-        <AnimatePresence mode="wait">
-          <motion.div key={theme} initial="hidden" animate="show" exit="exit" variants={{ show: { transition: { staggerChildren: 0.08, delayChildren: phase === 'idle' ? 0 : 0.55 } }, exit: { transition: { staggerChildren: 0.03 } } }}>
+        <motion.div animate={{ opacity: phase === 'leaving' ? 0.3 : 1, y: 0 }} transition={{ duration: 0.45, ease: EASE }}>
+        <AnimatePresence mode={reduce ? 'popLayout' : 'wait'}>
+          <motion.div key={theme} initial={reduce ? false : 'hidden'} animate="show" exit={reduce ? undefined : 'exit'} variants={{ show: { transition: { staggerChildren: 0.08, delayChildren: phase === 'idle' ? 0 : 0.05 } }, exit: { transition: { staggerChildren: 0.03 } } }}>
             <motion.p variants={fade} className="eyebrow mb-5">
               <span className="inline-block px-3 py-1.5 border border-accent/50 text-accent">{c.eyebrow}</span>
             </motion.p>
 
             <h1 className="font-display text-[2.75rem] sm:text-6xl lg:text-[3.1rem] xl:text-[3.4rem] 2xl:text-[4rem] leading-[1.02] tracking-tight mb-6">
               {c.title.map((line, i) => (
-                <span key={line} className="block overflow-hidden pb-[0.08em]">
+                <span key={line} className="block pb-[0.08em]">
                   <motion.span
                     variants={rise}
                     className={`block ${i === 1 ? 'text-accent [text-shadow:0_0_30px_rgb(var(--accent-rgb)/0.35)]' : ''}`}
@@ -111,10 +114,10 @@ export default function HeroSection() {
               ))}
             </p>
 
-            <div className="grid grid-cols-3 lg:flex lg:flex-wrap gap-2 sm:gap-3 mb-7">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-7 max-w-md">
               {c.stats.map((s) => (
                 <motion.div key={s.value} variants={pop} className="paper-card px-2.5 sm:px-4 py-3 font-mono">
-                  <div className="text-accent text-[12px] sm:text-sm whitespace-nowrap">{s.value}</div>
+                  <div className="text-accent text-[12px] sm:text-[13px] xl:text-sm whitespace-nowrap">{s.value}</div>
                   <div className="text-paper-dim text-[10px] sm:text-xs whitespace-nowrap">{s.label}</div>
                 </motion.div>
               ))}
@@ -136,7 +139,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 40, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
-          className="order-first lg:order-none mt-6 lg:mt-0 -mx-3 sm:mx-0 lg:-mr-[5vw] xl:-mr-[8vw] 2xl:-mr-[10vw]"
+          className="order-first lg:order-none mt-6 lg:mt-0 -mx-3 sm:mx-0 lg:-mr-[1vw] xl:-mr-[3vw] 2xl:-mr-[6vw]"
         >
           <Diorama />
         </motion.div>

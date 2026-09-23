@@ -172,14 +172,14 @@ function Shop({ brand, index }: { brand: Brand; index: number }) {
       {/* tabliczka z opisem */}
       <div className="plaque relative -mt-2 mx-[4%] flex-1 flex flex-col">
         <p className="text-paper-muted leading-relaxed text-[14.5px] mb-5">{brand.description}</p>
-        <div className="grid grid-cols-3 gap-2 pt-4 mt-auto border-t border-dashed border-cocoa-500/60">
+        <dl className="pt-3 mt-auto border-t border-dashed border-cocoa-500/60 space-y-1">
           {brand.stats.map((stat) => (
-            <div key={stat.label} className="min-w-0">
-              <div className="font-display text-[15px] xl:text-base text-accent leading-tight break-words">{stat.value}</div>
-              <div className="font-mono text-[9.5px] text-paper-dim leading-tight mt-0.5 break-words">{stat.label}</div>
+            <div key={stat.label} className="flex items-baseline justify-between gap-3">
+              <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-paper-dim">{stat.label}</dt>
+              <dd className="font-display text-base text-accent leading-tight text-right">{stat.value}</dd>
             </div>
           ))}
-        </div>
+        </dl>
         {hasUrl && (
           <a
             href={brand.url}
@@ -199,7 +199,7 @@ function Shop({ brand, index }: { brand: Brand; index: number }) {
 export default function BrandsShowcase() {
   const reduce = useReducedMotion()
   return (
-    <section id="brands" className="relative py-24 sm:py-32 scroll-mt-20 overflow-hidden">
+    <section id="brands" className="relative py-16 sm:py-24 scroll-mt-20 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
         <div className="flex items-end justify-between gap-8 mb-14 sm:mb-16">
           <SectionHeader

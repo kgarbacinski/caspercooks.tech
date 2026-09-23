@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion'
+import { AnimatePresence, motion, useMotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { SWITCH, useTheme } from '@/contexts/ThemeContext'
 import type { Theme } from '@/contexts/ThemeContext'
@@ -161,10 +161,26 @@ export default function Diorama() {
   const rotY = useSpring(useTransform(mx, [-1, 1], [-7, 7]), spring)
   const rotXMouse = useTransform(my, [-1, 1], [5, -5])
   const { scrollY } = useScroll()
-  const scrollTilt = useTransform(scrollY, [0, 700], [0, 14])
+  const scrollTilt = useTransform(scrollY, [0, 700], [0, 8])
   const rotX = useSpring(useTransform([rotXMouse, scrollTilt], ([a, b]: number[]) => a + b), spring)
   const shiftX = useSpring(useTransform(mx, [-1, 1], [-10, 10]), spring)
-  const scrollYShift = useSpring(useTransform(scrollY, [0, 700], [0, 80]), spring)
+  const scrollYShift = useSpring(useTransform(scrollY, [0, 850], [0, 120]), spring)
+  const diveY = useSpring(useTransform(scrollY, [0, 850], [0, 560]), { stiffness: 90, damping: 24 })
+  // desktop: przy zjeździe z hero kamera "wjeżdża" w pierwszy pokój (ciągłość z sekcją About)
+  const diveScale = useSpring(useTransform(scrollY, [0, 850], [1, 2.4]), { stiffness: 90, damping: 24 })
+  const diveFade = useTransform(scrollY, [280, 700], [1, 0])
+  const [wide, setWide] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const sync = () => setWide(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+  const dive = wide && !reduce
+  // po zaniknięciu diorama nie może łapać kliknięć nad sekcją About
+  const [gone, setGone] = useState(false)
+  useMotionValueEvent(diveFade, 'change', (v) => setGone(v < 0.05))
   // figurka ma własną, mocniejszą paralaksę (stoi przed pokojami)
   const figX = useSpring(useTransform(mx, [-1, 1], [-6, 6]), spring)
 
@@ -230,9 +246,9 @@ export default function Diorama() {
       <div
         aria-hidden="true"
         className="absolute left-[12%] right-[12%] bottom-[2%] h-[34%] rounded-[50%] blur-3xl transition-opacity duration-700"
-        style={{ background: `rgba(${accent},0.16)`, opacity: baseLit ? 1 : 0 }}
+        style={{ background: `rgba(${accent},${theme === 'developer' ? 0.08 : 0.14})`, opacity: baseLit ? 1 : 0 }}
       >
-        {!reduce && <div className="absolute inset-0 rounded-[50%] animate-cable-pulse" style={{ background: `rgba(${accent},0.2)` }} />}
+        {!reduce && <div className="absolute inset-0 rounded-[50%] animate-cable-pulse" style={{ background: `rgba(${accent},${theme === 'developer' ? 0.1 : 0.18})` }} />}
       </div>
 
       <motion.div
@@ -240,7 +256,11 @@ export default function Diorama() {
           rotateX: reduce ? 0 : rotX,
           rotateY: reduce ? 0 : rotY,
           x: reduce ? 0 : shiftX,
-          y: reduce ? 0 : scrollYShift,
+          y: reduce ? 0 : dive ? diveY : scrollYShift,
+          scale: dive ? diveScale : 1,
+          opacity: dive ? diveFade : 1,
+          transformOrigin: '14% 40%',
+          pointerEvents: dive && gone ? 'none' : 'auto',
           transformPerspective: 1600,
         }}
       >
@@ -422,7 +442,7 @@ export default function Diorama() {
                   animate={{ opacity: 1, y: 0, rotate: -2 }}
                   exit={{ opacity: 0, transition: { duration: 0.1 } }}
                   className="absolute pointer-events-none z-40"
-                  style={{ left: '31.5%', top: '30%', y: '-50%' }}
+                  style={{ left: '26.8%', top: '6%', x: '-50%', y: '-100%' }}
                 >
                   <div className="paper-tag whitespace-nowrap">
                     <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-ink/55">psst — click me</span>
