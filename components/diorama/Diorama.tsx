@@ -10,6 +10,7 @@ import { KEY, ROOMS, roomSrc, scrollToHash } from './rooms'
 import Figure, { type FigureHandle } from './Figure'
 import Sparks from './Sparks'
 import PaperBurst from './PaperBurst'
+import RoomAmbient from './Ambient'
 
 /**
  * Lewitująca diorama v2 — złożona z warstw zamiast jednego obrazka:
@@ -449,6 +450,11 @@ export default function Diorama() {
               const isHover = spot && hover === i
               const bright = !s.lit ? OFF : spot ? (isHover ? 1.1 : 0.42) : 1
               const src = roomSrc(theme, i)
+              const litClass = s.flicker && !reduce ? 'animate-lights-on' : ''
+              const litStyle: React.CSSProperties | undefined =
+                s.flicker && !reduce && !spot
+                  ? undefined
+                  : { filter: `brightness(${bright}) saturate(${bright < 0.5 ? 0.6 : 1})`, transition: 'filter .4s ease' }
               // maska = ten sam plik co pokój (już w cache, bez 5 dodatkowych pobrań)
               const maskStyle = {
                 WebkitMaskImage: `url(${src})`,
@@ -509,14 +515,23 @@ export default function Diorama() {
                       src={src}
                       alt=""
                       draggable={false}
-                      className={`absolute inset-0 w-full h-full ${s.flicker && !reduce ? 'animate-lights-on' : ''}`}
-                      style={
-                        s.flicker && !reduce && !spot
-                          ? undefined
-                          : { filter: `brightness(${bright}) saturate(${bright < 0.5 ? 0.6 : 1})`, transition: 'filter .4s ease' }
-                      }
+                      className={`absolute inset-0 w-full h-full ${litClass}`}
+                      style={litStyle}
                       onAnimationEnd={() => setRooms((r) => r.map((x, j) => (j === i ? { ...x, flicker: false } : x)))}
                     />
+                    {/* żywa miniatura: animacje wewnątrz warstwy pokoju (składają się z nim i jadą z kamerą) */}
+                    {!reduce && (
+                      <RoomAmbient
+                        world={k}
+                        room={i}
+                        run={!paused && s.lit}
+                        show={s.lit && !s.flicker && (!spot || isHover)}
+                        lite={!finePointer}
+                        artClass={litClass}
+                        // ta sama jasność co obrazek pokoju (bez filtra, gdy nic nie przygasa)
+                        artStyle={litStyle && bright === 1 ? { filter: 'none', transition: 'filter .4s ease' } : litStyle}
+                      />
+                    )}
                   </div>
                 </motion.div>
               )

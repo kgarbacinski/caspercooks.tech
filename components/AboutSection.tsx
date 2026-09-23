@@ -10,6 +10,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { SectionHeader, EASE } from '@/components/ui/Section'
 import { KEY, ROOMS, roomSrc } from '@/components/diorama/rooms'
 import { FIG, ROOM_BOX } from '@/components/diorama/layout'
+import RoomAmbient from '@/components/diorama/Ambient'
 
 /**
  * About = pokój nr 1 z wyspy (Dev cave / CEO office).
@@ -229,6 +230,8 @@ export default function AboutSection() {
   // scena przypięta: postęp scrolla → aktywna notatka + zoom kamery w pokój
   const sceneRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: sceneRef, offset: ['start start', 'end end'] })
+  // animacje w pokoju chodzą tylko, gdy scena jest w kadrze
+  const sceneInView = useInView(sceneRef)
   // start dokładnie w skali 1 i bez przesunięcia: w tym miejscu kończy się wjazd kamery z hero
   const zoom = useSpring(useTransform(scrollYProgress, [0, 1], reduce ? [1, 1] : [1, 0.92]), { stiffness: 80, damping: 22 })
   const panY = useSpring(useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 14]), { stiffness: 80, damping: 22 })
@@ -263,7 +266,7 @@ export default function AboutSection() {
 
       {/* ——— desktop: przypięta scena ——— */}
       <div ref={sceneRef} className="relative hidden lg:block" style={{ height: `${steps * 62 + 60}vh` }}>
-        <div data-dive-stage className="sticky top-0 h-screen overflow-x-clip">
+        <div data-dive-stage data-paused={sceneInView ? undefined : true} className="sticky top-0 h-screen overflow-x-clip">
           <div className="max-w-6xl mx-auto px-8 h-full grid grid-cols-[1.05fr_1fr] gap-10 items-center">
             {/* pokój, w który wjeżdża kamera */}
             <div className="relative h-[80vh] flex items-center justify-center">
@@ -274,19 +277,27 @@ export default function AboutSection() {
               />
               <motion.div data-dive-target className="relative w-[74%] max-w-[430px] mr-[16%]" style={{ scale: zoom, y: panY, opacity: shown, transformOrigin: '50% 70%' }}>
                 <AnimatePresence mode="popLayout" initial={false}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <motion.img
+                  {/* pokój + jego żywe animacje składają się razem przy przełączeniu świata */}
+                  <motion.div
                     key={theme}
-                    src={roomSrc(theme, 0)}
-                    alt={`${room.label} — a papercraft room from the diorama`}
-                    className="w-full h-auto drop-shadow-[0_40px_40px_rgba(0,0,0,0.7)]"
-                    // proporcje znane przed załadowaniem (pomiar celu kamery w hero)
-                    style={{ transformOrigin: '50% 100%', aspectRatio: `${rb.w * 24} / ${rb.h * 12.24}` }}
+                    className="relative"
+                    style={{ transformOrigin: '50% 100%' }}
                     initial={{ rotateX: 86 }}
                     animate={{ rotateX: 0 }}
                     exit={{ rotateX: 86, transition: { duration: 0.3 } }}
                     transition={{ type: 'spring', stiffness: 160, damping: 14, delay: 0.3 }}
-                  />
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={roomSrc(theme, 0)}
+                      alt={`${room.label} — a papercraft room from the diorama`}
+                      className="block w-full h-auto drop-shadow-[0_40px_40px_rgba(0,0,0,0.7)]"
+                      // proporcje znane przed załadowaniem (pomiar celu kamery w hero)
+                      style={{ aspectRatio: `${rb.w * 24} / ${rb.h * 12.24}` }}
+                    />
+                    {/* ten sam stan ekranów co w hero (wspólny model) — podmiana przy wjeździe kamery jest niewidoczna */}
+                    {!reduce && <RoomAmbient world={KEY[theme]} room={0} run={sceneInView} show />}
+                  </motion.div>
                 </AnimatePresence>
                 {/* figurka stoi w progu pokoju — dokładnie tam, gdzie na wyspie */}
                 <div aria-hidden="true" className="absolute" style={figPos}>
