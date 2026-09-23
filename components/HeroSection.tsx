@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
-import FloatingDiorama from './FloatingDiorama'
+import Diorama from './diorama/Diorama'
 
 /** Treść obu trybów bez zmian względem poprzedniej wersji — zmienił się tylko wygląd. */
 const COPY = {
@@ -135,7 +135,7 @@ export default function HeroSection() {
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
           className="lg:-mr-6 2xl:-mr-16"
         >
-          <FloatingDiorama />
+          <Diorama />
         </motion.div>
       </div>
     </section>

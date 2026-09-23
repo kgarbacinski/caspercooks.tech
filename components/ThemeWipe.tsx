@@ -7,7 +7,8 @@ import { useTheme, SWITCH } from '@/contexts/ThemeContext'
  * Kurtyna przełączenia DEV ⇄ CEO: arkusz jasnego papieru kraft (włókna z feTurbulence,
  * postrzępione krawędzie, cień pod krawędzią natarcia) przesuwa się przez ekran;
  * w środku wbija się woskowa pieczęć KG — z lekkim drżeniem przy uderzeniu i
- * rozpryskiem drobinek wosku. Oś czasu: SWITCH w ThemeContext.
+ * rozpryskiem drobinek wosku. Oś czasu: SWITCH.curtain w ThemeContext. Używana tylko,
+ * gdy przełączenie zaczyna się poniżej hero (przy hero wszystko dzieje się na dioramie).
  */
 
 // włókna papieru — tekstura bez dodatkowego pliku
@@ -19,15 +20,16 @@ const EDGE =
 const SEAL_PATH =
   'M50 3 C62 2 70 9 80 12 C91 16 97 27 96 39 C95 48 99 55 97 64 C94 77 85 84 76 90 C66 97 55 98 45 97 C33 96 24 91 16 83 C7 74 2 63 4 51 C5 42 1 34 5 26 C11 13 24 9 34 6 C40 4 45 3 50 3Z'
 
-const T = SWITCH.sheetOut / 1000 + 0.55 // czas życia kurtyny [s]
+const C = SWITCH.curtain
+const T = C.sheetOut / 1000 + 0.55 // czas życia kurtyny [s]
 const k = (ms: number) => Math.min(1, ms / 1000 / T) // ms → ułamek osi kurtyny
 
 export default function ThemeWipe() {
-  const { phase, target } = useTheme()
+  const { phase, mode, target } = useTheme()
 
   return (
     <AnimatePresence>
-      {phase !== 'idle' && (
+      {phase !== 'idle' && mode === 'curtain' && (
         <motion.div
           key="wipe"
           className={`fixed inset-0 z-[100] overflow-hidden ${phase === 'covered' ? 'pointer-events-auto' : 'pointer-events-none'}`}
@@ -44,7 +46,7 @@ export default function ThemeWipe() {
             animate={{ x: ['-115%', '-115%', '0%', '0%', '115%'] }}
             transition={{
               duration: T,
-              times: [0, k(SWITCH.sheetIn), k(SWITCH.covered - 60), k(SWITCH.sheetOut), 1],
+              times: [0, k(C.sheetIn), k(C.covered - 60), k(C.sheetOut), 1],
               ease: [0.76, 0, 0.24, 1],
             }}
           >
@@ -63,7 +65,7 @@ export default function ThemeWipe() {
                 // znika razem z arkuszem (jest jego dzieckiem), więc bez osobnego zanikania
                 initial={{ opacity: 0, scale: 2.5, rotate: -22 }}
                 animate={{ opacity: 1, scale: [2.5, 0.9, 1.05, 1], rotate: [-22, 3, -1, 0], x: [0, 0, -3, 0] }}
-                transition={{ delay: SWITCH.covered / 1000 - 0.22, duration: 0.42, times: [0, 0.5, 0.75, 1], ease: 'easeOut', opacity: { delay: SWITCH.covered / 1000 - 0.22, duration: 0.12 } }}
+                transition={{ delay: C.covered / 1000 - 0.22, duration: 0.42, times: [0, 0.5, 0.75, 1], ease: 'easeOut', opacity: { delay: C.covered / 1000 - 0.22, duration: 0.12 } }}
               >
                 <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full drop-shadow-[0_14px_18px_rgba(40,12,4,0.55)]">
                   <defs>
@@ -93,7 +95,7 @@ export default function ThemeWipe() {
                       className="absolute left-1/2 top-1/2 w-1.5 h-1.5 -ml-[3px] -mt-[3px] rounded-full bg-[#a44a26]"
                       initial={{ opacity: 0, x: 0, y: 0 }}
                       animate={{ opacity: [1, 1, 0], x: Math.cos(a) * d, y: Math.sin(a) * d + 18 }}
-                      transition={{ delay: SWITCH.covered / 1000 - 0.02, duration: 0.45, ease: 'easeOut' }}
+                      transition={{ delay: C.covered / 1000 - 0.02, duration: 0.45, ease: 'easeOut' }}
                     />
                   )
                 })}
@@ -102,7 +104,7 @@ export default function ThemeWipe() {
                 className="font-mono text-sm sm:text-base tracking-[0.3em] uppercase text-[#3b2212] whitespace-nowrap"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: SWITCH.covered / 1000 - 0.05, duration: 0.25 }}
+                transition={{ delay: C.covered / 1000 - 0.05, duration: 0.25 }}
               >
                 entering <span className="text-[#6d2a12] font-bold">{target === 'founder' ? 'founder' : 'developer'}</span> mode
               </motion.span>

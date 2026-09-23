@@ -12,12 +12,13 @@ import Footer from '@/components/Footer'
 import { CableDivider } from '@/components/ui/Section'
 import ThemeWipe from '@/components/ThemeWipe'
 import PageEffects from '@/components/PageEffects'
+import SparkTrail from '@/components/SparkTrail'
 import { useTheme } from '@/contexts/ThemeContext'
 
 /*
- * Motyw papercraft: hero z lewitującą dioramą (FloatingDiorama), sekcje jako
- * "pokoje" rozdzielone świecącym kablem. ScrollCinema (wideo w tle) i CustomCursor
- * zostają w repo, ale nie są już używane.
+ * Motyw papercraft: hero z warstwową dioramą (components/diorama), każda sekcja to
+ * jeden "pokój" z wyspy, rozdzielone świecącym kablem. ScrollCinema (wideo w tle)
+ * i CustomCursor zostają w repo, ale nie są już używane.
  */
 export default function Home() {
   const { theme } = useTheme()
@@ -25,6 +26,7 @@ export default function Home() {
   return (
     <>
       <PageEffects />
+      <SparkTrail />
       <ThemeWipe />
       <Navigation />
       <main className="overflow-x-clip">

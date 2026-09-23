@@ -3,126 +3,105 @@
 import type { ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
+import { roomSrc } from '@/components/diorama/rooms'
 
-const EASE = [0.22, 1, 0.36, 1] as const
+export const EASE = [0.22, 1, 0.36, 1] as const
 
 /**
- * Numer sekcji → pokój z dioramy (public/diorama/rooms/{dev|founder}-N.webp).
- * Każda sekcja "jest" jednym pokojem wyspy z hero.
+ * Pokój z dioramy wycięty dokładnie po kształcie (ta sama grafika co w hero).
+ * Przy zmianie motywu pokój składa się i wyskakuje już z nowego świata (jak w hero).
  */
-const ROOM_OF: Record<string, number> = { '01': 0, '02': 1, '03': 3, '04': 2, '05': 4 }
-
-function RoomThumb({ room }: { room: number }) {
+export function RoomCutout({
+  room,
+  className = '',
+  float = true,
+  hi = false,
+}: {
+  room: number
+  className?: string
+  float?: boolean
+  /** pełna rozdzielczość (duże ujęcia) */
+  hi?: boolean
+}) {
   const { theme } = useTheme()
   const reduce = useReducedMotion()
-  const src = `/diorama/rooms/${theme === 'founder' ? 'founder' : 'dev'}-${room}.webp`
+  const src = roomSrc(theme, room, !hi)
   return (
-    <motion.div
-      aria-hidden="true"
-      className="relative shrink-0 hidden sm:block sm:w-40 lg:w-48"
-      initial={reduce ? undefined : { opacity: 0, y: 40, rotateX: -50 }}
-      whileInView={reduce ? undefined : { opacity: 1, y: 0, rotateX: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 1, ease: EASE }}
-      style={{ perspective: 800 }}
-    >
-      <div className={reduce ? '' : 'animate-float'} style={{ animationDuration: '6s' }}>
-        <div className="relative" style={{ aspectRatio: '360 / 492' }}>
-          <AnimatePresence initial={false}>
+    <div aria-hidden="true" className={`relative ${className}`} style={{ perspective: 900 }}>
+      <div className={reduce || !float ? '' : 'animate-float'} style={{ animationDuration: '6.5s' }}>
+        <div className="relative" style={{ aspectRatio: '6 / 7' }}>
+          <AnimatePresence initial={false} mode="popLayout">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <motion.img
               key={src}
               src={src}
               alt=""
-              className="absolute inset-0 w-full h-full object-contain drop-shadow-[0_24px_24px_rgba(0,0,0,0.6)]"
-              initial={{ opacity: 0, y: -30, rotateZ: -4 }}
-              animate={{ opacity: 1, y: 0, rotateZ: 0 }}
-              exit={{ opacity: 0, y: 30 }}
-              transition={{ duration: 0.8, ease: EASE, delay: 0.4 }}
+              draggable={false}
+              className="absolute inset-0 w-full h-full object-contain object-bottom drop-shadow-[0_28px_26px_rgba(0,0,0,0.65)]"
+              style={{ transformOrigin: '50% 100%' }}
+              initial={reduce ? { opacity: 0 } : { rotateX: 86, opacity: 1 }}
+              animate={{ rotateX: 0, opacity: 1 }}
+              exit={reduce ? { opacity: 0 } : { rotateX: 86, transition: { duration: 0.35, ease: [0.55, 0, 0.85, 0.35] } }}
+              transition={{ type: 'spring', stiffness: 170, damping: 14, delay: 0.35 }}
             />
           </AnimatePresence>
         </div>
-        {/* cień pokoju na "podłodze" */}
-        <div className="mx-auto mt-2 h-3 w-2/3 rounded-[50%] bg-black/50 blur-md" />
+        <div className="mx-auto -mt-1 h-3 w-3/4 rounded-[50%] bg-black/60 blur-md" />
       </div>
-    </motion.div>
+    </div>
   )
 }
 
-/**
- * Wspólny szkielet sekcji w motywie papercraft: numer pokoju + eyebrow + tytuł (szeryf),
- * opcjonalny lead. Każda sekcja strony odpowiada pokojowi z dioramy w hero.
- * Nagłówek wjeżdża spod maski (jak kartka wysuwana zza ściany dioramy).
- */
-export function Section({
-  id,
+/** Nagłówek sekcji: numer pokoju + eyebrow + tytuł (wjeżdża spod maski) + opcjonalny lead. */
+export function SectionHeader({
   index,
   eyebrow,
   title,
   lead,
-  children,
   className = '',
+  align = 'left',
 }: {
-  id?: string
   index?: string
   eyebrow: string
   title: ReactNode
   lead?: ReactNode
-  children: ReactNode
   className?: string
+  align?: 'left' | 'center'
 }) {
   const reduce = useReducedMotion()
-  const rise = (delay: number) =>
-    reduce
-      ? {}
-      : {
-          initial: { y: '110%' },
-          whileInView: { y: '0%' },
-          viewport: { once: true, margin: '-60px' },
-          transition: { duration: 0.9, ease: EASE, delay },
-        }
-
+  // obserwujemy cały nagłówek (a nie przesunięte dzieci): dziecko wysunięte poza
+  // overflow-hidden jest przycięte, więc IntersectionObserver nigdy by go nie zobaczył
+  const rise = { hidden: { y: '110%' }, show: (d: number) => ({ y: '0%', transition: { duration: 0.9, ease: EASE, delay: d } }) }
+  const fade = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: EASE, delay: 0.2 } } }
   return (
-    <section id={id} className={`relative py-24 sm:py-32 scroll-mt-20 ${className}`}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-8">
-        <header className="mb-12 sm:mb-16 flex items-end justify-between gap-6">
-          <div className="max-w-3xl">
-          <div className="overflow-hidden mb-4">
-            <motion.p className="eyebrow" {...rise(0)}>
-              {index && (
-                <span className="inline-flex items-center gap-2 text-accent mr-3">
-                  <span className="w-6 h-px bg-accent shadow-glow" aria-hidden="true" />
-                  {index}
-                </span>
-              )}
-              {eyebrow}
-            </motion.p>
-          </div>
-          <div className="overflow-hidden pb-2">
-            <motion.h2
-              className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.05] tracking-tight text-balance"
-              {...rise(0.08)}
-            >
-              {title}
-            </motion.h2>
-          </div>
-          {lead && (
-            <motion.p
-              className="mt-6 text-lg text-paper-muted max-w-2xl"
-              initial={reduce ? undefined : { opacity: 0, y: 12 }}
-              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.8, ease: EASE, delay: 0.2 }}
-            >
-              {lead}
-            </motion.p>
+    <motion.header
+      className={`${align === 'center' ? 'text-center mx-auto' : ''} max-w-3xl ${className}`}
+      initial={reduce ? false : 'hidden'}
+      whileInView="show"
+      viewport={{ once: true, margin: '-40px' }}
+    >
+      <div className="overflow-hidden mb-4">
+        <motion.p className="eyebrow" variants={rise} custom={0}>
+          {index && (
+            <span className="inline-flex items-center gap-2 text-accent mr-3">
+              <span className="w-6 h-px bg-accent shadow-glow" aria-hidden="true" />
+              {index}
+            </span>
           )}
-          </div>
-          {index && ROOM_OF[index] !== undefined && <RoomThumb room={ROOM_OF[index]} />}
-        </header>
-        {children}
+          {eyebrow}
+        </motion.p>
       </div>
-    </section>
+      <div className="overflow-hidden pb-2">
+        <motion.h2 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.04] tracking-tight text-balance" variants={rise} custom={0.08}>
+          {title}
+        </motion.h2>
+      </div>
+      {lead && (
+        <motion.div className={`mt-6 text-lg text-paper-muted max-w-2xl ${align === 'center' ? 'mx-auto' : ''}`} variants={fade}>
+          {lead}
+        </motion.div>
+      )}
+    </motion.header>
   )
 }
 

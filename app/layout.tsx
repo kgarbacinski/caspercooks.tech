@@ -1,11 +1,10 @@
 import type { Metadata } from 'next'
-import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google'
+import { Fraunces, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 
-// display: ciepły szeryf pasujący do papierowej dioramy; mono zostaje dla akcentów "dev"
+// dwa kroje: ciepły szeryf (nagłówki i tekst) pasujący do papierowej dioramy + mono dla akcentów "dev"
 const display = Fraunces({ subsets: ['latin'], variable: '--font-display', axes: ['opsz', 'SOFT'] })
-const sans = Inter({ subsets: ['latin'], variable: '--font-sans' })
 const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' })
 
 export const metadata: Metadata = {
@@ -19,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
+    <html lang="en" className={`${display.variable} ${mono.variable}`}>
       <body>
         <ThemeProvider>
           {children}

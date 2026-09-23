@@ -1,12 +1,18 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { useTheme } from '@/contexts/ThemeContext'
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { useInView } from 'framer-motion'
-import { Section } from '@/components/ui/Section'
-import { FaLaptopCode, FaRocket } from 'react-icons/fa'
+import { motion, useMotionValueEvent, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion'
+import { useTheme } from '@/contexts/ThemeContext'
+import { SectionHeader, EASE } from '@/components/ui/Section'
+
+/**
+ * Projekty = archiwum teczek (pokój "Infra" / "devs-mentoring").
+ * Desktop: sekcja przypięta, a scroll przesuwa poziomy rząd papierowych teczek jak `git log`
+ * (każda teczka = commit: hash, data, logo firmy jako pieczątka, impact na żółtej karteczce).
+ * Najpierw ścieżka aktywnego trybu, potem druga. Mobile: przewijany palcem rząd teczek.
+ * Treść projektów bez zmian.
+ */
 
 interface Project {
   id: number
@@ -29,7 +35,8 @@ const projects: Project[] = [
     year: '02.2024-Present',
     type: 'developer',
     tech: ['Python', 'LLM / RAG', 'Temporal', 'Solidity', 'tRPC', 'React'],
-    description: 'Built Octant V2 from scratch - architecture, agentic AI layer (LLM/RAG on Temporal) and smart-contract integration for on-chain public-goods funding on Golem\'s GLM token.',
+    description:
+      "Built Octant V2 from scratch - architecture, agentic AI layer (LLM/RAG on Temporal) and smart-contract integration for on-chain public-goods funding on Golem's GLM token.",
     role: 'Senior AI Engineer',
     logo: '/logos/golem.png',
     impact: 'Rebuilt entire platform V2, enabling decentralized funding for public goods projects',
@@ -41,7 +48,8 @@ const projects: Project[] = [
     year: '2025-Present',
     type: 'founder',
     tech: ['AI Agents', 'n8n', 'Automation', 'Education'],
-    description: 'Co-founded platform teaching people to leverage AI agents and n8n automation. Conducted multiple webinars and live sessions sharing knowledge.',
+    description:
+      'Co-founded platform teaching people to leverage AI agents and n8n automation. Conducted multiple webinars and live sessions sharing knowledge.',
     impact: '200+ people educated on AI automation',
     role: 'Co-Founder & Educator',
     logo: '/logos/efektywniejsi.svg',
@@ -53,7 +61,8 @@ const projects: Project[] = [
     year: '01.2022-02.2024',
     type: 'developer',
     tech: ['Python', 'GoLang', 'GraphQL', 'FastAPI', 'Kubernetes', 'CI/CD'],
-    description: 'Led a team of 4 building microservices for a leading DeFi protocol (private ledger blockchain). Drove Event Storming & DDD; delivered 3 projects for different customers as a contractor.',
+    description:
+      'Led a team of 4 building microservices for a leading DeFi protocol (private ledger blockchain). Drove Event Storming & DDD; delivered 3 projects for different customers as a contractor.',
     role: 'Backend Team Leader',
     logo: '/logos/dac_logo.png',
     impact: 'Built critical infrastructure for DeFi protocol, delivered 3 customer projects',
@@ -65,7 +74,8 @@ const projects: Project[] = [
     year: '06.2020-06.2021',
     type: 'developer',
     tech: ['Python', 'Flask', 'FastAPI', 'Docker', 'AWS', 'CI/CD'],
-    description: 'Working in a start-up environment. Led a DevOps transition and built microservices architecture from scratch. Hands-on with Domain-Driven Design (DDD) and direct business ownership.',
+    description:
+      'Working in a start-up environment. Led a DevOps transition and built microservices architecture from scratch. Hands-on with Domain-Driven Design (DDD) and direct business ownership.',
     role: 'Senior Software Developer',
     logo: '/logos/invicta.png',
     impact: 'Built scalable microservices from scratch, established DevOps best practices',
@@ -77,7 +87,8 @@ const projects: Project[] = [
     year: '03.2021-Present',
     type: 'founder',
     tech: ['Team Building', 'Mentorship', 'Education'],
-    description: 'Built and scaled a team of 15 expert programming mentors. Created a mentorship platform helping Mid and Senior developers advance their careers.',
+    description:
+      'Built and scaled a team of 15 expert programming mentors. Created a mentorship platform helping Mid and Senior developers advance their careers.',
     impact: '300+ developers mentored, 90% career advancement rate',
     role: 'Founder & Lead Organizer',
     logo: '/logos/devs-mentoring.png',
@@ -89,7 +100,8 @@ const projects: Project[] = [
     year: '08.2022-11.2022',
     type: 'developer',
     tech: ['Architecture', 'Product Strategy', 'Team Management'],
-    description: 'Helped company build product vision from scratch. Organized and facilitated development work and strategy for new product launch in the UK.',
+    description:
+      'Helped company build product vision from scratch. Organized and facilitated development work and strategy for new product launch in the UK.',
     role: 'Architect Consultant & Mentor',
     logo: '/logos/fathom_logo.jpeg',
     impact: 'Established product vision and development strategy from ground zero',
@@ -101,7 +113,8 @@ const projects: Project[] = [
     year: '06.2021-01.2022',
     type: 'developer',
     tech: ['Python', 'Django', 'PostgreSQL', 'Redis'],
-    description: 'Built a data + backend platform for scouting soccer players. Led and mentored the engineering team, combining data and backend implementations.',
+    description:
+      'Built a data + backend platform for scouting soccer players. Led and mentored the engineering team, combining data and backend implementations.',
     role: 'Backend Team Leader',
     logo: '/logos/redbull.png',
     impact: 'Delivered a data + backend platform for player scouting; led the engineering team',
@@ -113,7 +126,8 @@ const projects: Project[] = [
     year: '12.2018-06.2019',
     type: 'developer',
     tech: ['Software Engineering', 'Full-stack Development'],
-    description: 'A 6-month contract during which I developed and contributed engineering value to the project as a Software Engineer in the monolithic application.',
+    description:
+      'A 6-month contract during which I developed and contributed engineering value to the project as a Software Engineer in the monolithic application.',
     role: 'Software Engineer',
     logo: '/logos/intercars_logo.webp',
     impact: '6-month successful contract delivery',
@@ -125,7 +139,8 @@ const projects: Project[] = [
     year: '06.2019-06.2020',
     type: 'developer',
     tech: ['Python', 'Testing', 'Code Review', 'Team Management'],
-    description: 'Responsible for improving processes, implementing features, analyzing bugs, designing solutions, and coordinating guidelines in the 5G area. Shared best practices through coaching and contributed to SW design decisions.',
+    description:
+      'Responsible for improving processes, implementing features, analyzing bugs, designing solutions, and coordinating guidelines in the 5G area. Shared best practices through coaching and contributed to SW design decisions.',
     role: 'R&D Software Engineer',
     logo: '/logos/nokia_logo.jpg',
     impact: 'Led team management, established coding standards, mentored developers',
@@ -137,7 +152,8 @@ const projects: Project[] = [
     year: '2024-Present',
     type: 'founder',
     tech: ['Product Vision', 'Mobile Strategy', 'React Native'],
-    description: 'Envisioned and building a revolutionary mobile application for developers. Focused on creating seamless learning experiences and collaboration tools.',
+    description:
+      'Envisioned and building a revolutionary mobile application for developers. Focused on creating seamless learning experiences and collaboration tools.',
     impact: 'In development - aiming to serve 10k+ developers',
     role: 'Founder & Product Visionary',
     logo: '/logos/coderiv.png',
@@ -149,7 +165,8 @@ const projects: Project[] = [
     year: '2021-Present',
     type: 'founder',
     tech: ['Project Management', 'Client Relations', 'Team Coordination'],
-    description: 'Evaluated and coordinated delivery of development projects for clients like Redsoft. Connected top talent with meaningful opportunities.',
+    description:
+      'Evaluated and coordinated delivery of development projects for clients like Redsoft. Connected top talent with meaningful opportunities.',
     impact: 'Delivered 20+ successful projects',
     role: 'Founder & Project Coordinator',
     logo: '/logos/devs-hunting.svg',
@@ -161,190 +178,97 @@ const projects: Project[] = [
     year: '12.2015-12.2018',
     type: 'developer',
     tech: ['C++', 'Python', 'REST', 'Microservices', 'Unit Testing'],
-    description: 'Started professional career while in high school. Supported companies with project estimations, designed software architecture, built and maintained microservices for e-commerce platforms.',
+    description:
+      'Started professional career while in high school. Supported companies with project estimations, designed software architecture, built and maintained microservices for e-commerce platforms.',
     role: 'C++/Python Software Engineer',
     impact: 'First full-time role at age 16, built foundation in enterprise software development',
   },
 ]
 
-function ProjectCard({ project, index }: { project: Project; index: number }) {
-  const [isFlipped, setIsFlipped] = useState(false)
-  const { theme } = useTheme()
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-80px' })
-  const [isMobile, setIsMobile] = useState(false)
+/** skrót "commita" dla teczki — ozdobnik w stylu git log (stały dla projektu) */
+const hash = (p: Project) => ((p.id * 2654435761) >>> 0).toString(16).slice(0, 7)
+const TILTS = [-1.2, 0.8, -0.6, 1.1, -0.9, 0.5]
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  const isActive =
-    (theme === 'developer' && project.type === 'developer') ||
-    (theme === 'founder' && project.type === 'founder')
-
-  const isDev = project.type === 'developer'
-
+function Folder({ p, i, active }: { p: Project; i: number; active: boolean }) {
+  const isDev = p.type === 'developer'
   return (
-    <motion.div
-      ref={ref}
-      initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={isMobile ? {} : {
-        duration: 0.6,
-        delay: index * 0.08,
-        ease: 'easeOut'
-      }}
-      className={`relative pl-8 ${isDev ? 'md:pl-0 md:pr-10 md:text-right' : 'md:pl-10'}`}
+    <article
+      className={`folder group relative shrink-0 w-[82vw] sm:w-[420px] lg:w-[400px] xl:w-[430px] ${active ? '' : 'folder-other'}`}
+      style={{ rotate: `${TILTS[i % TILTS.length]}deg` }}
     >
-      <div
-        role="button"
-        tabIndex={0}
-        aria-pressed={isFlipped}
-        onClick={() => setIsFlipped(!isFlipped)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            setIsFlipped(!isFlipped)
-          }
-        }}
-        className={`
-          paper-card p-6 sm:p-8 cursor-pointer transition duration-300
-          min-h-[320px] sm:min-h-[380px]
-          focus:outline-none focus-visible:border-accent
-          ${isActive
-            ? 'hover:border-accent/50 hover:-translate-y-1'
-            : 'opacity-50 hover:opacity-70'}
-        `}
-      >
-        {!isFlipped ? (
-          // Front of card
-          <div className="flex flex-col h-full">
-            <div className={`flex items-center justify-between gap-4 mb-5 ${isDev ? 'md:flex-row-reverse' : ''}`}>
-              <div className="flex items-center gap-2">
-                {isDev
-                  ? <FaLaptopCode className="w-4 h-4 text-paper-muted" />
-                  : <FaRocket className="w-4 h-4 text-paper-muted" />
-                }
-                <span className={`font-mono text-xs ${isActive ? 'text-accent' : 'text-paper-dim'}`}>
-                  {project.year}
-                </span>
-              </div>
-              {project.logo && (
-                <div className={`
-                  relative w-11 h-11 shrink-0 flex items-center justify-center rounded-full overflow-hidden
-                  border border-cocoa-500/60
-                  ${project.company === 'Efektywniejsi' ? 'bg-cocoa-900 p-0.5' : 'bg-paper'}
-                  ${project.company === 'coderiv.com' ? 'p-0.5' : project.company === 'Efektywniejsi' ? '' : 'p-1'}
-                `}>
-                  <Image
-                    src={project.logo}
-                    alt={`${project.company} logo`}
-                    width={48}
-                    height={48}
-                    className="object-contain rounded-full"
-                  />
-                </div>
-              )}
-            </div>
-
-            <h3 className="font-display text-2xl leading-tight text-paper mb-2">{project.title}</h3>
-            <p className="font-mono text-xs text-paper-dim mb-4">
-              {project.company} • {project.role}
-            </p>
-
-            <p className="text-sm text-paper-muted leading-relaxed mb-5">
-              {project.description}
-            </p>
-
-            <div className={`flex flex-wrap gap-2 ${isDev ? 'md:justify-end' : ''}`}>
-              {project.tech.map((tech, i) => (
-                <span
-                  key={i}
-                  className="font-mono text-[11px] px-2 py-1 border border-cocoa-500/60 text-paper-muted"
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
-
-            <div className={`mt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-paper-dim flex items-center gap-1.5 ${isDev ? 'md:justify-end' : ''}`}>
-              <span>Click to see impact</span>
-              <span className="text-accent">↻</span>
-            </div>
-          </div>
-        ) : (
-          // Back of card - Impact
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="h-full flex flex-col justify-center py-8"
-          >
-            <div>
-              <p className="eyebrow mb-3">{project.company}</p>
-              <h4 className="font-display text-2xl text-paper mb-4">Impact & Results</h4>
-              <p className="text-base text-paper-muted leading-relaxed">
-                {project.impact || 'Successfully delivered complex solution with high code quality and performance. Collaborated with cross-functional teams to exceed client expectations.'}
-              </p>
-
-              <div className={`mt-8 font-mono text-[11px] uppercase tracking-[0.14em] text-paper-dim flex items-center gap-1.5 ${isDev ? 'md:justify-end' : ''}`}>
-                <span>Click to see details</span>
-                <span className="text-accent">↻</span>
-              </div>
-            </div>
-          </motion.div>
-        )}
+      {/* zakładka teczki: hash commita + data */}
+      <div className="folder-tab">
+        <span className="text-accent">{hash(p)}</span>
+        <span className="text-paper-dim">·</span>
+        <span>{p.year}</span>
       </div>
-
-      {/* Timeline dot */}
-      <div
-        aria-hidden="true"
-        className={`
-          absolute top-9 w-2.5 h-2.5 rounded-full ring-4 ring-night
-          left-0 -translate-x-1/2
-          ${isDev ? 'md:left-auto md:right-0 md:translate-x-1/2' : 'md:left-0 md:-translate-x-1/2'}
-          ${isActive ? 'bg-accent' : 'bg-cocoa-500'}
-        `}
-        style={isActive ? { boxShadow: '0 0 12px rgb(var(--accent-rgb) / 0.6)' } : undefined}
-      />
-    </motion.div>
+      <div className="folder-body">
+        <div className="flex items-start justify-between gap-4 mb-5">
+          <span className={`font-mono text-[10px] uppercase tracking-[0.2em] px-2 py-1 border ${isDev ? 'border-accent/50 text-accent' : 'border-ember/60 text-ember'}`}>
+            {isDev ? 'dev track' : 'ceo track'}
+          </span>
+          {/* logo firmy jako pieczątka */}
+          <div className="stamp-logo" aria-hidden={!p.logo}>
+            {p.logo ? (
+              <Image src={p.logo} alt={`${p.company} logo`} width={52} height={52} className="object-contain w-[70%] h-[70%]" />
+            ) : (
+              <span className="font-display text-xl text-ink/70">{p.company.slice(0, 2)}</span>
+            )}
+          </div>
+        </div>
+        <h3 className="font-display text-[26px] leading-[1.1] text-paper mb-2">{p.title}</h3>
+        <p className="font-mono text-xs text-paper-dim mb-4">
+          {p.company} • {p.role}
+        </p>
+        <p className="text-[15px] text-paper-muted leading-relaxed mb-5">{p.description}</p>
+        <div className="flex flex-wrap gap-1.5 mb-16">
+          {p.tech.map((t) => (
+            <span key={t} className="label-chip">
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+      {/* impact na żółtej karteczce przyklejonej do teczki */}
+      <div className="sticky-note">
+        <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-ink/55 mb-1">Impact &amp; Results</span>
+        <span className="block text-[13.5px] leading-snug text-ink">
+          {p.impact ||
+            'Successfully delivered complex solution with high code quality and performance. Collaborated with cross-functional teams to exceed client expectations.'}
+        </span>
+      </div>
+    </article>
   )
 }
 
 export default function ProjectsTimeline() {
   const { theme } = useTheme()
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-80px' })
-  const [showAll, setShowAll] = useState(false)
-  const [isDesktop, setIsDesktop] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+  const reduce = useReducedMotion()
+  const mine = projects.filter((p) => p.type === theme)
+  const other = projects.filter((p) => p.type !== theme)
+  const ordered = [...mine, ...other]
 
-  // Check if desktop on mount and window resize
+  // przypięta sekcja: pionowy scroll → poziomy przejazd rzędu teczek
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [dist, setDist] = useState(0)
   useEffect(() => {
-    const checkScreen = () => {
-      setIsDesktop(window.innerWidth >= 768)
-      setIsMobile(window.innerWidth < 768)
+    const measure = () => {
+      const t = trackRef.current
+      if (!t) return
+      setDist(Math.max(0, t.scrollWidth - window.innerWidth + 64))
     }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [theme])
+  const { scrollYProgress } = useScroll({ target: wrapRef, offset: ['start start', 'end end'] })
+  const x = useSpring(useTransform(scrollYProgress, [0.02, 0.98], [0, -dist]), { stiffness: 90, damping: 24, mass: 0.6 })
+  const [idx, setIdx] = useState(0)
+  useMotionValueEvent(scrollYProgress, 'change', (v) => setIdx(Math.min(ordered.length - 1, Math.floor(v * ordered.length))))
 
-    checkScreen()
-    window.addEventListener('resize', checkScreen)
-    return () => window.removeEventListener('resize', checkScreen)
-  }, [])
-
-  const developerProjects = projects.filter(p => p.type === 'developer')
-  const founderProjects = projects.filter(p => p.type === 'founder')
-
-  const visibleDeveloperProjects = showAll ? developerProjects : developerProjects.slice(0, 4)
-  const visibleFounderProjects = showAll ? founderProjects : founderProjects.slice(0, 3)
-
-  return (
-    <Section
-      id="projects"
+  const header = (
+    <SectionHeader
       index="02"
       eyebrow="Projects"
       title={<span className="font-mono text-3xl sm:text-4xl md:text-5xl tracking-normal">git log --all --oneline</span>}
@@ -352,56 +276,76 @@ export default function ProjectsTimeline() {
         <>
           Dual-track journey: technical excellence + entrepreneurial ventures
           <br />
-          <span className="text-paper-dim text-base">Click cards to flip and see impact metrics</span>
+          <span className="text-paper-dim text-base">Scroll through the archive — impact is on the sticky notes</span>
         </>
       }
-    >
-      <div ref={ref} className="relative">
-        {/* Timeline line: left on mobile, centered on desktop */}
-        <div
-          aria-hidden="true"
-          className="absolute top-0 bottom-0 left-0 w-px bg-cocoa-500/60 md:left-1/2 md:-translate-x-1/2"
-        />
+    />
+  )
 
-        {/* Projects Grid */}
-        <div className="grid md:grid-cols-2 gap-8 md:gap-0">
-          {/* Developer Column - always render on desktop, conditionally on mobile */}
-          {(theme === 'developer' || isDesktop) && (
-            <div className="space-y-8">
-              {visibleDeveloperProjects.map((project, index) => (
-                <ProjectCard key={project.id} project={project} index={index} />
-              ))}
+  return (
+    <section id="projects" className="relative scroll-mt-20">
+      {/* desktop: przypięty poziomy przejazd */}
+      <div ref={wrapRef} className="relative hidden lg:block" style={{ height: `calc(100vh + ${dist}px)` }}>
+        <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center">
+          <div className="max-w-6xl w-full mx-auto px-8 mb-10 flex items-end justify-between gap-8">
+            {header}
+            <div className="shrink-0 text-right font-mono text-xs text-paper-dim pb-2">
+              <div className="text-accent text-2xl font-display tabular-nums">
+                {String(idx + 1).padStart(2, '0')}
+                <span className="text-paper-dim text-base"> / {String(ordered.length).padStart(2, '0')}</span>
+              </div>
+              <div className="mt-1 uppercase tracking-[0.18em]">{ordered[idx].type === theme ? 'current track' : 'the other track'}</div>
             </div>
-          )}
-
-          {/* Founder Column - always render on desktop, conditionally on mobile */}
-          {(theme === 'founder' || isDesktop) && (
-            <div className="space-y-8 md:pt-24">
-              {visibleFounderProjects.map((project, index) => (
-                <ProjectCard key={project.id} project={project} index={index} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Show More/Less Button */}
-        {(developerProjects.length > 4 || founderProjects.length > 3) && (
-          <motion.div
-            initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={isMobile ? {} : {
-              duration: 0.6,
-              delay: 0.6,
-              ease: 'easeOut'
-            }}
-            className="relative flex justify-center mt-14 bg-night py-2"
-          >
-            <button onClick={() => setShowAll(!showAll)} className="btn-ghost bg-night">
-              {showAll ? '↑ Show Less' : '↓ Show More Projects'}
-            </button>
+          </div>
+          <motion.div ref={trackRef} className="flex items-start gap-10 pl-[max(2rem,calc((100vw-72rem)/2+2rem))] pr-16 pt-6" style={{ x: reduce ? 0 : x }}>
+            {ordered.map((p, i) => (
+              <div key={p.id} className="flex items-start gap-10">
+                {i === mine.length && (
+                  <div className="shrink-0 self-center w-40 text-center font-mono text-[11px] uppercase tracking-[0.2em] text-paper-dim">
+                    <div className="h-px bg-cocoa-500/60 mb-3" />
+                    the other track →
+                    <div className="h-px bg-cocoa-500/60 mt-3" />
+                  </div>
+                )}
+                <Folder p={p} i={i} active={p.type === theme} />
+              </div>
+            ))}
           </motion.div>
-        )}
+          {/* linia czasu jak kabel z impulsem = postęp */}
+          <div className="max-w-6xl w-full mx-auto px-8 mt-14" aria-hidden="true">
+            <div className="relative h-px bg-cocoa-500/50">
+              <motion.div className="absolute inset-y-0 left-0 w-full bg-accent shadow-glow origin-left" style={{ scaleX: scrollYProgress }} />
+              {ordered.map((p, i) => (
+                <span
+                  key={p.id}
+                  className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2 h-2 rounded-full ring-4 ring-night transition-colors ${i <= idx ? 'bg-accent' : 'bg-cocoa-500'}`}
+                  style={{ left: `${(i / (ordered.length - 1)) * 100}%` }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-    </Section>
+
+      {/* mobile / tablet: rząd teczek przewijany palcem */}
+      <div className="lg:hidden pt-24 sm:pt-32 pb-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 mb-10">{header}</div>
+        <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory px-4 sm:px-8 pt-8 pb-14 no-scrollbar" style={{ scrollPaddingInline: '1rem' }}>
+          {ordered.map((p, i) => (
+            <motion.div
+              key={p.id}
+              className="snap-start"
+              initial={reduce ? false : { opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, ease: EASE, delay: Math.min(i, 3) * 0.06 }}
+            >
+              <Folder p={p} i={i} active={p.type === theme} />
+            </motion.div>
+          ))}
+        </div>
+        <p className="px-4 font-mono text-[11px] uppercase tracking-[0.18em] text-paper-dim text-center">swipe → {ordered.length} commits</p>
+      </div>
+    </section>
   )
 }

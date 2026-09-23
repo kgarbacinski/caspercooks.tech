@@ -28,6 +28,8 @@ const config: Config = {
           dim: '#7a634d', // metadane
         },
         kraft: '#c9a882',
+        ink: '#2a1a10', // atrament na kremowym papierze (notatki, list)
+        cream: '#efe2c7', // jasny papier
         terracotta: '#b8663f',
         ember: '#e8843a', // pomarańczowa poświata krawędzi
         accent: 'rgb(var(--accent-rgb) / <alpha-value>)',
@@ -37,7 +39,7 @@ const config: Config = {
       },
       fontFamily: {
         display: ['var(--font-display)', 'Georgia', 'serif'],
-        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-display)', 'Georgia', 'serif'], // tekst też szeryfem (bez Inter)
         mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
       boxShadow: {
@@ -49,6 +51,8 @@ const config: Config = {
         'slide-up': 'slideUp 0.5s ease-out',
         float: 'float 7s ease-in-out infinite',
         'cable-flow': 'cableFlow 6s linear infinite',
+        'lights-on': 'lights-on 0.7s linear both',
+        'cable-pulse': 'cable-pulse 4s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },

@@ -1,9 +1,8 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { useTheme } from '@/contexts/ThemeContext'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useState } from 'react'
-import { Section } from '@/components/ui/Section'
+import { SectionHeader, RoomCutout, EASE } from '@/components/ui/Section'
 import {
   SiPython, SiJavascript, SiTypescript, SiCplusplus, SiSolidity, SiGo,
   SiDjango, SiFastapi, SiNextdotjs, SiDocker, SiKubernetes, SiPostgresql,
@@ -90,124 +89,148 @@ const categories = {
 }
 
 
-const reveal = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-80px' },
-}
+// stałe "losowe" przechylenie zawieszek na haczykach
+const SWAY = [-4, 3, -2, 5, -3, 2, -5, 4]
 
+/**
+ * Stack = pokój "AI lab": tablica perforowana (pegboard) z narzędziami.
+ * Każda technologia to papierowa zawieszka na haczyku; hover/fokus/tap zdejmuje ją z haczyka
+ * i pokazuje "Used in". Kategorie to naklejki z taśmy nad tablicą. Treść bez zmian.
+ */
 export default function TechStack() {
-  // motyw przełącza tylko kolor akcentu (przez zmienne CSS), wygląd jest wspólny
-  useTheme()
-  const [activeCategory, setActiveCategory] = useState<string | null>('languages')
-
-  const filteredTechs = activeCategory
-    ? technologies.filter(t => t.category === activeCategory)
-    : []
+  const reduce = useReducedMotion()
+  const [activeCategory, setActiveCategory] = useState<keyof typeof categories>('languages')
+  const [open, setOpen] = useState<string | null>(null)
+  const filteredTechs = technologies.filter((t) => t.category === activeCategory)
 
   return (
-    <Section
-      id="stack"
-      index="03"
-      eyebrow="ls -la /usr/bin/skills"
-      title={
-        <>
-          Languages = tools.
-          <br />
-          <span className="text-paper-muted">Domain knowledge = power.</span>
-        </>
-      }
-      lead="Adaptability allows writing efficient code in any stack"
-    >
-      {/* Category Filter */}
-      <motion.div
-        {...reveal}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="flex flex-wrap gap-2 mb-10 sm:mb-12"
-        role="tablist"
-      >
-        {Object.entries(categories).map(([key, cat]) => {
-          const active = activeCategory === key
-          return (
-            <button
-              key={key}
-              role="tab"
-              aria-selected={active}
-              onClick={() => setActiveCategory(key)}
-              className={`px-3 sm:px-4 py-2 font-mono text-xs sm:text-sm border transition-colors duration-200 ${
-                active
-                  ? 'border-accent text-accent bg-accent/10'
-                  : 'border-cocoa-500/60 text-paper-muted hover:border-accent/50 hover:text-paper'
-              }`}
-            >
-              {cat.name}
-            </button>
-          )
-        })}
-      </motion.div>
+    <section id="stack" className="relative py-24 sm:py-32 scroll-mt-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8">
+        <div className="flex items-end justify-between gap-8 mb-12 sm:mb-14">
+          <SectionHeader
+            index="03"
+            eyebrow="ls -la /usr/bin/skills"
+            title={
+              <>
+                Languages = tools.
+                <br />
+                <span className="text-paper-muted">Domain knowledge = power.</span>
+              </>
+            }
+            lead="Adaptability allows writing efficient code in any stack"
+          />
+          <RoomCutout room={3} className="hidden md:block w-40 lg:w-52 shrink-0" />
+        </div>
 
-      {/* Tech Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
-        {filteredTechs.map((tech, index) => (
-          <motion.div
-            key={tech.name}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: index * 0.04, ease: 'easeOut' }}
-            tabIndex={0}
-            className="paper-card group p-4 sm:p-6 cursor-default transition duration-300 hover:border-accent/50 hover:-translate-y-1 focus:outline-none focus-visible:border-accent/60"
-          >
-            {/* Category marker */}
-            <span className="absolute top-3 right-3 font-mono text-[10px] text-paper-dim group-hover:text-accent transition-colors">
-              {tech.category === 'web2' ? '2' : tech.category === 'web3' ? '3' : tech.category === 'ai' ? 'AI' : '•'}
-            </span>
+        {/* naklejki kategorii */}
+        <div className="flex flex-wrap gap-2 sm:gap-3 mb-6" role="tablist" aria-label="Skill categories">
+          {(Object.keys(categories) as (keyof typeof categories)[]).map((key, i) => {
+            const active = activeCategory === key
+            return (
+              <button
+                key={key}
+                role="tab"
+                aria-selected={active}
+                onClick={() => {
+                  setActiveCategory(key)
+                  setOpen(null)
+                }}
+                className={`tape-label ${active ? 'tape-active' : ''}`}
+                style={{ rotate: `${[-1.5, 1, -0.5, 1.5, -1][i]}deg` }}
+              >
+                {categories[key].name}
+              </button>
+            )
+          })}
+        </div>
 
-            <tech.icon className="w-7 h-7 sm:w-9 sm:h-9 mb-4 text-paper-muted group-hover:text-accent transition-colors" />
-            <h3 className="font-display text-lg sm:text-xl text-paper mb-1 leading-tight">{tech.name}</h3>
-            <p className="font-mono text-[10px] sm:text-xs text-paper-dim line-clamp-1">
-              {tech.projects[0]}
-            </p>
-
-            {/* Hover Info */}
-            <div className="absolute inset-0 bg-cocoa-900/95 p-4 sm:p-5 flex flex-col justify-end opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-300">
-              <p className="eyebrow !text-[10px] mb-2">
-                <strong className="font-normal text-accent">Used in:</strong>
-              </p>
-              <ul className="text-xs text-paper-muted space-y-1">
-                {tech.projects.map((project, i) => (
-                  <li key={i} className="flex gap-2">
-                    <span className="text-ember">•</span>
-                    <span>{project}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Stats */}
-      <motion.div
-        {...reveal}
-        transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
-        className="mt-14 sm:mt-20 grid grid-cols-2 md:grid-cols-4 border-t border-cocoa-500/40"
-      >
-        {[
-          { value: '5+', label: 'Programming Languages' },
-          { value: '10+', label: 'Frameworks & Tools' },
-          { value: 'Web2 + Web3', label: 'Full Spectrum' },
-          { value: '10+', label: 'Years Experience' },
-        ].map((stat) => (
-          <div key={stat.label} className="pt-6 sm:pt-8 pb-2 pr-4">
-            <div className="font-display text-3xl sm:text-4xl text-accent mb-2 leading-none">
-              {stat.value}
-            </div>
-            <div className="font-mono text-[11px] sm:text-xs uppercase tracking-wider text-paper-dim">
-              {stat.label}
-            </div>
+        {/* tablica perforowana */}
+        <div className="pegboard">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 sm:gap-x-8 sm:gap-y-12">
+            <AnimatePresence mode="popLayout" initial={false}>
+              {filteredTechs.map((tech, index) => {
+                const isOpen = open === tech.name
+                return (
+                  <motion.div
+                    key={tech.name}
+                    layout
+                    className="relative flex flex-col items-center"
+                    initial={reduce ? { opacity: 0 } : { opacity: 0, y: -40, rotate: SWAY[index % SWAY.length] * 3 }}
+                    animate={{ opacity: 1, y: 0, rotate: 0 }}
+                    exit={reduce ? { opacity: 0 } : { opacity: 0, y: 60, rotate: SWAY[index % SWAY.length] * 4, transition: { duration: 0.3 } }}
+                    transition={{ type: 'spring', stiffness: 260, damping: 16, delay: index * 0.035 }}
+                  >
+                    {/* haczyk */}
+                    <span className="peg-hook" aria-hidden="true" />
+                    <button
+                      type="button"
+                      aria-expanded={isOpen}
+                      onMouseEnter={() => setOpen(tech.name)}
+                      onMouseLeave={() => setOpen((o) => (o === tech.name ? null : o))}
+                      onFocus={() => setOpen(tech.name)}
+                      onBlur={() => setOpen((o) => (o === tech.name ? null : o))}
+                      onClick={() => setOpen((o) => (o === tech.name ? null : tech.name))}
+                      className={`peg-tag group ${isOpen ? 'peg-tag-open' : ''}`}
+                      style={{ ['--sway' as string]: `${SWAY[index % SWAY.length]}deg` }}
+                    >
+                      <span className="peg-hole" aria-hidden="true" />
+                      <tech.icon className="w-7 h-7 sm:w-8 sm:h-8 mb-2 text-ink/70 group-hover:text-ink transition-colors" />
+                      <span className="block font-display text-[17px] sm:text-lg leading-tight text-ink">{tech.name}</span>
+                      <span className="block font-mono text-[10px] text-ink/55 mt-1 line-clamp-1">{tech.projects[0]}</span>
+                    </button>
+                    {/* "used in" — karteczka wysuwana spod zawieszki */}
+                    <AnimatePresence>
+                      {isOpen && (
+                        <motion.div
+                          className="absolute top-full z-30 mt-2 w-[min(15rem,80vw)] tag-card !text-left after:!top-[-6px] after:!bottom-auto after:!rotate-[225deg]"
+                          initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -4, transition: { duration: 0.12 } }}
+                          transition={{ duration: 0.22, ease: EASE }}
+                        >
+                          <p className="eyebrow !text-[10px] mb-2">
+                            <strong className="font-normal text-accent">Used in:</strong>
+                          </p>
+                          <ul className="text-xs text-paper-muted space-y-1">
+                            {tech.projects.map((project) => (
+                              <li key={project} className="flex gap-2">
+                                <span className="text-ember">•</span>
+                                <span>{project}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                )
+              })}
+            </AnimatePresence>
           </div>
-        ))}
-      </motion.div>
-    </Section>
+        </div>
+
+        {/* statystyki jako bilety z pieczątką */}
+        <div className="mt-14 sm:mt-16 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          {[
+            { value: '5+', label: 'Programming Languages' },
+            { value: '10+', label: 'Frameworks & Tools' },
+            { value: 'Web2 + Web3', label: 'Full Spectrum' },
+            { value: '10+', label: 'Years Experience' },
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              className="stamp-ticket"
+              initial={reduce ? false : { opacity: 0, scale: 1.3, rotate: -8 }}
+              whileInView={{ opacity: 1, scale: 1, rotate: [-1.5, 1, -0.5, 1.5][i] }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ type: 'spring', stiffness: 380, damping: 18, delay: i * 0.08 }}
+            >
+              <div className="font-display text-3xl sm:text-4xl text-accent mb-2 leading-none">{stat.value}</div>
+              <div className="font-mono text-[10px] sm:text-[11px] uppercase tracking-wider text-paper-muted">{stat.label}</div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }

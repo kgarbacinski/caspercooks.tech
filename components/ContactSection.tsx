@@ -1,30 +1,87 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { useState } from 'react'
+import { AnimatePresence, motion, useAnimate, useReducedMotion } from 'framer-motion'
 import { FaEnvelope, FaLinkedin, FaGithub, FaTwitter, FaUserTie, FaRocket, FaComments } from 'react-icons/fa'
-import { Section } from '@/components/ui/Section'
+import { SectionHeader, EASE } from '@/components/ui/Section'
 
-const reveal = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-80px' },
+/**
+ * Kontakt = list i koperta. Formularz to kartka listowa (kremowy papier w linie),
+ * typ zapytania wybiera się znaczkiem pocztowym. Po wysłaniu (POST /api/contact,
+ * pola {name,email,message,type} — bez zmian) kartka składa się i wchodzi do koperty,
+ * klapka się zamyka, woskowa pieczęć KG ją zamyka i koperta odlatuje. Teksty bez zmian.
+ */
+
+type ContactType = 'developer' | 'founder' | 'general'
+const STAMPS: { type: ContactType; label: string; icon: typeof FaUserTie }[] = [
+  { type: 'developer', label: 'Dev', icon: FaUserTie },
+  { type: 'founder', label: 'CEO', icon: FaRocket },
+  { type: 'general', label: 'General', icon: FaComments },
+]
+
+const field =
+  'w-full bg-transparent border-0 border-b border-ink/25 focus:border-ink/70 focus:outline-none focus-visible:outline-none text-ink placeholder:text-ink/35 text-base py-2 transition-colors'
+const label = 'block font-mono text-[10px] uppercase tracking-[0.2em] text-ink/55 mb-1'
+
+const SEAL =
+  'M50 3 C62 2 70 9 80 12 C91 16 97 27 96 39 C95 48 99 55 97 64 C94 77 85 84 76 90 C66 97 55 98 45 97 C33 96 24 91 16 83 C7 74 2 63 4 51 C5 42 1 34 5 26 C11 13 24 9 34 6 C40 4 45 3 50 3Z'
+
+function WaxSeal({ className = '' }: { className?: string }) {
+  return (
+    <div className={`relative ${className}`}>
+      <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full drop-shadow-[0_6px_8px_rgba(40,12,4,0.55)]" aria-hidden="true">
+        <defs>
+          <radialGradient id="wax-c" cx="38%" cy="32%" r="75%">
+            <stop offset="0" stopColor="#c25a2e" />
+            <stop offset="0.55" stopColor="#8a3316" />
+            <stop offset="1" stopColor="#4f1a08" />
+          </radialGradient>
+        </defs>
+        <path d={SEAL} fill="url(#wax-c)" />
+        <circle cx="50" cy="50" r="31" fill="none" stroke="#7a3014" strokeWidth="2.5" opacity="0.7" />
+      </svg>
+      <span
+        className="absolute inset-0 grid place-items-center font-display text-[#5e1f0a]"
+        style={{ fontSize: '38%', textShadow: '0 -1px 0 rgba(255,190,150,0.55), 0 1.5px 1px rgba(40,10,0,0.7)' }}
+        aria-hidden="true"
+      >
+        KG
+      </span>
+    </div>
+  )
 }
 
-const inputClass =
-  'w-full px-4 py-3 bg-cocoa-900 border border-cocoa-500/60 focus:border-accent focus:outline-none text-paper placeholder:text-paper-dim text-sm sm:text-base transition-colors'
-const labelClass = 'eyebrow block mb-2'
-
 export default function ContactSection() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: '',
-    type: 'general' as 'developer' | 'founder' | 'general',
-  })
+  const reduce = useReducedMotion()
+  const [formData, setFormData] = useState({ name: '', email: '', message: '', type: 'general' as ContactType })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+  const [scope, animate] = useAnimate()
+  const [mailing, setMailing] = useState(false) // trwa animacja koperty
+
+  // list → koperta → pieczęć → odlot
+  const mailAway = async () => {
+    if (reduce) return
+    setMailing(true)
+    await animate('.letter', { scaleY: 0.34, y: 140, opacity: 0.9 }, { duration: 0.55, ease: [0.6, 0, 0.3, 1] })
+    await animate('.envelope', { opacity: 1, y: 0 }, { duration: 0.01 })
+    await animate('.letter', { opacity: 0 }, { duration: 0.15 })
+    await animate('.env-flap', { rotateX: 0 }, { duration: 0.4, ease: 'easeInOut' })
+    await animate('.env-seal', { scale: [2.4, 0.9, 1], opacity: [0, 1, 1], rotate: [-25, 4, 0] }, { duration: 0.4, ease: 'easeOut' })
+    await animate('.envelope', { x: ['0%', '-3%'], rotate: -3 }, { duration: 0.18 })
+    await animate('.envelope', { x: '140%', y: -260, rotate: 18, opacity: 0 }, { duration: 0.75, ease: [0.5, 0, 0.9, 0.5] })
+  }
+
+  const resetStage = async () => {
+    if (!reduce) {
+      await animate('.envelope', { x: '0%', y: 40, rotate: 0, opacity: 0 }, { duration: 0 })
+      await animate('.env-flap', { rotateX: 180 }, { duration: 0 })
+      await animate('.env-seal', { opacity: 0 }, { duration: 0 })
+      await animate('.letter', { scaleY: 1, y: 0, opacity: 1 }, { duration: 0.5, ease: EASE })
+    }
+    setMailing(false)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,243 +91,253 @@ export default function ContactSection() {
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       })
-
       const data = await response.json()
-
       if (!response.ok) {
         throw new Error(data.error || 'Failed to send message')
       }
-
       setIsSubmitting(false)
       setSubmitted(true)
-
-      // Reset form after 3 seconds
-      setTimeout(() => {
+      await mailAway()
+      // formularz wraca po 3 s (jak wcześniej), już jako świeża kartka
+      setTimeout(async () => {
         setSubmitted(false)
         setFormData({ name: '', email: '', message: '', type: 'general' })
+        await resetStage()
       }, 3000)
     } catch (err) {
       setIsSubmitting(false)
       setError(err instanceof Error ? err.message : 'Failed to send message')
-
-      // Clear error after 5 seconds
-      setTimeout(() => {
-        setError('')
-      }, 5000)
+      setTimeout(() => setError(''), 5000)
     }
   }
 
   const contactMethods = [
-    {
-      icon: FaEnvelope,
-      label: 'Email',
-      value: 'kacpergarbacinski@gmail.com',
-      link: 'mailto:kacpergarbacinski@gmail.com',
-    },
-    {
-      icon: FaLinkedin,
-      label: 'LinkedIn',
-      value: 'Connect with me',
-      link: 'https://www.linkedin.com/in/kacper-garbacinski-3271b81a2/',
-    },
-    {
-      icon: FaGithub,
-      label: 'GitHub',
-      value: 'Check my code',
-      link: 'https://github.com/kgarbacinski',
-    },
-    {
-      icon: FaTwitter,
-      label: 'Twitter',
-      value: 'Follow me',
-      link: 'https://x.com/KGarbacinski',
-    },
+    { icon: FaEnvelope, label: 'Email', value: 'kacpergarbacinski@gmail.com', link: 'mailto:kacpergarbacinski@gmail.com' },
+    { icon: FaLinkedin, label: 'LinkedIn', value: 'Connect with me', link: 'https://www.linkedin.com/in/kacper-garbacinski-3271b81a2/' },
+    { icon: FaGithub, label: 'GitHub', value: 'Check my code', link: 'https://github.com/kgarbacinski' },
+    { icon: FaTwitter, label: 'Twitter', value: 'Follow me', link: 'https://x.com/KGarbacinski' },
   ]
 
   return (
-    <Section
-      id="contact"
-      index="06"
-      eyebrow="caspercooks.tech"
-      title="Looking for a developer? Interested in ventures?"
-      lead="Or just want to say hi? Let's connect."
-    >
-      <div className="grid md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
-        {/* Contact Form */}
-        <motion.div {...reveal} transition={{ duration: 0.6, ease: 'easeOut' }} className="paper-card p-6 sm:p-8">
-          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
-            {/* Contact Type Selector */}
-            <div>
-              <span className={labelClass}>I'm interested in...</span>
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                {(['developer', 'founder', 'general'] as const).map((type) => {
-                  const active = formData.type === type
-                  return (
-                    <button
-                      key={type}
-                      type="button"
-                      aria-pressed={active}
-                      onClick={() => setFormData({ ...formData, type })}
-                      className={`
-                        px-2 py-2.5 sm:px-4 sm:py-3 font-mono text-xs sm:text-sm border transition-colors
-                        ${active
-                          ? 'border-accent text-accent bg-accent/10'
-                          : 'border-cocoa-500/60 bg-cocoa-900 text-paper-muted hover:border-accent/50 hover:text-paper'}
-                      `}
-                    >
-                      <span className="flex items-center justify-center gap-1.5">
-                        {type === 'developer' ? <><FaUserTie /> Dev</> : type === 'founder' ? <><FaRocket /> CEO</> : <><FaComments /> General</>}
-                      </span>
-                    </button>
-                  )
-                })}
+    <section id="contact" className="relative py-24 sm:py-32 scroll-mt-20 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8">
+        <SectionHeader
+          index="06"
+          eyebrow="caspercooks.tech"
+          title="Looking for a developer? Interested in ventures?"
+          lead="Or just want to say hi? Let's connect."
+          className="mb-14 sm:mb-16"
+        />
+
+        <div className="grid lg:grid-cols-[1.15fr_1fr] gap-12 lg:gap-16 items-start">
+          {/* ——— list ——— */}
+          <div ref={scope} className="relative" style={{ perspective: 1200 }}>
+            {/* koperta (pojawia się po wysłaniu) */}
+            <div className="envelope absolute inset-x-0 top-24 mx-auto w-[92%] aspect-[1.6] opacity-0 pointer-events-none" style={{ transform: 'translateY(40px)' }} aria-hidden="true">
+              <div className="absolute inset-0 env-back" />
+              <div className="absolute inset-0 env-front" />
+              <div className="env-flap absolute inset-x-0 top-0 h-[58%] origin-top" style={{ transform: 'rotateX(180deg)', transformStyle: 'preserve-3d' }} />
+              <div className="absolute left-1/2 top-[50%] -translate-x-1/2 -translate-y-1/2 w-16 h-16">
+                <div className="env-seal w-full h-full opacity-0">
+                  <WaxSeal className="w-full h-full" />
+                </div>
               </div>
             </div>
 
-            {/* Name Input */}
-            <div>
-              <label htmlFor="name" className={labelClass}>
-                Your Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                required
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className={inputClass}
-                placeholder="John Doe"
-              />
-            </div>
-
-            {/* Email Input */}
-            <div>
-              <label htmlFor="email" className={labelClass}>
-                Your Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                required
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className={inputClass}
-                placeholder="john@example.com"
-              />
-            </div>
-
-            {/* Message Input */}
-            <div>
-              <label htmlFor="message" className={labelClass}>
-                Your Message
-              </label>
-              <textarea
-                id="message"
-                required
-                rows={4}
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                className={`${inputClass} resize-none`}
-                placeholder="Tell me about your project or inquiry..."
-              />
-            </div>
-
-            {/* Error Message */}
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                role="alert"
-                className="p-4 border border-terracotta/60 bg-terracotta/10 text-terracotta"
-              >
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="text-sm">{error}</span>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isSubmitting || submitted}
-              className="btn-accent w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            <motion.div
+              className="letter relative"
+              style={{ transformOrigin: '50% 0%' }}
+              initial={reduce ? false : { opacity: 0, y: 40, rotateX: -20 }}
+              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.9, ease: EASE }}
             >
-              {isSubmitting ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  Sending...
-                </span>
-              ) : submitted ? (
-                <span className="flex items-center justify-center gap-2">✓ Message Sent!</span>
-              ) : (
-                'Send Message'
-              )}
-            </button>
-          </form>
-        </motion.div>
-
-        {/* Contact Info */}
-        <div className="space-y-6 sm:space-y-8">
-          <motion.div
-            {...reveal}
-            transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
-            className="paper-card p-6 sm:p-8"
-          >
-            <h3 className="font-display text-2xl text-paper mb-4 sm:mb-6">Get In Touch</h3>
-
-            <div className="divide-y divide-cocoa-500/40">
-              {contactMethods.map((method) => (
-                <a
-                  key={method.label}
-                  href={method.link}
-                  className="group flex items-center gap-4 py-3 sm:py-4 transition-colors"
-                >
-                  <div className="w-10 h-10 sm:w-11 sm:h-11 border border-cocoa-500/60 bg-cocoa-900 flex items-center justify-center flex-shrink-0 text-paper-muted group-hover:text-accent group-hover:border-accent/50 transition-colors">
-                    <method.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+              <form onSubmit={handleSubmit} className="letter-paper p-6 sm:p-10" aria-describedby={error ? 'contact-error' : undefined}>
+                <div className="flex items-start justify-between gap-6 mb-8">
+                  <div className="font-mono text-[11px] leading-relaxed text-ink/60">
+                    <div className="uppercase tracking-[0.2em] text-ink/45">to</div>
+                    <div className="text-ink/80">Kacper Garbacinski</div>
+                    <div>caspercooks.tech</div>
                   </div>
-                  <div className="min-w-0">
-                    <div className="font-mono text-xs text-paper-dim">{method.label}</div>
-                    <div className="text-sm sm:text-base text-paper truncate group-hover:text-accent transition-colors">
-                      {method.value}
+                  {/* znaczki = typ zapytania */}
+                  <fieldset>
+                    <legend className={`${label} text-right mb-2`}>I&apos;m interested in...</legend>
+                    <div className="flex gap-2 sm:gap-3">
+                      {STAMPS.map((s, i) => {
+                        const active = formData.type === s.type
+                        return (
+                          <button
+                            key={s.type}
+                            type="button"
+                            aria-pressed={active}
+                            onClick={() => setFormData({ ...formData, type: s.type })}
+                            className={`postage ${active ? 'postage-active' : ''}`}
+                            style={{ rotate: `${[-4, 2, -1][i]}deg` }}
+                          >
+                            <s.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                            <span className="font-mono text-[10px] sm:text-[11px] uppercase tracking-wider">{s.label}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </fieldset>
+                </div>
+
+                <p className="font-display italic text-2xl text-ink mb-6">Dear Kacper,</p>
+
+                <div className="space-y-6">
+                  <div>
+                    <label htmlFor="message" className={label}>
+                      Your Message
+                    </label>
+                    <textarea
+                      id="message"
+                      required
+                      rows={5}
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      className={`${field} resize-none lined`}
+                      placeholder="Tell me about your project or inquiry..."
+                    />
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="name" className={label}>
+                        Your Name
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        required
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className={field}
+                        placeholder="John Doe"
+                        autoComplete="name"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="email" className={label}>
+                        Your Email
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className={field}
+                        placeholder="john@example.com"
+                        autoComplete="email"
+                      />
                     </div>
                   </div>
-                </a>
-              ))}
-            </div>
-          </motion.div>
+                </div>
 
-          {/* Quick Info */}
-          <motion.div
-            {...reveal}
-            transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
-            className="paper-card p-6 sm:p-8"
-          >
-            <h3 className="font-display text-2xl text-paper mb-3 sm:mb-4">Looking for a Developer?</h3>
-            <p className="text-paper-muted mb-5 text-sm sm:text-base leading-relaxed">
-              I'm currently open to new opportunities and projects. Whether it's Web2, Web3,
-              or something entirely new, let's discuss how I can help bring your vision to life.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {['Full-Stack', 'Web3', 'Tech Lead', 'Architecture'].map((tag) => (
-                <span key={tag} className="font-mono text-[11px] px-2 py-1 border border-cocoa-500/60 text-paper-muted">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </motion.div>
+                <AnimatePresence>
+                  {error && (
+                    <motion.div
+                      id="contact-error"
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      role="alert"
+                      className="mt-6 px-4 py-3 border border-terracotta/60 bg-terracotta/10 text-[#8a3316] text-sm"
+                    >
+                      {error}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
+                  <span className="font-display italic text-ink/50 text-lg">— yours,</span>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || submitted || mailing}
+                    className="seal-btn disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    <WaxSeal className="w-9 h-9 -my-2 -ml-2" />
+                    <span>{isSubmitting ? 'Sending...' : submitted ? '✓ Message Sent!' : 'Send Message'}</span>
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+
+            {/* potwierdzenie po odlocie koperty */}
+            <AnimatePresence>
+              {submitted && mailing && (
+                <motion.div
+                  className="absolute inset-0 grid place-items-center pointer-events-none"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1, transition: { delay: 2.3 } }}
+                  exit={{ opacity: 0 }}
+                  role="status"
+                >
+                  <div className="text-center">
+                    <div className="font-display text-4xl text-paper mb-2">✓ Message Sent!</div>
+                    <div className="font-mono text-xs uppercase tracking-[0.2em] text-accent">the envelope is on its way</div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* ——— adresy i notka ——— */}
+          <div className="space-y-8">
+            <motion.div
+              className="paper-card p-6 sm:p-8"
+              initial={reduce ? false : { opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
+            >
+              <h3 className="font-display text-2xl text-paper mb-4 sm:mb-6">Get In Touch</h3>
+              <div className="divide-y divide-dashed divide-cocoa-500/50">
+                {contactMethods.map((method) => (
+                  <a key={method.label} href={method.link} className="group flex items-center gap-4 py-3.5">
+                    <span className="postmark">
+                      <method.icon className="w-4 h-4" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block font-mono text-[11px] text-paper-dim">{method.label}</span>
+                      <span className="block text-[15px] text-paper truncate group-hover:text-accent transition-colors">{method.value}</span>
+                    </span>
+                    <span className="ml-auto text-paper-dim group-hover:text-accent group-hover:translate-x-1 transition" aria-hidden="true">
+                      →
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="note-paper !p-6 sm:!p-8"
+              style={{ rotate: '1.2deg' }}
+              initial={reduce ? false : { opacity: 0, y: 24, rotate: 6 }}
+              whileInView={{ opacity: 1, y: 0, rotate: 1.2 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.8, ease: EASE, delay: 0.2 }}
+            >
+              <span className="pin" aria-hidden="true" />
+              <h3 className="font-display text-2xl text-ink mb-3">Looking for a Developer?</h3>
+              <p className="text-ink/75 mb-5 text-[15px] leading-relaxed">
+                I&apos;m currently open to new opportunities and projects. Whether it&apos;s Web2, Web3, or something entirely new, let&apos;s discuss how I can
+                help bring your vision to life.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {['Full-Stack', 'Web3', 'Tech Lead', 'Architecture'].map((tag) => (
+                  <span key={tag} className="font-mono text-[11px] px-2 py-1 border border-ink/25 text-ink/70">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
-    </Section>
+    </section>
   )
 }

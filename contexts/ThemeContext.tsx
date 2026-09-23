@@ -2,21 +2,29 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react'
 
-type Theme = 'developer' | 'founder'
+export type Theme = 'developer' | 'founder'
 
 /**
  * Fazy przełączenia DEV ⇄ CEO (choreografia całej strony):
  *  idle      — nic się nie dzieje,
- *  leaving   — stara wyspa zapada się w pustkę (widać to, kurtyna jeszcze nie weszła),
- *  covered   — papierowa kurtyna zakrywa ekran, wbija się pieczęć; pod spodem zmienia się motyw
- *              i strona wraca na górę,
- *  entering  — kurtyna schodzi, nowa wyspa opada i zapala światła pokój po pokoju.
+ *  leaving   — stara figurka zeskakuje z wyspy, gasną światła, pokoje składają się na płasko
+ *              (jak zamykana książka pop-up),
+ *  covered   — zmiana motywu: nowe pokoje leżą płasko i ciemne, figurki nie ma,
+ *  entering  — pokoje nowego świata wyskakują do góry, nowa figurka spada na wyspę,
+ *              światła zapalają się pokój po pokoju.
+ *
+ * Dwa tryby:
+ *  inplace — użytkownik jest przy hero: całość dzieje się na oczach, bez kurtyny,
+ *  curtain — użytkownik jest niżej na stronie: papierowa kurtyna zakrywa ekran, pod nią
+ *            wracamy do hero i dopiero wtedy odgrywa się wejście nowego świata.
  */
 export type SwitchPhase = 'idle' | 'leaving' | 'covered' | 'entering'
+export type SwitchMode = 'inplace' | 'curtain'
 
 interface ThemeContextType {
   theme: Theme
   phase: SwitchPhase
+  mode: SwitchMode
   /** true w trakcie całej sekwencji (dla komponentów, które mają się wstrzymać) */
   transitioning: boolean
   /** tryb docelowy trwającego przełączenia (dla napisu na kurtynie) */
@@ -26,18 +34,20 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-/** Oś czasu przełączenia w ms (ThemeWipe i FloatingDiorama czytają te same stałe). */
+/** Oś czasu przełączenia w ms — komponenty liczą swoje animacje względem początku fazy. */
 export const SWITCH = {
-  sheetIn: 640, // kurtyna zaczyna wjeżdżać (wcześniej widać zapadanie starej wyspy)
-  covered: 1020, // ekran zakryty → zmiana motywu
-  sheetOut: 1380, // kurtyna zaczyna zjeżdżać
-  entering: 1500, // nowa wyspa zaczyna opadać
-  done: 4050, // koniec zapalania świateł (entering + 0.5s + 2s)
+  inplace: { covered: 1180, entering: 1260, done: 3300 },
+  curtain: { sheetIn: 0, covered: 560, sheetOut: 900, entering: 1150, done: 3200 },
+  /** trwanie fazy "entering" rozpisane dla dioramy (od początku fazy) */
+  enter: { popUp: 0, figure: 520, lights: 1000 },
+  /** trwanie fazy "leaving" (tryb inplace) */
+  leave: { figure: 0, lightsOff: 180, fold: 520 },
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('developer')
   const [phase, setPhase] = useState<SwitchPhase>('idle')
+  const [mode, setMode] = useState<SwitchMode>('inplace')
   const [target, setTarget] = useState<Theme>('developer')
   const timers = useRef<number[]>([])
 
@@ -52,25 +62,34 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const next: Theme = theme === 'developer' ? 'founder' : 'developer'
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setTheme(next)
+      setTarget(next)
       return
     }
+    // przy hero przełączamy na oczach; niżej — pod kurtyną z powrotem do hero
+    const m: SwitchMode = window.scrollY > window.innerHeight * 0.45 ? 'curtain' : 'inplace'
+    const T = SWITCH[m]
+    setMode(m)
     setTarget(next)
     setPhase('leaving')
     const at = (ms: number, fn: () => void) => timers.current.push(window.setTimeout(fn, ms))
-    at(SWITCH.covered, () => {
+    const swap = () => {
       setPhase('covered')
       setTheme(next)
-      // pod kurtyną wracamy do hero, żeby zobaczyć wejście nowej wyspy
-      const lenis = (window as unknown as { __lenis?: { scrollTo: (t: number, o?: object) => void } }).__lenis
-      if (lenis) lenis.scrollTo(0, { immediate: true, force: true })
-      else window.scrollTo(0, 0)
-    })
-    at(SWITCH.entering, () => setPhase('entering'))
-    at(SWITCH.done, () => setPhase('idle'))
+    }
+    if (m === 'inplace') at(T.covered, swap)
+    else
+      at(T.covered, () => {
+        swap()
+        const lenis = (window as unknown as { __lenis?: { scrollTo: (t: number, o?: object) => void } }).__lenis
+        if (lenis) lenis.scrollTo(0, { immediate: true, force: true })
+        else window.scrollTo(0, 0)
+      })
+    at(T.entering, () => setPhase('entering'))
+    at(T.done, () => setPhase('idle'))
   }, [phase, theme])
 
   return (
-    <ThemeContext.Provider value={{ theme, phase, transitioning: phase !== 'idle', target, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, phase, mode, transitioning: phase !== 'idle', target, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   )

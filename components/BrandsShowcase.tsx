@@ -1,9 +1,17 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { Section } from '@/components/ui/Section'
+import { useState } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
+import { SectionHeader, RoomCutout, EASE } from '@/components/ui/Section'
 import { FaGraduationCap, FaMobileAlt, FaBullseye, FaRobot } from 'react-icons/fa'
 import type { IconType } from 'react-icons'
+
+/**
+ * Marki = papierowa uliczka ze sklepami (pokój "coderiv" / "Web3 vault").
+ * Każda marka to fasada z Gemini (ta sama grafika, markiza przebarwiona na kolor marki),
+ * logo na szyldzie, tagline jak neon w witrynie. Hover zapala latarnie i neon.
+ * Pod fasadą papierowa tabliczka z opisem i statystykami. Treść bez zmian.
+ */
 
 interface Brand {
   name: string
@@ -29,7 +37,7 @@ const brands: Brand[] = [
     ],
     icon: FaGraduationCap,
     logo: '/logos/devs-mentoring.png',
-    color: 'from-blue-500 to-cyan-500',
+    color: '#3f7fd6',
   },
   {
     name: 'coderiv',
@@ -43,7 +51,7 @@ const brands: Brand[] = [
     ],
     icon: FaMobileAlt,
     logo: '/logos/coderiv.png',
-    color: 'from-purple-500 to-pink-500',
+    color: '#9b5bd6',
   },
   {
     name: 'devs-hunting',
@@ -57,7 +65,7 @@ const brands: Brand[] = [
     ],
     icon: FaBullseye,
     logo: '/logos/devs-hunting.svg',
-    color: 'from-orange-500 to-red-500',
+    color: '#e0672d',
   },
   {
     name: 'Efektywniejsi',
@@ -71,15 +79,10 @@ const brands: Brand[] = [
     ],
     icon: FaRobot,
     logo: '/logos/efektywniejsi.svg',
-    color: 'from-green-500 to-emerald-500',
+    color: '#1fae7a',
   },
 ]
 
-const reveal = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-80px' },
-}
 
 const ExternalIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -87,129 +90,168 @@ const ExternalIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
   </svg>
 )
 
-function BrandCard({ brand, index }: { brand: Brand; index: number }) {
+function Shop({ brand, index }: { brand: Brand; index: number }) {
+  const reduce = useReducedMotion()
+  const [lit, setLit] = useState(false)
   const hasUrl = brand.url && brand.url !== '#'
-  const smallLogo = brand.name === 'coderiv' || brand.name === 'Efektywniejsi'
-
+  const darkLogo = brand.name === 'Efektywniejsi'
   return (
     <motion.article
-      {...reveal}
-      transition={{ duration: 0.6, delay: index * 0.08, ease: 'easeOut' }}
-      className="group paper-card p-6 sm:p-8 flex flex-col transition duration-300 hover:border-accent/50 hover:-translate-y-1"
+      className="group relative flex flex-col snap-center shrink-0 w-[78vw] sm:w-auto"
+      initial={reduce ? false : { opacity: 0, y: 60, rotateX: -25 }}
+      whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.9, ease: EASE, delay: index * 0.1 }}
+      style={{ transformPerspective: 900, transformOrigin: '50% 100%' }}
+      onMouseEnter={() => setLit(true)}
+      onMouseLeave={() => setLit(false)}
+      onFocus={() => setLit(true)}
+      onBlur={() => setLit(false)}
     >
-      {/* Logo & Title */}
-      <div className="flex items-start justify-between gap-4 mb-6">
-        <div className="flex items-start gap-4 sm:gap-5 flex-1 min-w-0">
-          <div
-            className={`
-              w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center overflow-hidden shrink-0 border
-              ${brand.logo
-                ? brand.name === 'Efektywniejsi'
-                  ? 'bg-cocoa-900 border-cocoa-500/60'
-                  : 'bg-paper border-cocoa-500/60'
-                : 'bg-cocoa-900 border-cocoa-500/60 text-paper-muted'}
-            `}
-          >
-            {brand.logo ? (
-              <img
-                src={brand.logo}
-                alt={`${brand.name} logo`}
-                className="object-contain"
-                style={{
-                  width: smallLogo ? '80%' : '90%',
-                  height: smallLogo ? '80%' : '90%',
-                  imageRendering: '-webkit-optimize-contrast',
-                }}
-              />
-            ) : (
-              <brand.icon className="w-10 h-10 sm:w-12 sm:h-12" />
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-display text-2xl text-paper mb-1 break-words">{brand.name}</h3>
-            <p className="font-mono text-xs text-paper-dim">{brand.tagline}</p>
-          </div>
+      {/* fasada */}
+      <div className={`relative transition-transform duration-500 ${lit ? '-translate-y-2' : ''}`} style={{ aspectRatio: '720 / 795' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/sections/facade.webp" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full drop-shadow-[0_24px_24px_rgba(0,0,0,0.7)]" loading="lazy" />
+        {/* markiza w kolorze marki (tryb "hue": krem zostaje kremowy, pasy zmieniają barwę) */}
+        <div
+          aria-hidden="true"
+          className="absolute mix-blend-hue opacity-90"
+          style={{ left: '11%', top: '24%', width: '78%', height: '21%', background: brand.color }}
+        />
+        {/* latarnie — zapalają się przy hoverze */}
+        {[8.6, 91.4].map((x) => (
+          <span
+            key={x}
+            aria-hidden="true"
+            className="absolute w-[34%] aspect-square -translate-x-1/2 -translate-y-1/2 rounded-full transition-opacity duration-500 pointer-events-none"
+            style={{
+              left: `${x}%`,
+              top: '29%',
+              background: 'radial-gradient(circle, rgba(255,190,110,0.55), rgba(255,140,60,0.18) 40%, transparent 70%)',
+              opacity: lit ? 1 : 0.35,
+            }}
+          />
+        ))}
+        {/* szyld z logo */}
+        <div className="absolute flex items-center justify-center gap-3 px-3" style={{ left: '8%', top: '4.6%', width: '84%', height: '17%' }}>
+          {brand.logo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={brand.logo}
+              alt={`${brand.name} logo`}
+              className={`h-[58%] w-auto max-w-[32%] shrink-0 object-contain ${darkLogo ? 'rounded-md bg-cocoa-900 p-1' : 'mix-blend-multiply'}`}
+            />
+          ) : (
+            <brand.icon className="h-1/2 w-auto text-ink/70" />
+          )}
+          <span className="font-display text-[clamp(14px,1.2vw,18px)] leading-none text-ink whitespace-nowrap">{brand.name}</span>
         </div>
+        {/* witryna z neonem */}
+        <div
+          className="absolute flex items-center justify-center p-[4%] text-center overflow-hidden"
+          style={{ left: '15.6%', top: '48.2%', width: '45%', height: '31.4%' }}
+        >
+          <span
+            className="font-mono text-[clamp(9px,0.95vw,12px)] leading-snug uppercase tracking-[0.08em] transition-all duration-500"
+            style={{
+              color: lit ? '#fff4e0' : 'rgba(241,228,207,0.45)',
+              textShadow: lit ? `0 0 6px ${brand.color}, 0 0 16px ${brand.color}, 0 0 30px ${brand.color}` : 'none',
+            }}
+          >
+            {brand.tagline}
+          </span>
+          <span
+            aria-hidden="true"
+            className="absolute inset-0 transition-opacity duration-500"
+            style={{ background: `radial-gradient(ellipse at 50% 60%, ${brand.color}40, transparent 70%)`, opacity: lit ? 1 : 0 }}
+          />
+        </div>
+      </div>
 
+      {/* tabliczka z opisem */}
+      <div className="plaque relative -mt-2 mx-[4%] flex-1 flex flex-col">
+        <p className="text-paper-muted leading-relaxed text-[14.5px] mb-5">{brand.description}</p>
+        <div className="grid grid-cols-3 gap-2 pt-4 mt-auto border-t border-dashed border-cocoa-500/60">
+          {brand.stats.map((stat) => (
+            <div key={stat.label}>
+              <div className="font-display text-lg sm:text-xl text-accent leading-tight">{stat.value}</div>
+              <div className="font-mono text-[10px] text-paper-dim leading-tight mt-0.5">{stat.label}</div>
+            </div>
+          ))}
+        </div>
         {hasUrl && (
           <a
             href={brand.url}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={`${brand.name} website`}
-            className="text-paper-muted hover:text-accent transition-colors"
+            className="link-arrow mt-5 self-start"
           >
-            <ExternalIcon className="w-5 h-5" />
+            Visit Website
+            <ExternalIcon className="w-3.5 h-3.5" />
           </a>
         )}
-      </div>
-
-      {/* Description */}
-      <p className="text-paper-muted leading-relaxed text-sm sm:text-base mb-5">{brand.description}</p>
-
-      {/* Visit Website Link */}
-      {hasUrl && (
-        <a
-          href={brand.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 self-start font-mono text-xs uppercase tracking-[0.14em] text-paper hover:text-accent transition-colors"
-        >
-          Visit Website
-          <ExternalIcon className="w-3.5 h-3.5" />
-        </a>
-      )}
-
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 pt-6 mt-6 border-t border-cocoa-500/40">
-        {brand.stats.map((stat, i) => (
-          <div key={i}>
-            <div className="font-display text-xl sm:text-2xl text-accent mb-1">{stat.value}</div>
-            <div className="font-mono text-[11px] text-paper-dim">{stat.label}</div>
-          </div>
-        ))}
       </div>
     </motion.article>
   )
 }
 
 export default function BrandsShowcase() {
+  const reduce = useReducedMotion()
   return (
-    <Section
-      id="brands"
-      index="04"
-      eyebrow="/brands"
-      title="Building companies that empower developers"
-      lead={
-        <>
-          From mentorship → AI automation.
-          <br />
-          Each venture solves real problems.
-        </>
-      }
-    >
-      {/* Brands Grid */}
-      <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
-        {brands.map((brand, index) => (
-          <BrandCard key={brand.name} brand={brand} index={index} />
-        ))}
+    <section id="brands" className="relative py-24 sm:py-32 scroll-mt-20 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8">
+        <div className="flex items-end justify-between gap-8 mb-14 sm:mb-16">
+          <SectionHeader
+            index="04"
+            eyebrow="/brands"
+            title="Building companies that empower developers"
+            lead={
+              <>
+                From mentorship → AI automation.
+                <br />
+                Each venture solves real problems.
+              </>
+            }
+          />
+          <RoomCutout room={2} className="hidden md:block w-40 lg:w-52 shrink-0" />
+        </div>
       </div>
 
-      {/* CTA Section */}
-      <motion.div
-        {...reveal}
-        transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
-        className="paper-card ridge-top mt-16 sm:mt-20 p-8 sm:p-12 pt-14 sm:pt-16 text-center"
-      >
-        <h3 className="font-display text-3xl sm:text-4xl text-paper mb-4">Interested in Collaboration?</h3>
-        <p className="text-paper-muted text-base sm:text-lg mb-8 max-w-2xl mx-auto">
-          I'm always open to discussing new projects, partnerships, or opportunities
-          to create value for the developer community.
-        </p>
-        <a href="#contact" className="btn-accent">
-          Let's Talk
-        </a>
-      </motion.div>
-    </Section>
+      {/* uliczka */}
+      <div className="relative max-w-7xl mx-auto">
+        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-6 overflow-x-auto sm:overflow-visible snap-x snap-mandatory px-4 sm:px-8 pb-6 no-scrollbar">
+          {brands.map((brand, index) => (
+            <Shop key={brand.name} brand={brand} index={index} />
+          ))}
+        </div>
+        {/* chodnik pod sklepami */}
+        <div aria-hidden="true" className="hidden lg:block mx-8 -mt-[1px] h-2 rounded-full bg-gradient-to-r from-transparent via-kraft/25 to-transparent" />
+      </div>
+
+      {/* wiszący szyld CTA */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-8">
+        <motion.div
+          className="relative mx-auto mt-24 sm:mt-28 max-w-3xl"
+          initial={reduce ? false : { rotate: -6, y: -40, opacity: 0 }}
+          whileInView={{ rotate: [-6, 3, -1.5, 0.5, 0], y: 0, opacity: 1 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 1.6, ease: 'easeOut' }}
+          style={{ transformOrigin: '50% -60px' }}
+        >
+          {/* sznurki */}
+          <span aria-hidden="true" className="absolute left-[18%] -top-20 h-20 w-px bg-gradient-to-b from-transparent to-kraft/70" />
+          <span aria-hidden="true" className="absolute right-[18%] -top-20 h-20 w-px bg-gradient-to-b from-transparent to-kraft/70" />
+          <div className="hanging-sign text-center px-6 py-10 sm:px-12 sm:py-12">
+            <h3 className="font-display text-3xl sm:text-4xl text-ink mb-4">Interested in Collaboration?</h3>
+            <p className="text-ink/70 text-base sm:text-lg mb-8 max-w-2xl mx-auto">
+              I&apos;m always open to discussing new projects, partnerships, or opportunities to create value for the developer community.
+            </p>
+            <a href="#contact" className="btn-accent">
+              Let&apos;s Talk <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </motion.div>
+      </div>
+    </section>
   )
 }
