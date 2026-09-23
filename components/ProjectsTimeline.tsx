@@ -279,7 +279,7 @@ export default function ProjectsTimeline() {
     <SectionHeader
       index="02"
       eyebrow="Projects"
-      title={<span className="font-mono text-3xl sm:text-4xl md:text-5xl tracking-normal">git log --all --oneline</span>}
+      title={<span className="font-mono text-[26px] sm:text-4xl md:text-5xl tracking-normal whitespace-nowrap">git log --all --oneline</span>}
       lead={
         <>
           Dual-track journey: technical excellence + entrepreneurial ventures

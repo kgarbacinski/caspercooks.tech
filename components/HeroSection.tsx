@@ -93,7 +93,8 @@ export default function HeroSection() {
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 grid lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)] gap-8 lg:gap-6 items-center">
         {/* przy przełączeniu stara treść gaśnie razem ze światłami wyspy, nowa wjeżdża po zmianie motywu */}
         <motion.div style={{ opacity: uiFade }} className="max-lg:!opacity-100">
-        <motion.div animate={{ opacity: phase === 'leaving' ? 0.2 : 1, y: 0 }} transition={{ duration: 0.45, ease: EASE }}>
+        <motion.div // przygaszone aż do wejścia nowej treści (akcent zmienia się już w fazie covered)
+        animate={{ opacity: phase === 'leaving' || phase === 'covered' ? 0.2 : 1, y: 0 }} transition={{ duration: 0.45, ease: EASE }}>
         <AnimatePresence mode={reduce ? 'popLayout' : 'wait'}>
           <motion.div key={theme} initial={reduce ? false : 'hidden'} animate="show" exit={reduce ? undefined : 'exit'} variants={{ show: { transition: { staggerChildren: 0.08, delayChildren: phase === 'idle' ? 0 : 0.3 } }, exit: { transition: { staggerChildren: 0.03 } } }}>
             <motion.p variants={fade} className="eyebrow mb-5">

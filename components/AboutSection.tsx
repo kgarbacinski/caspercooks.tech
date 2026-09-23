@@ -276,7 +276,7 @@ export default function AboutSection() {
                 />
               </motion.div>
               <div className="absolute left-0 bottom-6 paper-tag !text-left -rotate-2">
-                <span className="block font-mono text-[10px] uppercase tracking-[0.2em] text-ink/55">room 01</span>
+                <span className="block font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">room 01</span>
                 <span className="block font-display text-lg text-ink">{room.label}</span>
               </div>
             </div>

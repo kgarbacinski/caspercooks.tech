@@ -109,7 +109,7 @@ export function SectionHeader({
 
 /**
  * Separator sekcji: papierowa girlanda (sznurek + chorągiewki z kraftu, kremu, terakoty i akcentu).
- * Sznurek rysuje się przy wejściu w widok, chorągiewki spadają kolejno i lekko się kołyszą.
+ * Sznurek rysuje się przy wejściu w widok, chorągiewki spadają kolejno (jednorazowo).
  */
 const W = 1200
 const SAG = 38
@@ -144,7 +144,8 @@ export function CableDivider({ className = '' }: { className?: string }) {
               viewport={{ once: true, margin: '-40px' }}
               transition={{ type: 'spring', stiffness: 300, damping: 12, delay: 0.35 + i * 0.03 }}
             >
-              <g className={reduce ? '' : 'animate-flag-sway'} style={{ transformOrigin: `${x}px ${y}px`, transformBox: 'view-box', animationDelay: `${(i % 5) * 0.35}s` }}>
+              {/* bez wiecznego kołysania — chorągiewki tylko spadają przy wejściu */}
+              <g>
                 <polygon
                   points={`${x - 22},${y} ${x + 22},${y} ${x},${y + 38}`}
                   fill={FLAG_COLORS[i % FLAG_COLORS.length]}

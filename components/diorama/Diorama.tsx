@@ -126,14 +126,16 @@ export default function Diorama() {
   // intro po załadowaniu grafik
   useEffect(() => {
     let cancelled = false
-    const srcs = [`/diorama/v2/base-${k}.webp`, ...boxes.map((_, i) => roomSrc(theme, i))]
+    // czekamy na obrazy, które faktycznie są w DOM (przeglądarka sama wybrała wariant ze srcSet) —
+    // osobne new Image() pobierało pełną bazę 2400 px także na telefonie (podwójny transfer)
+    const imgs = Array.from(boxRef.current?.querySelectorAll('img') ?? [])
     const wait = Promise.all(
-      srcs.map(
-        (s) =>
+      imgs.map(
+        (im) =>
           new Promise<void>((res) => {
-            const im = new Image()
-            im.onload = im.onerror = () => res()
-            im.src = s
+            if (im.complete) return res()
+            im.addEventListener('load', () => res(), { once: true })
+            im.addEventListener('error', () => res(), { once: true })
           }),
       ),
     )
@@ -192,7 +194,7 @@ export default function Diorama() {
   const scrollYShift = useSpring(useTransform(scrollY, [0, 850], [0, 120]), spring)
   const diveY = useSpring(useTransform(scrollY, [0, 620], [0, 470]), { stiffness: 90, damping: 24 })
   // desktop: przy zjeździe z hero kamera "wjeżdża" w pierwszy pokój (ciągłość z sekcją About)
-  const diveScale = useSpring(useTransform(scrollY, [0, 620], [1, 2.4]), { stiffness: 90, damping: 24 })
+  const diveScale = useSpring(useTransform(scrollY, [0, 620], [1, 1.9]), { stiffness: 90, damping: 24 })
   const diveFade = useTransform(scrollY, [240, 560], [1, 0])
   const [wide, setWide] = useState(false)
   useEffect(() => {
@@ -265,7 +267,8 @@ export default function Diorama() {
 
   return (
     <figure ref={figureRef} data-paused={paused || undefined} className="relative m-0 select-none" aria-label="Interactive papercraft diorama">
-      <Sparks accent={accent} reduce={reduce} paused={paused} />
+      {/* iskry tylko przy myszy (desktop) — na dotyku to koszt baterii bez zysku */}
+      <Sparks accent={accent} reduce={reduce || !finePointer} paused={paused} />
 
       {/* poświata kabli pod wyspą — w kolorze akcentu, zapala się razem z bazą */}
       <div
@@ -275,7 +278,8 @@ export default function Diorama() {
       />
 
       {/* mobile: scena szersza niż ekran, przesuwana palcem (większe pokoje); desktop bez zmian */}
-      <div ref={panRef} className="overflow-x-auto overflow-y-visible sm:overflow-visible no-scrollbar snap-x">
+      {/* miękkie wygaszenie brzegów zamiast twardego cięcia sceny na krawędzi ekranu */}
+      <div ref={panRef} className="overflow-x-auto overflow-y-visible sm:overflow-visible no-scrollbar snap-x max-sm:[mask-image:linear-gradient(90deg,transparent,#000_5%,#000_95%,transparent)]">
       <div className="w-[165%] sm:w-full pt-16 pb-7 sm:p-0">
       <motion.div
         style={{
@@ -313,6 +317,7 @@ export default function Diorama() {
                     : "Papercraft diorama of Casper's founder world: CEO office, devs-mentoring classroom, coderiv app studio, devs-hunting scouting room and Efektywniejsi webinar stage on a floating island with glowing orange cables."
                 }
                 draggable={false}
+                fetchPriority="high"
                 className="absolute inset-0 w-full h-full"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -331,10 +336,10 @@ export default function Diorama() {
               const isHover = spot && hover === i
               const bright = !s.lit ? OFF : spot ? (isHover ? 1.1 : 0.42) : 1
               const src = roomSrc(theme, i)
-              const small = roomSrc(theme, i, true)
+              // maska = ten sam plik co pokój (już w cache, bez 5 dodatkowych pobrań)
               const maskStyle = {
-                WebkitMaskImage: `url(${small})`,
-                maskImage: `url(${small})`,
+                WebkitMaskImage: `url(${src})`,
+                maskImage: `url(${src})`,
                 WebkitMaskSize: '100% 100%',
                 maskSize: '100% 100%',
               } as React.CSSProperties
@@ -384,7 +389,7 @@ export default function Diorama() {
                     />
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      // zawsze pełna rozdzielczość (20–30 KB): przy wjeździe kamery pokój jest powiększony 2.4×
+                      // zawsze pełna rozdzielczość (20–30 KB): przy wjeździe kamery pokój jest powiększony do 1.9×
                       src={src}
                       alt=""
                       draggable={false}
@@ -422,7 +427,7 @@ export default function Diorama() {
                 >
                   <span
                     className="absolute inset-0 rounded-full animate-glow-breathe"
-                    style={{ background: `radial-gradient(circle, rgba(${g.c},0.4), rgba(${g.c},0.09) 45%, transparent 70%)`, animationDuration: `${g.d}s` }}
+                    style={{ background: `radial-gradient(circle, rgba(${g.c},0.4), rgba(${g.c},0.09) 45%, transparent 70%)`, animationDuration: `${g.d + 2.5}s` }}
                   />
                 </span>
               ))}
@@ -434,7 +439,7 @@ export default function Diorama() {
                 key={`flash-${flash}`}
                 aria-hidden="true"
                 className="absolute inset-[-10%] pointer-events-none z-[25] mix-blend-screen"
-                style={{ background: `radial-gradient(ellipse 60% 45% at 50% 42%, rgba(255,240,215,0.55), rgba(${accent},0.15) 45%, transparent 70%)` }}
+                style={{ background: `radial-gradient(ellipse 60% 45% at 50% 42%, rgba(255,240,215,0.3), rgba(${accent},0.1) 45%, transparent 70%)` }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: [0, 1, 0] }}
                 transition={{ duration: 0.55, times: [0, 0.25, 1] }}

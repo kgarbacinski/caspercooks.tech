@@ -23,7 +23,7 @@ export default function Sparks({ accent, reduce, paused = false }: { accent: str
       canvas.height = canvas.clientHeight * dpr
     }
     resize()
-    const sparks = Array.from({ length: 36 }, () => ({
+    const sparks = Array.from({ length: 24 }, () => ({
       x: Math.random(),
       y: Math.random(),
       r: 0.5 + Math.random() * 1.8,
@@ -31,6 +31,20 @@ export default function Sparks({ accent, reduce, paused = false }: { accent: str
       p: Math.random() * Math.PI * 2,
       c: Math.random() < 0.22,
     }))
+    // jeden gotowy "duszek" iskry na kolor (gradient liczony raz, nie co klatkę)
+    const sprite = (rgb: string) => {
+      const c = document.createElement('canvas')
+      c.width = c.height = 64
+      const g = c.getContext('2d')!
+      const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32)
+      gr.addColorStop(0, `rgba(${rgb},1)`)
+      gr.addColorStop(1, 'rgba(255,120,40,0)')
+      g.fillStyle = gr
+      g.fillRect(0, 0, 64, 64)
+      return c
+    }
+    const warm = sprite('255,170,90')
+    const acc = sprite(accentRef.current)
     const tick = (t: number) => {
       raf = requestAnimationFrame(tick)
       ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -44,13 +58,8 @@ export default function Sparks({ accent, reduce, paused = false }: { accent: str
         const x = (s.x + Math.sin(t / 2600 + s.p) * 0.012) * canvas.width
         const y = s.y * canvas.height
         const rad = s.r * 3 * dpr
-        const g = ctx.createRadialGradient(x, y, 0, x, y, rad)
-        g.addColorStop(0, s.c ? `rgba(${accentRef.current},${a})` : `rgba(255,170,90,${a})`)
-        g.addColorStop(1, 'rgba(255,120,40,0)')
-        ctx.fillStyle = g
-        ctx.beginPath()
-        ctx.arc(x, y, rad, 0, Math.PI * 2)
-        ctx.fill()
+        ctx.globalAlpha = a
+        ctx.drawImage(s.c ? acc : warm, x - rad, y - rad, rad * 2, rad * 2)
       }
     }
     const start = () => {
@@ -67,7 +76,7 @@ export default function Sparks({ accent, reduce, paused = false }: { accent: str
       document.removeEventListener('visibilitychange', onVis)
       window.removeEventListener('resize', resize)
     }
-  }, [reduce, paused])
+  }, [reduce, paused, accent])
 
   return <canvas ref={canvasRef} className="absolute -inset-[14%] w-[128%] h-[128%] pointer-events-none" aria-hidden="true" />
 }

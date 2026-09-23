@@ -34,8 +34,9 @@ export default function Navigation() {
       },
       { rootMargin: '-20% 0px -60% 0px', threshold: 0 },
     )
-    navLinks.forEach(({ label }) => {
-      const el = document.getElementById(label)
+    // #stack nie ma linku, ale obserwujemy go, żeby podświetlenie "projects" gasło nad pegboardem
+    ;[...navLinks.map((l) => l.label), 'stack'].forEach((id) => {
+      const el = document.getElementById(id)
       if (el) observer.observe(el)
     })
     return () => observer.disconnect()
@@ -79,8 +80,7 @@ export default function Navigation() {
           {/* przełącznik trybu: DEV / CEO */}
           <button
             onClick={toggleTheme}
-            // nazwa zawiera widoczny tekst (DEV/CEO) — wymóg WCAG "label in name"
-            aria-label={`DEV / CEO — switch to ${theme === 'developer' ? 'founder (CEO)' : 'developer'} view`}
+            // nazwa dostępna = widoczny tekst (DEV CEO) + opis w sr-only — wymóg WCAG "label in name"
             className="relative flex items-center w-[104px] h-10 p-1 border border-cocoa-500 bg-cocoa-800 font-mono text-[11px]"
           >
             <motion.span
@@ -89,8 +89,9 @@ export default function Navigation() {
               className="absolute top-1 bottom-1 w-[48px] bg-accent"
               style={{ left: theme === 'developer' ? 4 : 52 }}
             />
-            <span className={`relative z-10 w-1/2 text-center ${theme === 'developer' ? 'text-night' : 'text-paper-muted'}`}>DEV</span>
+            <span className={`relative z-10 w-1/2 text-center ${theme === 'developer' ? 'text-night' : 'text-paper-muted'}`}>DEV</span>{' '}
             <span className={`relative z-10 w-1/2 text-center ${theme === 'founder' ? 'text-night' : 'text-paper-muted'}`}>CEO</span>
+            <span className="sr-only"> — switch to {theme === 'developer' ? 'founder (CEO)' : 'developer'} view</span>
           </button>
 
           <button

@@ -15,7 +15,7 @@ export default function PageEffects() {
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
     if (!location.hash) window.scrollTo(0, 0)
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const lenis = new Lenis({ duration: 1.15, smoothWheel: true })
+    const lenis = new Lenis({ duration: 0.95, smoothWheel: true }) // krócej: kamera i teczki mają jeszcze własne sprężyny
     ;(window as unknown as { __lenis?: Lenis }).__lenis = lenis
     let raf = 0
     const loop = (t: number) => {

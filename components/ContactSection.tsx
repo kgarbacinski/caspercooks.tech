@@ -22,7 +22,7 @@ const STAMPS: { type: ContactType; label: string; icon: typeof FaUserTie }[] = [
 
 const field =
   'w-full bg-transparent border-0 border-b border-ink/25 focus:border-ink/70 focus:outline-none focus-visible:outline-none text-ink placeholder:text-ink/50 text-base py-2 transition-colors'
-const label = 'block font-mono text-[10px] uppercase tracking-[0.2em] text-ink/55 mb-1'
+const label = 'block font-mono text-[10px] uppercase tracking-[0.2em] text-ink/75 mb-1'
 
 const SEAL =
   'M50 3 C62 2 70 9 80 12 C91 16 97 27 96 39 C95 48 99 55 97 64 C94 77 85 84 76 90 C66 97 55 98 45 97 C33 96 24 91 16 83 C7 74 2 63 4 51 C5 42 1 34 5 26 C11 13 24 9 34 6 C40 4 45 3 50 3Z'
