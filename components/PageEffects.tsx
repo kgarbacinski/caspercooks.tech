@@ -2,18 +2,14 @@
 
 import { useEffect } from 'react'
 import Lenis from 'lenis'
-import { useTheme } from '@/contexts/ThemeContext'
 
 /**
  * Efekty całej strony, bez własnego DOM:
- *  - Lenis: płynny, "ciężki" scroll (wyłączony przy prefers-reduced-motion),
- *  - fold-in: każda .paper-card rozkłada się jak kartka papieru przy wejściu w widok,
- *  - spotlight: ciepłe światło lampki pod kursorem na kartach (CSS vars --mx/--my).
- * Po zmianie trybu (theme) karty są wyszukiwane ponownie, bo sekcje renderują się od nowa.
+ *  - Lenis: płynny, "ciężki" scroll (wyłączony przy prefers-reduced-motion).
+ * (Fold-in kart i reflektor pod kursorem usunięte w przeglądzie "mniej efektów" —
+ *  sekcje mają własne, jednorazowe wejścia.)
  */
 export default function PageEffects() {
-  const { theme } = useTheme()
-
   useEffect(() => {
     // hero ma zawsze startować od góry (wejście wyspy), więc bez przywracania scrolla po odświeżeniu
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
@@ -51,56 +47,6 @@ export default function PageEffects() {
       delete (window as unknown as { __lenis?: Lenis }).__lenis
     }
   }, [])
-
-  useEffect(() => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const cards = Array.from(document.querySelectorAll<HTMLElement>('.paper-card:not(.no-fold)'))
-    if (reduce) return
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            const el = e.target as HTMLElement
-            // lekkie przesunięcie w czasie dla kart w jednym rzędzie
-            el.style.transitionDelay = `${Math.min(Number(el.dataset.foldIdx ?? 0) * 70, 280)}ms`
-            el.classList.add('fold-in')
-            io.unobserve(el)
-            // po rozłożeniu zdejmujemy klasy, żeby hover (translate) kart działał normalnie
-            const done = (ev: TransitionEvent) => {
-              if (ev.propertyName !== 'transform') return
-              el.classList.remove('fold', 'fold-in')
-              el.style.transitionDelay = ''
-              el.removeEventListener('transitionend', done)
-            }
-            el.addEventListener('transitionend', done)
-          }
-        })
-      },
-      { rootMargin: '0px 0px -8% 0px', threshold: 0.12 },
-    )
-    cards.forEach((c, i) => {
-      if (c.closest('[data-no-fold]')) return
-      if (c.getBoundingClientRect().top < window.innerHeight * 0.9) {
-        return // już widoczne przy starcie — bez animacji
-      }
-      c.dataset.foldIdx = String(i % 4)
-      c.classList.add('fold')
-      io.observe(c)
-    })
-
-    const onMove = (e: PointerEvent) => {
-      const card = (e.target as HTMLElement).closest?.('.paper-card') as HTMLElement | null
-      if (!card) return
-      const r = card.getBoundingClientRect()
-      card.style.setProperty('--mx', `${e.clientX - r.left}px`)
-      card.style.setProperty('--my', `${e.clientY - r.top}px`)
-    }
-    document.addEventListener('pointermove', onMove)
-    return () => {
-      io.disconnect()
-      document.removeEventListener('pointermove', onMove)
-    }
-  }, [theme])
 
   return null
 }

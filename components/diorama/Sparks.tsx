@@ -2,26 +2,28 @@
 
 import { useEffect, useRef } from 'react'
 
-/** Iskry unoszące się wokół wyspy (canvas); część w kolorze akcentu. */
-export default function Sparks({ accent, reduce }: { accent: string; reduce: boolean }) {
+/**
+ * Iskry unoszące się wokół wyspy (canvas); część w kolorze akcentu.
+ * Pętla rAF działa tylko, gdy hero jest widoczne (paused z Dioramy) i karta jest na wierzchu.
+ */
+export default function Sparks({ accent, reduce, paused = false }: { accent: string; reduce: boolean; paused?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const accentRef = useRef(accent)
   accentRef.current = accent
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas || reduce) return
+    if (!canvas || reduce || paused) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
     let raf = 0
-    let visible = true
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
     const resize = () => {
       canvas.width = canvas.clientWidth * dpr
       canvas.height = canvas.clientHeight * dpr
     }
     resize()
-    const sparks = Array.from({ length: 60 }, () => ({
+    const sparks = Array.from({ length: 36 }, () => ({
       x: Math.random(),
       y: Math.random(),
       r: 0.5 + Math.random() * 1.8,
@@ -31,7 +33,6 @@ export default function Sparks({ accent, reduce }: { accent: string; reduce: boo
     }))
     const tick = (t: number) => {
       raf = requestAnimationFrame(tick)
-      if (!visible) return
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       for (const s of sparks) {
         s.y -= s.v * 16
@@ -52,17 +53,21 @@ export default function Sparks({ accent, reduce }: { accent: string; reduce: boo
         ctx.fill()
       }
     }
-    raf = requestAnimationFrame(tick)
-    // poza ekranem nie rysujemy
-    const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting))
-    io.observe(canvas)
+    const start = () => {
+      cancelAnimationFrame(raf)
+      if (!document.hidden) raf = requestAnimationFrame(tick)
+    }
+    start()
+    // ukryta karta: zatrzymujemy pętlę całkiem (nie tylko rysowanie)
+    const onVis = () => (document.hidden ? cancelAnimationFrame(raf) : start())
+    document.addEventListener('visibilitychange', onVis)
     window.addEventListener('resize', resize)
     return () => {
       cancelAnimationFrame(raf)
-      io.disconnect()
+      document.removeEventListener('visibilitychange', onVis)
       window.removeEventListener('resize', resize)
     }
-  }, [reduce])
+  }, [reduce, paused])
 
   return <canvas ref={canvasRef} className="absolute -inset-[14%] w-[128%] h-[128%] pointer-events-none" aria-hidden="true" />
 }

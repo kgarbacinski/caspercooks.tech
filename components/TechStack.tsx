@@ -177,7 +177,7 @@ export default function TechStack() {
                       <span className="peg-hole" aria-hidden="true" />
                       <tech.icon className="w-7 h-7 sm:w-8 sm:h-8 mb-2 text-ink/70 group-hover:text-ink transition-colors" />
                       <span className="block font-display text-[17px] sm:text-lg leading-tight text-ink">{tech.name}</span>
-                      <span className="block font-mono text-[10px] text-ink/55 mt-1 line-clamp-1">{tech.projects[0]}</span>
+                      <span className="block font-mono text-[10px] text-ink/70 mt-1 line-clamp-1">{tech.projects[0]}</span>
                     </button>
                     {/* "used in" — karteczka wysuwana spod zawieszki */}
                     <AnimatePresence>

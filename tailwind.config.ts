@@ -25,7 +25,7 @@ const config: Config = {
         paper: {
           DEFAULT: '#f1e4cf', // tekst główny (krem)
           muted: '#a88a6c', // tekst drugorzędny (kraft)
-          dim: '#7a634d', // metadane
+          dim: '#957b62', // metadane (jaśniej niż wcześniej: kontrast ≥ 4.5 na tle nocy)
         },
         kraft: '#c9a882',
         ink: '#2a1a10', // atrament na kremowym papierze (notatki, list)
@@ -49,10 +49,9 @@ const config: Config = {
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
         'slide-up': 'slideUp 0.5s ease-out',
-        float: 'float 7s ease-in-out infinite',
+        float: 'float 9s ease-in-out infinite',
         'cable-flow': 'cableFlow 6s linear infinite',
         'lights-on': 'lights-on 0.7s linear both',
-        'cable-pulse': 'cable-pulse 4s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
@@ -62,7 +61,7 @@ const config: Config = {
         },
         float: {
           '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-14px)' },
+          '50%': { transform: 'translateY(-7px)' }, // spokojna lewitacja (wcześniej 14 px / 7 s)
         },
         cableFlow: { to: { strokeDashoffset: '-200' } },
       },

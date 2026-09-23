@@ -21,7 +21,7 @@ const STAMPS: { type: ContactType; label: string; icon: typeof FaUserTie }[] = [
 ]
 
 const field =
-  'w-full bg-transparent border-0 border-b border-ink/25 focus:border-ink/70 focus:outline-none focus-visible:outline-none text-ink placeholder:text-ink/35 text-base py-2 transition-colors'
+  'w-full bg-transparent border-0 border-b border-ink/25 focus:border-ink/70 focus:outline-none focus-visible:outline-none text-ink placeholder:text-ink/50 text-base py-2 transition-colors'
 const label = 'block font-mono text-[10px] uppercase tracking-[0.2em] text-ink/55 mb-1'
 
 const SEAL =

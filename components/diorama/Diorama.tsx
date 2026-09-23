@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion, useAnimate, useMotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
+import { AnimatePresence, motion, useAnimate, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { SWITCH, useTheme } from '@/contexts/ThemeContext'
 import type { Theme } from '@/contexts/ThemeContext'
@@ -184,16 +184,11 @@ export default function Diorama() {
     }
   }, [phase, mode, reduce, at, enter])
 
-  // pochylenie za kursorem + paralaksa scrolla
-  const mx = useMotionValue(0)
-  const my = useMotionValue(0)
+  // Wyspa NIE pochyla się za kursorem (świadomie): to płaski render, więc tilt zdradzał "kartkę",
+  // dublował się z lewitacją i hoverem pokoi, a hit-test po obróconym prostokącie trafiał obok.
+  // Jedyna reakcja na kursor = podświetlenie pokoju. Ruch wyspy zostaje tylko ze scrolla.
   const spring = { damping: 26, stiffness: 110, mass: 0.7 }
-  const rotY = useSpring(useTransform(mx, [-1, 1], [-7, 7]), spring)
-  const rotXMouse = useTransform(my, [-1, 1], [5, -5])
   const { scrollY } = useScroll()
-  const scrollTilt = useTransform(scrollY, [0, 700], [0, 8])
-  const rotX = useSpring(useTransform([rotXMouse, scrollTilt], ([a, b]: number[]) => a + b), spring)
-  const shiftX = useSpring(useTransform(mx, [-1, 1], [-10, 10]), spring)
   const scrollYShift = useSpring(useTransform(scrollY, [0, 850], [0, 120]), spring)
   const diveY = useSpring(useTransform(scrollY, [0, 620], [0, 470]), { stiffness: 90, damping: 24 })
   // desktop: przy zjeździe z hero kamera "wjeżdża" w pierwszy pokój (ciągłość z sekcją About)
@@ -212,8 +207,19 @@ export default function Diorama() {
   // po zaniknięciu diorama nie może łapać kliknięć nad sekcją About
   const [gone, setGone] = useState(false)
   useMotionValueEvent(diveFade, 'change', (v) => setGone(v < 0.05))
-  // figurka ma własną, mocniejszą paralaksę (stoi przed pokojami)
-  const figX = useSpring(useTransform(mx, [-1, 1], [-6, 6]), spring)
+
+  // pętle CSS (lewitacja, oddychające światła) i iskry pauzują, gdy hero jest poza kadrem
+  // albo już zgasło po wjeździe kamery — nie malujemy niewidocznej sceny
+  const figureRef = useRef<HTMLElement>(null)
+  const [onScreen, setOnScreen] = useState(true)
+  useEffect(() => {
+    const el = figureRef.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => setOnScreen(e.isIntersecting))
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+  const paused = !onScreen || (dive && gone)
 
   const locate = useCallback(
     (clientX: number, clientY: number) => {
@@ -231,18 +237,6 @@ export default function Diorama() {
     },
     [k],
   )
-
-  useEffect(() => {
-    if (reduce) return
-    const onMove = (e: PointerEvent) => {
-      const r = boxRef.current?.getBoundingClientRect()
-      if (!r) return
-      mx.set(Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (r.width / 2))))
-      my.set(Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (r.height / 2))))
-    }
-    window.addEventListener('pointermove', onMove)
-    return () => window.removeEventListener('pointermove', onMove)
-  }, [mx, my, reduce])
 
   const onPointerMove = (e: React.PointerEvent) => {
     if (!interactive || e.pointerType !== 'mouse') return
@@ -270,32 +264,26 @@ export default function Diorama() {
   const spot = hover !== null && interactive
 
   return (
-    <figure className="relative m-0 select-none" aria-label="Interactive papercraft diorama">
-      <Sparks accent={accent} reduce={reduce} />
+    <figure ref={figureRef} data-paused={paused || undefined} className="relative m-0 select-none" aria-label="Interactive papercraft diorama">
+      <Sparks accent={accent} reduce={reduce} paused={paused} />
 
       {/* poświata kabli pod wyspą — w kolorze akcentu, zapala się razem z bazą */}
       <div
         aria-hidden="true"
         className="absolute left-[12%] right-[12%] bottom-[2%] h-[34%] rounded-[50%] blur-3xl transition-opacity duration-700"
-        style={{ background: `rgba(${accent},${theme === 'developer' ? 0.08 : 0.14})`, opacity: baseLit ? 1 : 0 }}
-      >
-        {!reduce && <div className="absolute inset-0 rounded-[50%] animate-cable-pulse" style={{ background: `rgba(${accent},${theme === 'developer' ? 0.1 : 0.18})` }} />}
-      </div>
+        style={{ background: `rgba(${accent},${theme === 'developer' ? 0.13 : 0.22})`, opacity: baseLit ? 1 : 0 }}
+      />
 
       {/* mobile: scena szersza niż ekran, przesuwana palcem (większe pokoje); desktop bez zmian */}
       <div ref={panRef} className="overflow-x-auto overflow-y-visible sm:overflow-visible no-scrollbar snap-x">
-      <div className="w-[165%] sm:w-full pt-16 pb-14 sm:p-0">
+      <div className="w-[165%] sm:w-full pt-16 pb-7 sm:p-0">
       <motion.div
         style={{
-          rotateX: reduce ? 0 : rotX,
-          rotateY: reduce ? 0 : rotY,
-          x: reduce ? 0 : shiftX,
           y: reduce ? 0 : dive ? diveY : scrollYShift,
           scale: dive ? diveScale : 1,
           opacity: dive ? diveFade : 1,
           transformOrigin: '14% 40%',
           pointerEvents: dive && gone ? 'none' : 'auto',
-          transformPerspective: 1600,
         }}
       >
         <div className={reduce ? 'relative' : 'relative animate-float'}>
@@ -318,7 +306,7 @@ export default function Diorama() {
                 key={k}
                 src={`/diorama/v2/base-${k}.webp`}
                 srcSet={`/diorama/v2/base-${k}-sm.webp 1200w, /diorama/v2/base-${k}.webp 2400w`}
-                sizes="(min-width: 1024px) 62vw, 100vw"
+                sizes="(min-width: 1024px) 100vw, 165vw"
                 alt={
                   theme === 'developer'
                     ? "Papercraft diorama of Casper's developer workspace: dev cave, infra room, web3 vault, AI lab and studio on a floating island with glowing green cables."
@@ -396,9 +384,8 @@ export default function Diorama() {
                     />
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
+                      // zawsze pełna rozdzielczość (20–30 KB): przy wjeździe kamery pokój jest powiększony 2.4×
                       src={src}
-                      srcSet={`${small} ${Math.round(b.px / 2)}w, ${src} ${b.px}w`}
-                      sizes={`(min-width: 1024px) ${Math.round(b.w * 0.62)}vw, ${Math.round(b.w)}vw`}
                       alt=""
                       draggable={false}
                       className={`absolute inset-0 w-full h-full ${s.flicker && !reduce ? 'animate-lights-on' : ''}`}
@@ -417,23 +404,27 @@ export default function Diorama() {
             {/* żywe światła (tylko przy zapalonych światłach i bez podświetlenia pokoju) */}
             {!reduce &&
               GLOWS[k].map((g, i) => (
+                // zewnętrzny span: włącz/wyłącz (przejście), wewnętrzny: oddech na samym opacity (kompozytor, bez repaintu)
                 <span
                   key={`${k}-g${i}`}
                   aria-hidden="true"
-                  className="absolute rounded-full pointer-events-none mix-blend-screen animate-glow-breathe"
+                  className="absolute pointer-events-none mix-blend-screen"
                   style={{
                     left: `${g.x}%`,
                     top: `${g.y}%`,
                     width: `${g.r * 2}%`,
                     aspectRatio: '1',
                     transform: 'translate(-50%,-50%)',
-                    background: `radial-gradient(circle, rgba(${g.c},0.35), rgba(${g.c},0.08) 45%, transparent 70%)`,
                     opacity: baseLit && !spot ? 1 : 0,
                     transition: 'opacity .6s ease',
-                    animationDuration: `${g.d}s`,
                     zIndex: 12,
                   }}
-                />
+                >
+                  <span
+                    className="absolute inset-0 rounded-full animate-glow-breathe"
+                    style={{ background: `radial-gradient(circle, rgba(${g.c},0.4), rgba(${g.c},0.09) 45%, transparent 70%)`, animationDuration: `${g.d}s` }}
+                  />
+                </span>
               ))}
 
             {burst > 0 && <PaperBurst key={burst} accent={accent} />}
@@ -451,9 +442,9 @@ export default function Diorama() {
             )}
 
             {/* figurka — własna warstwa i paralaksa */}
-            <motion.div className="absolute inset-0 pointer-events-none" style={{ x: reduce ? 0 : figX, zIndex: 20 }}>
+            <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 20 }}>
               <Figure ref={figRef} theme={theme} reduce={reduce} dim={spot && hover !== 0 && hover !== 1} />
-            </motion.div>
+            </div>
 
             {/* strefa figurki: podskok na hover, klik = przebranie (DEV ⇄ CEO) */}
             <button
@@ -530,17 +521,17 @@ export default function Diorama() {
       </div>
       {!finePointer && (
         <div aria-hidden="true" className="sm:hidden pointer-events-none absolute right-0 top-0 bottom-10 w-14 bg-gradient-to-l from-night/80 to-transparent flex items-center justify-end pr-2">
-          <span className="grid place-items-center w-7 h-7 rounded-full bg-cream text-ink text-sm shadow-lg animate-nudge">→</span>
+          <span className="grid place-items-center w-7 h-7 rounded-full bg-cream text-ink text-sm shadow-lg animate-nudge-3">→</span>
         </div>
       )}
 
-      <motion.figcaption style={{ opacity: baseLit ? (dive ? capFade : 1) : 0 }} className="mt-2 mb-8 sm:mb-0 sm:mt-5 px-3 sm:px-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 eyebrow !text-[10px] sm:!text-[11px]">
+      <motion.figcaption style={{ opacity: baseLit ? (dive ? capFade : 1) : 0 }} className="mt-0 mb-5 sm:mb-0 sm:mt-5 px-3 sm:px-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 eyebrow !text-[10px] sm:!text-[11px]">
         <AnimatePresence mode="wait">
           <motion.span key={theme} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
             {theme === 'developer' ? 'My very normal workspace' : 'The companies I build'}
           </motion.span>
         </AnimatePresence>
-        <span className="text-ember text-right">{finePointer ? 'hover a room · click me to change' : 'swipe ↔ · tap to explore'}</span>
+        <span className="text-ember text-right">{finePointer ? 'hover a room · click Casper to switch DEV ⇄ CEO' : 'swipe ↔ · tap a room'}</span>
       </motion.figcaption>
     </figure>
   )

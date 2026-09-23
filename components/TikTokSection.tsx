@@ -45,7 +45,7 @@ export default function TikTokSection() {
   ]
 
   return (
-    <section id="studio" className="relative pt-24 sm:pt-32 pb-12 sm:pb-16 scroll-mt-20 overflow-hidden">
+    <section id="studio" className="relative pt-12 sm:pt-16 pb-12 sm:pb-16 scroll-mt-20 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
         <div className="flex items-end justify-between gap-8 mb-14 sm:mb-16">
           <SectionHeader index="05" eyebrow="tiktok --lang=pl --content=dev" title="Programming content in Polish" />
@@ -82,7 +82,8 @@ export default function TikTokSection() {
                       </span>
                       <FaTiktok className="w-3.5 h-3.5" />
                     </div>
-                    <div className="absolute inset-0 grid place-items-center">
+                    {/* przycisk play pod napisem z miniatury (nie zasłania go) */}
+                    <div className="absolute inset-x-0 top-[64%] grid place-items-center">
                       <span
                         className="w-12 h-12 rounded-full grid place-items-center bg-accent/90 transition-transform duration-300 group-hover:scale-110"
                         style={{ boxShadow: '0 10px 40px -8px rgb(var(--accent-rgb) / 0.7)' }}

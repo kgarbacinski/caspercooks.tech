@@ -58,31 +58,8 @@ body.founder-mode {
     mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
   }
 
-  /* ciepłe światło lampki pod kursorem (PageEffects ustawia --mx/--my) */
-  .paper-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.35s;
-    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(232, 132, 58, 0.13), transparent 60%);
-  }
-  .paper-card:hover::after {
-    opacity: 1;
-  }
-
-  /* fold-in: karta rozkłada się jak kartka zgięta w poziomie (PageEffects) */
-  .paper-card.fold {
-    opacity: 0;
-    transform-origin: 50% 0%;
-    transform: perspective(1200px) rotateX(-78deg) translateY(-12px);
-    transition: transform 0.95s cubic-bezier(0.2, 0.9, 0.25, 1), opacity 0.5s ease;
-  }
-  .paper-card.fold.fold-in {
-    opacity: 1;
-    transform: perspective(1200px) rotateX(0deg);
-  }
+  /* (reflektor pod kursorem i fold-in kart usunięte: jedyne .paper-card to statystyki w hero,
+     a jedyną reakcją na kursor w hero ma być hover pokoju) */
 
   /* mała karteczka-podpis (hover pokoju, podpowiedzi) */
   .tag-card {
@@ -398,8 +375,11 @@ body.founder-mode {
   .postage {
     @apply relative flex flex-col items-center justify-center gap-1 w-14 h-16 sm:w-16 sm:h-[72px] text-ink/60 transition;
     background: #e9d7b6;
-    -webkit-mask: radial-gradient(circle 3px, #0000 97%, #000) -4px -4px / 8px 8px round;
-    mask: radial-gradient(circle 3px, #0000 97%, #000) -4px -4px / 8px 8px round;
+    /* perforacja tylko na brzegu: pełny środek + wzór dziurek (warstwy maski się sumują) */
+    -webkit-mask: linear-gradient(#000 0 0) center / calc(100% - 8px) calc(100% - 8px) no-repeat,
+      radial-gradient(circle 3px, #0000 97%, #000) -4px -4px / 8px 8px round;
+    mask: linear-gradient(#000 0 0) center / calc(100% - 8px) calc(100% - 8px) no-repeat,
+      radial-gradient(circle 3px, #0000 97%, #000) -4px -4px / 8px 8px round;
     filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.3));
   }
   .postage:hover {
@@ -513,9 +493,10 @@ body.founder-mode {
 .animate-rec {
   animation: rec 1.1s steps(1, end) infinite;
 }
+/* oddech świateł na samym opacity (warstwa kompozytora, bez repaintu co klatkę) */
 @keyframes glow-breathe {
-  0%, 100% { filter: brightness(0.75); }
-  50% { filter: brightness(1.25); }
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }
 .animate-glow-breathe {
   animation: glow-breathe 3s ease-in-out infinite;
@@ -531,12 +512,15 @@ body.founder-mode {
   0%, 100% { transform: translateX(0); }
   50% { transform: translateX(5px); }
 }
-.animate-nudge {
-  animation: nudge 1.4s ease-in-out infinite;
+/* podpowiedź "przesuń": trzy szturchnięcia i spokój (bez wiecznej pętli) */
+.animate-nudge-3 {
+  animation: nudge 1.4s ease-in-out 1.8s 3;
 }
-@keyframes cable-pulse {
-  0%, 100% { opacity: 0.3; transform: scaleX(0.94); }
-  50% { opacity: 1; transform: scaleX(1.06); }
+/* hero poza kadrem / po wjeździe kamery: wszystkie pętle CSS w dioramie stoją */
+[data-paused] *,
+[data-paused] *::before,
+[data-paused] *::after {
+  animation-play-state: paused !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

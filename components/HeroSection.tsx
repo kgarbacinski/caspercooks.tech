@@ -38,11 +38,11 @@ const COPY = {
 } as const
 
 const EASE = [0.22, 1, 0.36, 1] as const
-// nagłówek: przenikanie z rozmyciem (bez maski — w połowie animacji nic nie jest "ucięte")
+// nagłówek: samo przenikanie z uniesieniem (bez rozmycia — filtr na dużym tekście to zbędny koszt i szum)
 const rise = {
-  hidden: { opacity: 0, y: 14, filter: 'blur(3px)' },
-  show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.45, ease: EASE } },
-  exit: { opacity: 0, y: -8, filter: 'blur(4px)', transition: { duration: 0.2, ease: EASE } },
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE } },
+  exit: { opacity: 0, y: -8, transition: { duration: 0.2, ease: EASE } },
 }
 const fade = {
   hidden: { opacity: 0, y: 14 },
@@ -85,7 +85,8 @@ export default function HeroSection() {
           <motion.span
             className="absolute left-0 top-0 w-px h-4 bg-accent shadow-glow"
             animate={{ y: [-16, 48] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+            // trzy impulsy i cisza — w spoczynku hero ma się ruszać tylko wyspa
+            transition={{ duration: 1.6, repeat: 2, repeatDelay: 0.4, ease: 'easeInOut', delay: 2.5 }}
           />
         </span>
       </motion.a>

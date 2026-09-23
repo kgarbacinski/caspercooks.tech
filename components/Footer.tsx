@@ -22,7 +22,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <a href="#" className="inline-flex items-center gap-3 mb-5 group">
-              <span className="grid place-items-center w-9 h-9 rounded-full bg-terracotta text-paper font-display text-sm">
+              <span className="grid place-items-center w-9 h-9 rounded-full bg-[#9a4f2c] text-paper font-display text-sm">
                 KG
               </span>
               <span className="font-mono text-sm text-paper group-hover:text-accent transition-colors">

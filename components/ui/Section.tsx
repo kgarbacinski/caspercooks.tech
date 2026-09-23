@@ -11,11 +11,12 @@ export const EASE = [0.22, 1, 0.36, 1] as const
 /**
  * Pokój z dioramy wycięty dokładnie po kształcie (ta sama grafika co w hero).
  * Przy zmianie motywu pokój składa się i wyskakuje już z nowego świata (jak w hero).
+ * Domyślnie stoi nieruchomo — pętla lewitacji zostaje tylko w hero (float = wyjątek).
  */
 export function RoomCutout({
   room,
   className = '',
-  float = true,
+  float = false,
   hi = false,
 }: {
   room: number
