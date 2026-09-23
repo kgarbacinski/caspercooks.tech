@@ -236,22 +236,27 @@ export default function Diorama() {
     const t = clamp01(p / 0.85)
     return 1 - (1 - t) * (1 - t)
   })
-  const cam = (e: number) => {
+  // tor pokoju biegnie szybciej niż zbliżenie: pokój od razu zajmuje miejsce gasnącego tekstu po lewej
+  const camPos = useTransform(diveP, (p) => {
+    const t = clamp01(p / 0.7)
+    return 1 - Math.pow(1 - t, 3)
+  })
+  const cam = (e: number, q: number) => {
     const g = geo.current
     if (!g) return { s: 1, x: 0, y: 0 }
     const { rx, ry } = g
     const m = floatM.current
     // skala rośnie wykładniczo (równe tempo zbliżenia), środek pokoju jedzie po prostej
     const s = Math.pow(g.s1, e)
-    const cx = g.L + rx * g.W + (g.tx - (g.L + rx * g.W)) * e
-    const cy = g.T + ry * g.H + m + (g.ty - (g.T + ry * g.H + m)) * e
+    const cx = g.L + rx * g.W + (g.tx - (g.L + rx * g.W)) * q
+    const cy = g.T + ry * g.H + m + (g.ty - (g.T + ry * g.H + m)) * q
     return { s, x: cx - g.L - rx * g.W * s, y: cy - g.T - (ry * g.H + m) * s }
   }
-  const camX = useTransform(camE, (e) => cam(e).x)
-  const camY = useTransform(camE, (e) => cam(e).y)
-  const camS = useTransform(camE, (e) => cam(e).s)
+  const camX = useTransform([camE, camPos], ([e, q]: number[]) => cam(e, q).x)
+  const camY = useTransform([camE, camPos], ([e, q]: number[]) => cam(e, q).y)
+  const camS = useTransform([camE, camPos], ([e, q]: number[]) => cam(e, q).s)
   // reszta wyspy gaśnie w pierwszej połowie drogi — zanim obok pojawią się notatki
-  const rest = useTransform(diveP, [0.1, 0.46], [1, 0])
+  const rest = useTransform(diveP, [0.06, 0.34], [1, 0])
   // podmiana na scenę About dokładnie w chwili jej przypięcia
   const handoff = useTransform([scrollY, geoTick], ([v]: number[]) => (v >= span.current - 1 ? 0 : 1))
 
@@ -641,7 +646,7 @@ export default function Diorama() {
             {theme === 'developer' ? 'My very normal workspace' : 'The companies I build'}
           </motion.span>
         </AnimatePresence>
-        <span className="text-ember text-right">{finePointer ? 'hover a room · click Casper to switch DEV ⇄ CEO' : 'swipe ↔ · tap a room'}</span>
+        <span className="text-accent/80 text-right">{finePointer ? 'hover a room · click Casper to switch DEV ⇄ CEO' : 'swipe ↔ · tap a room'}</span>
       </motion.figcaption>
     </figure>
   )

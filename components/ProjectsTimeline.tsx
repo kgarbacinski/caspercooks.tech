@@ -264,7 +264,12 @@ export default function ProjectsTimeline() {
     const measure = () => {
       const t = trackRef.current
       if (!t) return
-      setDist(Math.max(0, t.scrollWidth - window.innerWidth + 64))
+      // koniec przejazdu: prawa krawędź ostatniej teczki równo z prawą krawędzią kolumny treści
+      // (scrollWidth nie liczył końcowego paddingu, więc ostatnia teczka zostawała ucięta)
+      const last = t.lastElementChild as HTMLElement | null
+      if (!last) return
+      const pad = Math.max(32, (window.innerWidth - 1152) / 2 + 32)
+      setDist(Math.max(0, last.offsetLeft + last.offsetWidth + pad - window.innerWidth))
     }
     measure()
     window.addEventListener('resize', measure)

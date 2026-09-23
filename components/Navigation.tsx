@@ -60,7 +60,7 @@ export default function Navigation() {
           </span>
         </a>
 
-        <div className="hidden md:flex items-center gap-8 font-mono text-sm">
+        <div className="hidden lg:flex items-center gap-8 font-mono text-sm">
           {navLinks.map((link) => (
             <a
               key={link.label}
@@ -97,7 +97,7 @@ export default function Navigation() {
 
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden w-10 h-10 grid place-items-center border border-cocoa-500 text-paper"
+            className="lg:hidden w-10 h-10 grid place-items-center border border-cocoa-500 text-paper"
             aria-label="Toggle menu"
             aria-expanded={isMobileMenuOpen}
           >
@@ -112,7 +112,7 @@ export default function Navigation() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden overflow-hidden bg-night/95 backdrop-blur-lg border-t border-cocoa-500/40"
+            className="lg:hidden overflow-hidden bg-night/95 backdrop-blur-lg border-t border-cocoa-500/40"
           >
             <div className="px-4 py-4">
               {navLinks.map((link) => (
