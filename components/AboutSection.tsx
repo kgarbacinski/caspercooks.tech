@@ -199,7 +199,7 @@ function StoryTabs({ story, setStory, lid }: { story: Story; setStory: (s: Story
   )
 }
 
-function NoteCard({ note, i, total }: { note: Note; i: number; total: number }) {
+function NoteCard({ note, i, total, under = false }: { note: Note; i: number; total: number; under?: boolean }) {
   return (
     <div className="note-paper" style={{ rotate: `${TILT[i % TILT.length]}deg` }}>
       <span className="pin" aria-hidden="true" />
@@ -209,7 +209,8 @@ function NoteCard({ note, i, total }: { note: Note; i: number; total: number }) 
           {i + 1}/{total}
         </span>
       </div>
-      <p className="text-[15px] sm:text-base leading-relaxed text-ink/85">
+      {/* notatka pod spodem stosu: sam papier, bez prześwitującego tekstu */}
+      <p className="text-[15px] sm:text-base leading-relaxed text-ink/85 transition-opacity duration-300" style={under ? { opacity: 0 } : undefined}>
         {note.icon && <note.icon className="inline-block w-4 h-4 mr-2 -mt-0.5 text-terracotta" aria-hidden="true" />}
         {note.body}
       </p>
@@ -331,7 +332,7 @@ export default function AboutSection() {
                       transition={{ duration: 0.6, ease: EASE }}
                       style={{ zIndex: 10 + i, transformOrigin: '50% 0%', transformPerspective: 900 }}
                     >
-                      <NoteCard note={n} i={i} total={s.notes.length} />
+                      <NoteCard note={n} i={i} total={s.notes.length} under={!reduce && depth > 0} />
                     </motion.div>
                   )
                 })}

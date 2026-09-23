@@ -236,11 +236,8 @@ export default function Diorama() {
     const t = clamp01(p / 0.85)
     return 1 - (1 - t) * (1 - t)
   })
-  // tor pokoju: rusza łagodnie (tekst hero najpierw gaśnie), potem szybko zajmuje lewą kolumnę
-  const camPos = useTransform(diveP, (p) => {
-    const t = clamp01(p / 0.62)
-    return t * t * (3 - 2 * t)
-  })
+  // tor pokoju idzie w tym samym tempie co zbliżenie (tekst hero zdąży zgasnąć i odsunąć się w lewo)
+  const camPos = camE
   const cam = (e: number, q: number) => {
     const g = geo.current
     if (!g) return { s: 1, x: 0, y: 0 }
@@ -256,7 +253,13 @@ export default function Diorama() {
   const camY = useTransform([camE, camPos], ([e, q]: number[]) => cam(e, q).y)
   const camS = useTransform([camE, camPos], ([e, q]: number[]) => cam(e, q).s)
   // reszta wyspy gaśnie w pierwszej połowie drogi — zanim obok pojawią się notatki
-  const rest = useTransform(diveP, [0.03, 0.2], [1, 0])
+  const rest = useTransform(diveP, [0.03, 0.3], [1, 0])
+  // pozostałe pokoje nie tylko gasną, ale odjeżdżają w prawo poza kadr (paralaksa "najazdu" kamery)
+  const out1 = useTransform(rest, (r) => `${(1 - r) * 60}%`)
+  const out2 = useTransform(rest, (r) => `${(1 - r) * 90}%`)
+  const out3 = useTransform(rest, (r) => `${(1 - r) * 120}%`)
+  const out4 = useTransform(rest, (r) => `${(1 - r) * 150}%`)
+  const outX = [0, out1, out2, out3, out4]
   // podmiana na scenę About dokładnie w chwili jej przypięcia
   const handoff = useTransform([scrollY, geoTick], ([v]: number[]) => (v >= span.current - 1 ? 0 : 1))
 
@@ -462,6 +465,7 @@ export default function Diorama() {
                     zIndex: isHover ? 15 : 10,
                     // przy wjeździe kamery zostaje tylko pokój nr 1
                     opacity: dive && i > 0 ? rest : 1,
+                    x: dive ? outX[i] : 0,
                   }}
                   initial={reduce ? false : { rotateX: FOLDED }}
                   animate={{ rotateX: s.up || reduce ? 0 : FOLDED }}

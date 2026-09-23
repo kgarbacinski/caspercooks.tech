@@ -169,6 +169,8 @@ function CopyPart({ part, className = '' }: { part: Part; className?: string }) 
 export default function HeroSection() {
   const { scrollY } = useScroll()
   const uiFade = useTransform(scrollY, [0, 150], [1, 0])
+  // sygnał scrolla znika od razu (inaczej nachodzi na nagłówek About wjeżdżający od dołu)
+  const cueFade = useTransform(scrollY, [0, 60], [1, 0])
 
   return (
     // desktop (z ruchem): sekcja wyższa od ekranu, a jej zawartość przypięta (sticky) — kamera
@@ -208,7 +210,7 @@ export default function HeroSection() {
         <CopyPart part="stats" className="lg:col-start-1 lg:row-start-4" />
       </div>
       {/* sygnał scrolla: kabel, po którym spływa impuls (w DOM za treścią — kolejność Tab: przyciski hero najpierw) */}
-      <motion.a style={{ opacity: uiFade }} href="#about" aria-label="Scroll to about" className="absolute top-[calc(100svh-6.5rem)] left-1/2 -translate-x-1/2 hidden lg:flex [@media(max-height:760px)]:!hidden flex-col items-center gap-2 eyebrow hover:text-accent transition-colors">
+      <motion.a style={{ opacity: cueFade }} href="#about" aria-label="Scroll to about" className="absolute top-[calc(100svh-6.5rem)] left-1/2 -translate-x-1/2 hidden lg:flex [@media(max-height:760px)]:!hidden flex-col items-center gap-2 eyebrow hover:text-accent transition-colors">
         <span>scroll</span>
         <span className="relative block w-px h-12 bg-cocoa-500 overflow-hidden">
           <motion.span
