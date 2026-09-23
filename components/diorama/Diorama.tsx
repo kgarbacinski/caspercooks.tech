@@ -195,10 +195,10 @@ export default function Diorama() {
   const rotX = useSpring(useTransform([rotXMouse, scrollTilt], ([a, b]: number[]) => a + b), spring)
   const shiftX = useSpring(useTransform(mx, [-1, 1], [-10, 10]), spring)
   const scrollYShift = useSpring(useTransform(scrollY, [0, 850], [0, 120]), spring)
-  const diveY = useSpring(useTransform(scrollY, [0, 850], [0, 560]), { stiffness: 90, damping: 24 })
+  const diveY = useSpring(useTransform(scrollY, [0, 620], [0, 470]), { stiffness: 90, damping: 24 })
   // desktop: przy zjeździe z hero kamera "wjeżdża" w pierwszy pokój (ciągłość z sekcją About)
-  const diveScale = useSpring(useTransform(scrollY, [0, 850], [1, 2.4]), { stiffness: 90, damping: 24 })
-  const diveFade = useTransform(scrollY, [280, 700], [1, 0])
+  const diveScale = useSpring(useTransform(scrollY, [0, 620], [1, 2.4]), { stiffness: 90, damping: 24 })
+  const diveFade = useTransform(scrollY, [240, 560], [1, 0])
   const [wide, setWide] = useState(false)
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)')
@@ -208,6 +208,7 @@ export default function Diorama() {
     return () => mq.removeEventListener('change', sync)
   }, [])
   const dive = wide && !reduce
+  const capFade = useTransform(scrollY, [0, 160], [1, 0])
   // po zaniknięciu diorama nie może łapać kliknięć nad sekcją About
   const [gone, setGone] = useState(false)
   useMotionValueEvent(diveFade, 'change', (v) => setGone(v < 0.05))
@@ -533,14 +534,14 @@ export default function Diorama() {
         </div>
       )}
 
-      <figcaption style={{ opacity: baseLit ? 1 : 0, transition: 'opacity .6s ease' }} className="mt-2 mb-8 sm:mb-0 sm:mt-5 px-3 sm:px-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 eyebrow !text-[10px] sm:!text-[11px]">
+      <motion.figcaption style={{ opacity: baseLit ? (dive ? capFade : 1) : 0 }} className="mt-2 mb-8 sm:mb-0 sm:mt-5 px-3 sm:px-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 eyebrow !text-[10px] sm:!text-[11px]">
         <AnimatePresence mode="wait">
           <motion.span key={theme} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
             {theme === 'developer' ? 'My very normal workspace' : 'The companies I build'}
           </motion.span>
         </AnimatePresence>
         <span className="text-ember text-right">{finePointer ? 'hover a room · click me to change' : 'swipe ↔ · tap to explore'}</span>
-      </figcaption>
+      </motion.figcaption>
     </figure>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import Diorama from './diorama/Diorama'
@@ -59,9 +59,12 @@ export default function HeroSection() {
   const { theme, phase } = useTheme()
   const c = COPY[theme]
   const reduce = useReducedMotion()
+  // desktop: przy "wjeździe kamery" w pokój tekst hero znika jako pierwszy
+  const { scrollY } = useScroll()
+  const uiFade = useTransform(scrollY, [0, 200], [1, 0])
 
   return (
-    <section className="relative z-10 min-h-[100svh] flex items-center overflow-x-clip pt-20 sm:pt-24 pb-16 lg:pb-20">
+    <section className="relative z-10 min-h-[100svh] lg:min-h-[135vh] lg:items-start lg:pt-[max(6rem,calc((100vh-620px)/2))] flex items-center overflow-x-clip pt-20 sm:pt-24 pb-16 lg:pb-20">
       {/* daleki grzbiet gór na horyzoncie (motyw ścian dioramy) */}
       <div
         aria-hidden="true"
@@ -74,7 +77,7 @@ export default function HeroSection() {
         }}
       />
       {/* sygnał scrolla: kabel, po którym spływa impuls */}
-      <a href="#about" aria-label="Scroll to about" className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden lg:flex [@media(max-height:760px)]:!hidden flex-col items-center gap-2 eyebrow hover:text-accent transition-colors">
+      <motion.a style={{ opacity: uiFade }} href="#about" aria-label="Scroll to about" className="absolute top-[calc(100svh-6.5rem)] left-1/2 -translate-x-1/2 hidden lg:flex [@media(max-height:760px)]:!hidden flex-col items-center gap-2 eyebrow hover:text-accent transition-colors">
         <span>scroll</span>
         <span className="relative block w-px h-12 bg-cocoa-500 overflow-hidden">
           <motion.span
@@ -83,9 +86,10 @@ export default function HeroSection() {
             transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
           />
         </span>
-      </a>
+      </motion.a>
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 grid lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)] gap-8 lg:gap-6 items-center">
         {/* przy przełączeniu stara treść gaśnie razem ze światłami wyspy, nowa wjeżdża po zmianie motywu */}
+        <motion.div style={{ opacity: uiFade }} className="max-lg:!opacity-100">
         <motion.div animate={{ opacity: phase === 'leaving' ? 0.3 : 1, y: 0 }} transition={{ duration: 0.45, ease: EASE }}>
         <AnimatePresence mode={reduce ? 'popLayout' : 'wait'}>
           <motion.div key={theme} initial={reduce ? false : 'hidden'} animate="show" exit={reduce ? undefined : 'exit'} variants={{ show: { transition: { staggerChildren: 0.08, delayChildren: phase === 'idle' ? 0 : 0.05 } }, exit: { transition: { staggerChildren: 0.03 } } }}>
@@ -133,6 +137,7 @@ export default function HeroSection() {
             </motion.div>
           </motion.div>
         </AnimatePresence>
+        </motion.div>
         </motion.div>
 
         <motion.div

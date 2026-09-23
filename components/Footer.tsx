@@ -37,7 +37,7 @@ export default function Footer() {
           <div>
             <h3 className="eyebrow mb-4">Quick Links</h3>
             <div className="space-y-2">
-              {['About', 'Projects', 'Brands', 'Contact'].map((link) => (
+              {['About', 'Projects', 'Brands', 'Studio', 'Contact'].map((link) => (
                 <a
                   key={link}
                   href={`#${link.toLowerCase()}`}

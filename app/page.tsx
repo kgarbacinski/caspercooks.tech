@@ -33,7 +33,6 @@ export default function Home() {
       <Navigation />
       <main className="overflow-x-clip">
         <HeroSection />
-        <CableDivider />
         <AboutSection />
         <ProjectsTimeline />
         {theme === 'developer' && <TechStack />}

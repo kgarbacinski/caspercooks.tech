@@ -53,7 +53,7 @@ export default function TikTokSection() {
 
         <div className="grid md:grid-cols-[1fr_1.05fr] gap-14 lg:gap-20 items-center">
           {/* studio: pokój "Studio" z dioramy jako plan zdjęciowy, przed nim telefon na statywie */}
-          <div ref={stageRef} className="relative pt-4 pb-24">
+          <div ref={stageRef} className="relative pt-4 pb-10">
             <div className="relative mx-auto w-full max-w-[520px]">
               <RoomCutout room={4} hi float={false} className="w-[88%] mx-auto opacity-95" />
               {/* ciepłe światło planu */}
@@ -63,19 +63,19 @@ export default function TikTokSection() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Open @kacper.senior.dev on TikTok"
-                className="group absolute right-[6%] sm:right-[10%] top-[30%] sm:top-[26%] block"
+                className="group absolute right-[10%] sm:right-[12%] bottom-[9%] block"
                 initial={reduce ? false : { y: 40, opacity: 0, rotate: -3 }}
                 whileInView={{ y: 0, opacity: 1, rotate: 0 }}
                 viewport={{ once: true, margin: '-60px' }}
                 transition={{ duration: 0.9, ease: EASE, delay: 0.15 }}
                 whileHover={reduce ? undefined : { y: -6, rotate: -1 }}
               >
-                <div className="relative w-[112px] sm:w-[160px] aspect-[9/18.5] rounded-[26px] p-[7px] bg-gradient-to-b from-[#2a1d15] to-[#130c08] border border-cocoa-500/70 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(232,132,58,0.4)]">
+                <div className="relative w-[118px] sm:w-[150px] aspect-[9/18.5] rounded-[26px] p-[7px] bg-gradient-to-b from-[#2a1d15] to-[#130c08] border border-cocoa-500/70 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(232,132,58,0.4)]">
                   <div className="relative w-full h-full rounded-[20px] overflow-hidden bg-cocoa-900">
                     <Image src="/tiktok-thumbnail.png" alt="TikTok content preview" fill sizes="180px" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70" />
                     {/* nagrywanie */}
-                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between font-mono text-[10px] text-white">
+                    <div className="absolute top-2.5 left-2 right-2 flex items-center justify-between font-mono text-[8px] sm:text-[9px] text-white">
                       <span className="flex items-center gap-1.5 px-1.5 py-0.5 rounded-full bg-black/45 backdrop-blur-sm">
                         <span className={`w-2 h-2 rounded-full bg-[#ff3b30] ${reduce ? '' : 'animate-rec'}`} />
                         REC <RecTimer run={inView && !reduce} />
@@ -92,19 +92,15 @@ export default function TikTokSection() {
                         </svg>
                       </span>
                     </div>
-                    <div className="absolute bottom-3 left-3 right-3">
-                      <p className="text-white font-display text-sm leading-tight">@kacper.senior.dev</p>
-                      <p className="font-mono text-[9px] text-white/70">Polish dev community</p>
+                    <div className="absolute bottom-2.5 left-2.5 right-2.5">
+                      <p className="text-white font-display text-[11px] sm:text-[13px] leading-tight truncate">@kacper.senior.dev</p>
+                      <p className="font-mono text-[8px] sm:text-[9px] text-white/70 truncate">Polish dev community</p>
                     </div>
                   </div>
                   <span aria-hidden="true" className="absolute top-[13px] left-1/2 -translate-x-1/2 w-12 h-3 rounded-full bg-black" />
                 </div>
-                {/* statyw */}
-                <span aria-hidden="true" className="absolute left-1/2 top-full w-[3px] h-[70px] -translate-x-1/2 bg-gradient-to-b from-[#6b4a30] to-[#3d2819]" />
-                <span aria-hidden="true" className="absolute left-1/2 top-[calc(100%+60px)] w-[3px] h-[46px] origin-top bg-[#5a3e28] rotate-[28deg]" />
-                <span aria-hidden="true" className="absolute left-1/2 top-[calc(100%+60px)] w-[3px] h-[46px] origin-top bg-[#5a3e28] -rotate-[28deg]" />
-                {/* papierowa podłoga pod statywem */}
-                <span aria-hidden="true" className="absolute left-1/2 top-[calc(100%+96px)] w-[120px] h-4 -translate-x-1/2 rounded-[50%] bg-[#c9a26f]/80 shadow-[0_8px_16px_rgba(0,0,0,0.6)]" />
+                {/* cień telefonu na podłodze pokoju */}
+                <span aria-hidden="true" className="absolute left-[8%] right-[8%] -bottom-2 h-3 rounded-[50%] bg-black/70 blur-[5px] -z-10" />
               </motion.a>
             </div>
           </div>
