@@ -378,7 +378,7 @@ body.founder-mode {
     padding-top: 0;
   }
   .postage {
-    @apply relative flex flex-col items-center justify-center gap-1 w-14 h-16 sm:w-16 sm:h-[72px] text-ink/60 transition;
+    @apply relative flex flex-col items-center justify-center gap-1 w-14 h-16 sm:w-16 sm:h-[72px] text-ink/80 transition;
     background: #e9d7b6;
     /* perforacja tylko na brzegu: pełny środek + wzór dziurek (warstwy maski się sumują) */
     -webkit-mask: linear-gradient(#000 0 0) center / calc(100% - 8px) calc(100% - 8px) no-repeat,

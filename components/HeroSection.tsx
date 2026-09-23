@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
@@ -54,8 +53,6 @@ const pop = {
 }
 
 type Part = 'head' | 'lines' | 'stats' | 'cta'
-// kolejność wejścia części przy starcie strony
-const PART_DELAY: Record<Part, number> = { head: 0, lines: 0.12, stats: 0.2, cta: 0.26 }
 
 /**
  * Jedna część treści hero. Przy przełączeniu DEV ⇄ CEO:
@@ -73,19 +70,14 @@ function CopyPart({ part, className = '' }: { part: Part; className?: string }) 
   const { scrollY } = useScroll()
   const uiFade = useTransform(scrollY, [0, 150], [1, 0])
   const swaps = part === 'head' || part === 'lines'
-  // po starcie strony nowa treść nie czeka na wejście (przy przełączeniu liczy się tempo)
-  const [booted, setBooted] = useState(false)
-  useEffect(() => {
-    const t = window.setTimeout(() => setBooted(true), 1500)
-    return () => clearTimeout(t)
-  }, [])
-  const d = booted ? 0.1 : PART_DELAY[part]
 
   return (
     <motion.div style={{ opacity: uiFade }} className={`max-lg:!opacity-100 ${className}`}>
       {/* zwykły div z przejściem CSS: przygaszenie na czas gaszenia świateł */}
       <div className="grid" style={{ opacity: phase === 'leaving' ? 0.45 : 1, transition: 'opacity .45s ease' }}>
-        <AnimatePresence initial={!reduce}>
+        {/* bez animacji wejścia przy pierwszym renderze: nagłówek i przyciski są widoczne od pierwszego
+            malowania (także przed hydratacją) — animuje się tylko diorama i zmiana motywu */}
+        <AnimatePresence initial={false}>
           <motion.div
             key={swaps ? theme : 'static'}
             className="[grid-area:1/1]"
@@ -93,7 +85,7 @@ function CopyPart({ part, className = '' }: { part: Part; className?: string }) 
             animate="show"
             exit={reduce ? undefined : 'exit'}
             variants={{
-              show: { opacity: 1, transition: { staggerChildren: booted ? 0.05 : 0.08, delayChildren: d } },
+              show: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.04 } },
               exit: { opacity: 0, transition: { duration: 0.12, ease: EASE } },
             }}
           >
@@ -134,17 +126,20 @@ function CopyPart({ part, className = '' }: { part: Part; className?: string }) 
                 {c.stats.map((s, i) => (
                   <motion.div key={i} variants={pop} className="paper-card px-2.5 sm:px-4 lg:px-2.5 xl:px-4 py-3 font-mono">
                     {/* sama karta zostaje, podmienia się tylko napis */}
-                    <AnimatePresence mode="wait" initial={false}>
+                    <div className="grid">
+                    <AnimatePresence initial={false}>
                       <motion.div
                         key={s.value}
+                        className="[grid-area:1/1]"
                         initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0, transition: { duration: 0.3, delay: 0.08 * i } }}
-                        exit={{ opacity: 0, y: -6, transition: { duration: 0.15 } }}
+                        animate={{ opacity: 1, y: 0, transition: { duration: 0.3, delay: 0.05 * i } }}
+                        exit={{ opacity: 0, y: -6, transition: { duration: 0.2 } }}
                       >
                         <div className="text-accent text-[12px] xl:text-[13px] whitespace-nowrap">{s.value}</div>
                         <div className="text-paper-dim text-[10px] sm:text-xs whitespace-nowrap">{s.label}</div>
                       </motion.div>
                     </AnimatePresence>
+                    </div>
                   </motion.div>
                 ))}
               </div>

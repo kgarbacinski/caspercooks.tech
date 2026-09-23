@@ -256,7 +256,7 @@ export default function Diorama() {
   const camY = useTransform([camE, camPos], ([e, q]: number[]) => cam(e, q).y)
   const camS = useTransform([camE, camPos], ([e, q]: number[]) => cam(e, q).s)
   // reszta wyspy gaśnie w pierwszej połowie drogi — zanim obok pojawią się notatki
-  const rest = useTransform(diveP, [0.06, 0.34], [1, 0])
+  const rest = useTransform(diveP, [0.05, 0.27], [1, 0])
   // podmiana na scenę About dokładnie w chwili jej przypięcia
   const handoff = useTransform([scrollY, geoTick], ([v]: number[]) => (v >= span.current - 1 ? 0 : 1))
 

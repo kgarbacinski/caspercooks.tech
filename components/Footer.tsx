@@ -1,7 +1,8 @@
 'use client'
 
 import { useTheme } from '@/contexts/ThemeContext'
-import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope, FaTiktok } from 'react-icons/fa'
+import { FaGithub, FaLinkedin, FaEnvelope, FaTiktok } from 'react-icons/fa'
+import { FaXTwitter } from 'react-icons/fa6' // ikona X zamiast starego ptaka
 
 export default function Footer() {
   const { theme } = useTheme()
@@ -10,7 +11,7 @@ export default function Footer() {
   const socialLinks = [
     { name: 'GitHub', icon: FaGithub, url: 'https://github.com/kgarbacinski' },
     { name: 'LinkedIn', icon: FaLinkedin, url: 'https://www.linkedin.com/in/kacper-garbacinski-3271b81a2/' },
-    { name: 'Twitter', icon: FaTwitter, url: 'https://x.com/KGarbacinski' },
+    { name: 'Twitter', icon: FaXTwitter, url: 'https://x.com/KGarbacinski' },
     { name: 'TikTok', icon: FaTiktok, url: 'https://www.tiktok.com/@kacper.senior.dev' },
     { name: 'Email', icon: FaEnvelope, url: 'mailto:kacpergarbacinski@gmail.com' },
   ]

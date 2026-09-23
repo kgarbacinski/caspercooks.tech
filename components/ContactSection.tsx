@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { AnimatePresence, motion, useAnimate } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
-import { FaEnvelope, FaLinkedin, FaGithub, FaTwitter, FaUserTie, FaRocket, FaComments } from 'react-icons/fa'
+import { FaEnvelope, FaLinkedin, FaGithub, FaUserTie, FaRocket, FaComments } from 'react-icons/fa'
+import { FaXTwitter } from 'react-icons/fa6' // ikona X zamiast starego ptaka
 import { SectionHeader, EASE } from '@/components/ui/Section'
 
 /**
@@ -119,7 +120,7 @@ export default function ContactSection() {
     { icon: FaEnvelope, label: 'Email', value: 'kacpergarbacinski@gmail.com', link: 'mailto:kacpergarbacinski@gmail.com' },
     { icon: FaLinkedin, label: 'LinkedIn', value: 'Connect with me', link: 'https://www.linkedin.com/in/kacper-garbacinski-3271b81a2/' },
     { icon: FaGithub, label: 'GitHub', value: 'Check my code', link: 'https://github.com/kgarbacinski' },
-    { icon: FaTwitter, label: 'Twitter', value: 'Follow me', link: 'https://x.com/KGarbacinski' },
+    { icon: FaXTwitter, label: 'Twitter', value: 'Follow me', link: 'https://x.com/KGarbacinski' },
   ]
 
   return (
