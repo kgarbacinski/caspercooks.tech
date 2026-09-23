@@ -20,5 +20,5 @@ export const ROOM_BOX: Record<'dev' | 'ceo', Box[]> = {
 }
 export const FIG = {
   dev: { l: 22.792, t: 21.634, w: 7.906, h: 43.116, jumpAspect: 0.698 },
-  ceo: { l: 22.831, t: 21.331, w: 7.944, h: 43.419, jumpAspect: 0.596 },
+  ceo: { l: 22.831, t: 21.331, w: 7.944, h: 43.419, jumpAspect: 0.71 },
 }
