@@ -133,7 +133,7 @@ body.founder-mode {
   .hl {
     color: inherit;
     font-weight: 600;
-    background: linear-gradient(transparent 55%, rgb(var(--accent-rgb) / 0.55) 55%, rgb(var(--accent-rgb) / 0.55) 92%, transparent 92%);
+    background: linear-gradient(transparent 50%, rgb(var(--accent-rgb) / 0.4) 50%, rgb(var(--accent-rgb) / 0.4) 96%, transparent 96%);
     padding: 0 0.1em;
   }
 
