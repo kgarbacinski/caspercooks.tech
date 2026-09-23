@@ -527,14 +527,19 @@ export default function Diorama() {
       </motion.div>
       </div>
       </div>
+      {!finePointer && (
+        <div aria-hidden="true" className="sm:hidden pointer-events-none absolute right-0 top-0 bottom-10 w-14 bg-gradient-to-l from-night/80 to-transparent flex items-center justify-end pr-2">
+          <span className="grid place-items-center w-7 h-7 rounded-full bg-cream text-ink text-sm shadow-lg animate-nudge">→</span>
+        </div>
+      )}
 
-      <figcaption style={{ opacity: baseLit ? 1 : 0, transition: 'opacity .6s ease' }} className="mt-4 sm:mt-5 px-3 sm:px-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 eyebrow !text-[10px] sm:!text-[11px]">
+      <figcaption style={{ opacity: baseLit ? 1 : 0, transition: 'opacity .6s ease' }} className="mt-2 mb-8 sm:mb-0 sm:mt-5 px-3 sm:px-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 eyebrow !text-[10px] sm:!text-[11px]">
         <AnimatePresence mode="wait">
           <motion.span key={theme} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
             {theme === 'developer' ? 'My very normal workspace' : 'The companies I build'}
           </motion.span>
         </AnimatePresence>
-        <span className="text-ember text-right">{finePointer ? 'hover a room · click me to change' : 'swipe ↔ · tap a room · tap me to change'}</span>
+        <span className="text-ember text-right">{finePointer ? 'hover a room · click me to change' : 'swipe ↔ · tap to explore'}</span>
       </figcaption>
     </figure>
   )

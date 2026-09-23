@@ -120,7 +120,7 @@ export default function TechStack() {
             }
             lead="Adaptability allows writing efficient code in any stack"
           />
-          <RoomCutout room={3} className="hidden md:block w-40 lg:w-52 shrink-0" />
+          <RoomCutout room={3} hi className="hidden md:block w-56 lg:w-72 shrink-0 -mb-6" />
         </div>
 
         {/* naklejki kategorii */}

@@ -251,7 +251,7 @@ export default function AboutSection() {
                 className="absolute inset-x-[8%] bottom-[6%] h-[40%] rounded-[50%] blur-3xl"
                 style={{ background: 'rgb(var(--accent-rgb) / 0.22)', opacity: glow }}
               />
-              <motion.div className="relative w-[86%] max-w-[540px] mt-10 -translate-x-[4%]" style={{ scale: zoom, y: panY, transformOrigin: '50% 70%' }}>
+              <motion.div className="relative w-[84%] max-w-[480px] -translate-x-[4%]" style={{ scale: zoom, y: panY, transformOrigin: '50% 70%' }}>
                 <AnimatePresence mode="popLayout" initial={false}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <motion.img

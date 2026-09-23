@@ -40,8 +40,8 @@ const COPY = {
 const EASE = [0.22, 1, 0.36, 1] as const
 // nagłówek: przenikanie z rozmyciem (bez maski — w połowie animacji nic nie jest "ucięte")
 const rise = {
-  hidden: { opacity: 0, y: 16, filter: 'blur(5px)' },
-  show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.55, ease: EASE } },
+  hidden: { opacity: 0, y: 14, filter: 'blur(3px)' },
+  show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.45, ease: EASE } },
   exit: { opacity: 0, y: -8, filter: 'blur(4px)', transition: { duration: 0.2, ease: EASE } },
 }
 const fade = {

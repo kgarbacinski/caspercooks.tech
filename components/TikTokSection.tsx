@@ -53,34 +53,24 @@ export default function TikTokSection() {
 
         <div className="grid md:grid-cols-[1fr_1.05fr] gap-14 lg:gap-20 items-center">
           {/* studio: pokój "Studio" z dioramy jako plan zdjęciowy, przed nim telefon na statywie */}
-          <div ref={stageRef} className="relative pt-4 pb-10">
+          <div ref={stageRef} className="relative pt-4 pb-24">
             <div className="relative mx-auto w-full max-w-[520px]">
               <RoomCutout room={4} hi float={false} className="w-[88%] mx-auto opacity-95" />
               {/* ciepłe światło planu */}
               <div aria-hidden="true" className="absolute inset-x-[10%] bottom-[8%] h-1/3 rounded-[50%] blur-3xl bg-[rgba(255,200,140,0.18)]" />
-              {/* ring light nad telefonem */}
-              <div aria-hidden="true" className="absolute right-[3%] top-[18%] w-[200px] h-[200px] sm:w-[240px] sm:h-[240px]">
-                <motion.div
-                  className="ring-light absolute inset-0"
-                  initial={reduce ? false : { opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.2, ease: EASE }}
-                />
-              </div>
               <motion.a
                 href={TIKTOK_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Open @kacper.senior.dev on TikTok"
-                className="group absolute right-[8%] sm:right-[10%] top-[26%] block"
+                className="group absolute right-[6%] sm:right-[10%] top-[30%] sm:top-[26%] block"
                 initial={reduce ? false : { y: 40, opacity: 0, rotate: -3 }}
                 whileInView={{ y: 0, opacity: 1, rotate: 0 }}
                 viewport={{ once: true, margin: '-60px' }}
                 transition={{ duration: 0.9, ease: EASE, delay: 0.15 }}
                 whileHover={reduce ? undefined : { y: -6, rotate: -1 }}
               >
-                <div className="relative w-[150px] sm:w-[178px] aspect-[9/18.5] rounded-[26px] p-[7px] bg-gradient-to-b from-[#2a1d15] to-[#130c08] border border-cocoa-500/70 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(232,132,58,0.4)]">
+                <div className="relative w-[112px] sm:w-[160px] aspect-[9/18.5] rounded-[26px] p-[7px] bg-gradient-to-b from-[#2a1d15] to-[#130c08] border border-cocoa-500/70 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(232,132,58,0.4)]">
                   <div className="relative w-full h-full rounded-[20px] overflow-hidden bg-cocoa-900">
                     <Image src="/tiktok-thumbnail.png" alt="TikTok content preview" fill sizes="180px" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70" />
@@ -113,6 +103,8 @@ export default function TikTokSection() {
                 <span aria-hidden="true" className="absolute left-1/2 top-full w-[3px] h-[70px] -translate-x-1/2 bg-gradient-to-b from-[#6b4a30] to-[#3d2819]" />
                 <span aria-hidden="true" className="absolute left-1/2 top-[calc(100%+60px)] w-[3px] h-[46px] origin-top bg-[#5a3e28] rotate-[28deg]" />
                 <span aria-hidden="true" className="absolute left-1/2 top-[calc(100%+60px)] w-[3px] h-[46px] origin-top bg-[#5a3e28] -rotate-[28deg]" />
+                {/* papierowa podłoga pod statywem */}
+                <span aria-hidden="true" className="absolute left-1/2 top-[calc(100%+96px)] w-[120px] h-4 -translate-x-1/2 rounded-[50%] bg-[#c9a26f]/80 shadow-[0_8px_16px_rgba(0,0,0,0.6)]" />
               </motion.a>
             </div>
           </div>

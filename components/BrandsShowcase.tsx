@@ -214,7 +214,7 @@ export default function BrandsShowcase() {
               </>
             }
           />
-          <RoomCutout room={2} className="hidden md:block w-40 lg:w-52 shrink-0" />
+          <RoomCutout room={2} hi className="hidden md:block w-56 lg:w-72 shrink-0 -mb-6" />
         </div>
       </div>
 

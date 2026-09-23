@@ -309,10 +309,10 @@ export default function ProjectsTimeline() {
             {ordered.map((p, i) => (
               <div key={p.id} className="flex items-start gap-10">
                 {i === mine.length && (
-                  <div className="shrink-0 self-center w-40 text-center font-mono text-[11px] uppercase tracking-[0.2em] text-paper-dim">
-                    <div className="h-px bg-cocoa-500/60 mb-3" />
-                    the other track →
-                    <div className="h-px bg-cocoa-500/60 mt-3" />
+                  <div className="shrink-0 self-stretch w-24 grid place-items-center">
+                    <span className="[writing-mode:vertical-rl] rotate-180 px-3 py-5 bg-cream text-ink font-mono text-[11px] uppercase tracking-[0.24em] shadow-[0_18px_30px_-12px_rgba(0,0,0,0.9)]">
+                      the other track →
+                    </span>
                   </div>
                 )}
                 <Folder p={p} i={i} active={p.type === theme} />

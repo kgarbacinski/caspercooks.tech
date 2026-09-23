@@ -141,7 +141,7 @@ export function CableDivider({ className = '' }: { className?: string }) {
               initial={reduce ? undefined : { opacity: 0, y: -14 }}
               whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
-              transition={{ type: 'spring', stiffness: 300, damping: 12, delay: 0.5 + i * 0.05 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 12, delay: 0.35 + i * 0.03 }}
             >
               <g className={reduce ? '' : 'animate-flag-sway'} style={{ transformOrigin: `${x}px ${y}px`, transformBox: 'view-box', animationDelay: `${(i % 5) * 0.35}s` }}>
                 <polygon
