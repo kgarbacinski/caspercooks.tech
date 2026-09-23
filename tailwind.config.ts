@@ -47,23 +47,14 @@ const config: Config = {
         glow: '0 0 24px rgb(var(--accent-rgb) / 0.35)',
       },
       animation: {
-        'fade-in': 'fadeIn 0.5s ease-in-out',
-        'slide-up': 'slideUp 0.5s ease-out',
         float: 'float 9s ease-in-out infinite',
-        'cable-flow': 'cableFlow 6s linear infinite',
         'lights-on': 'lights-on 0.7s linear both',
       },
       keyframes: {
-        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-        slideUp: {
-          '0%': { transform: 'translateY(20px)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
-        },
         float: {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-7px)' }, // spokojna lewitacja (wcześniej 14 px / 7 s)
         },
-        cableFlow: { to: { strokeDashoffset: '-200' } },
       },
     },
   },
