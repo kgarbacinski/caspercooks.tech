@@ -38,8 +38,7 @@ const COPY = {
 } as const
 
 const EASE = [0.22, 1, 0.36, 1] as const
-// wyjście starej treści = jedno szybkie zgaśnięcie całego bloku (bez kaskady), żeby statystyki
-// DEV nie wisiały w kolorze CEO po zmianie akcentu
+// wyjście starej treści = jedno zgaśnięcie całej części (bez kaskady), równolegle z wejściem nowej
 // nagłówek: samo przenikanie z uniesieniem (bez rozmycia — filtr na dużym tekście to zbędny koszt i szum)
 const rise = {
   hidden: { opacity: 0, y: 14 },
@@ -54,16 +53,112 @@ const pop = {
   show: { opacity: 1, y: 0, rotateX: 0, transition: { duration: 0.7, ease: EASE } },
 }
 
-export default function HeroSection() {
+type Part = 'head' | 'body' | 'cta'
+// przy przełączeniu trzy części wchodzą kolejno (jak dawny stagger całego bloku)
+const PART_DELAY: Record<Part, number> = { head: 0, body: 0.12, cta: 0.22 }
+
+/**
+ * Jedna część treści hero (nagłówek / linie + statystyki / przyciski).
+ * Stara i nowa wersja leżą w tej samej komórce siatki ([grid-area:1/1]) i przenikają się —
+ * nowa treść wjeżdża od razu przy zmianie motywu, stara gaśnie w tym czasie (żadna klatka
+ * nie ma pustej kolumny).
+ */
+function CopyPart({ part, className = '' }: { part: Part; className?: string }) {
   const { theme, phase } = useTheme()
   const c = COPY[theme]
   const reduce = useReducedMotion()
   // desktop: przy "wjeździe kamery" w pokój tekst hero znika jako pierwszy
   const { scrollY } = useScroll()
-  const uiFade = useTransform(scrollY, [0, 200], [1, 0])
+  const uiFade = useTransform(scrollY, [0, 150], [1, 0])
+  const d = PART_DELAY[part]
 
   return (
-    <section className="relative z-10 min-h-[100svh] lg:min-h-[125vh] lg:items-start lg:pt-[max(6rem,calc((100vh-620px)/2))] flex items-center overflow-x-clip pt-20 sm:pt-24 pb-16 lg:pb-20">
+    <motion.div style={{ opacity: uiFade }} className={`grid max-lg:!opacity-100 ${className}`}>
+      <AnimatePresence initial={!reduce}>
+        <motion.div
+          key={theme}
+          className="[grid-area:1/1]"
+          initial={reduce ? false : 'hidden'}
+          animate="show"
+          exit={reduce ? undefined : 'exit'}
+          variants={{
+            show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: d } },
+            exit: { opacity: 0, y: -10, transition: { duration: 0.3, ease: EASE } },
+          }}
+        >
+          {/* przed zmianą motywu stara treść przygasa razem ze światłami wyspy (do poziomu zgaszonych
+              pokoi — wciąż czytelna), po zmianie gaśnie do końca. Zwykły div z przejściem CSS, bo
+              etykieta wariantu bez odpowiednika w dzieciach zerowała ich przezroczystość. */}
+          <div style={{ opacity: phase === 'leaving' ? 0.45 : 1, transition: 'opacity .45s ease' }}>
+          {part === 'head' && (
+            <>
+              <motion.p variants={fade} className="eyebrow mb-4 sm:mb-5">
+                <span className="inline-block px-3 py-1.5 border border-accent/50 text-accent">{c.eyebrow}</span>
+              </motion.p>
+              {/* desktop: stopień liczony od szerokości lewej kolumny (0.8fr z max-w-7xl) — pierwsza linia
+                  mieści się w jednym wierszu od 1024 do 1920 px */}
+              <h1 className="font-display text-[2.75rem] sm:text-6xl lg:text-[min(3.3rem,calc(4.3vw-4px))] leading-[1.02] tracking-tight mb-6">
+                {c.title.map((line, i) => (
+                  <span key={line} className="block pb-[0.08em]">
+                    <motion.span
+                      variants={rise}
+                      className={`block ${i === 1 ? 'text-accent [text-shadow:0_0_30px_rgb(var(--accent-rgb)/0.35)]' : ''}`}
+                    >
+                      {line}
+                    </motion.span>
+                  </span>
+                ))}
+              </h1>
+            </>
+          )}
+
+          {part === 'body' && (
+            <>
+              <p className="font-mono text-sm sm:text-base text-paper-muted leading-relaxed max-w-md mb-7">
+                {c.lines.map((l) => (
+                  <motion.span key={l} variants={fade} className="block">
+                    {l}
+                  </motion.span>
+                ))}
+              </p>
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-2 xl:gap-3 lg:mb-7 max-w-md">
+                {c.stats.map((s) => (
+                  <motion.div key={s.value} variants={pop} className="paper-card px-2.5 sm:px-4 lg:px-2.5 xl:px-4 py-3 font-mono">
+                    <div className="text-accent text-[12px] xl:text-[13px] whitespace-nowrap">{s.value}</div>
+                    <div className="text-paper-dim text-[10px] sm:text-xs whitespace-nowrap">{s.label}</div>
+                  </motion.div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {part === 'cta' && (
+            <motion.div variants={fade} className="flex flex-wrap items-center gap-3 sm:gap-4 lg:gap-3 xl:gap-4">
+              <a href="#projects" className="btn-accent">
+                See the work <span aria-hidden="true">↓</span>
+              </a>
+              <a href="#contact" className="btn-ghost">
+                Let&apos;s talk <span aria-hidden="true">↗</span>
+              </a>
+            </motion.div>
+          )}
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    </motion.div>
+  )
+}
+
+export default function HeroSection() {
+  const { scrollY } = useScroll()
+  const uiFade = useTransform(scrollY, [0, 150], [1, 0])
+
+  return (
+    // desktop (z ruchem): sekcja wyższa od ekranu, a jej zawartość przypięta (sticky) — kamera
+    // "wjeżdża" w pierwszy pokój na nieruchomym kadrze, bez sprężyny goniącej scroll.
+    // Sekcja About nachodzi na ostatni ekran tej sekcji (-mt-[100vh]) i przejmuje ujęcie.
+    <section className="relative z-10 motion-safe:lg:h-[220vh]">
+      <div className="relative min-h-[100svh] lg:min-h-0 lg:h-screen motion-safe:lg:sticky lg:top-0 flex items-start lg:pt-[max(6rem,calc((100vh-620px)/2))] overflow-x-clip pt-20 sm:pt-24 pb-12 lg:pb-20">
       {/* daleki grzbiet gór na horyzoncie (motyw ścian dioramy) */}
       {/* góry znikają razem z UI przy wjeździe kamery (inaczej prześwitują przez gasnący pokój) */}
       <motion.div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ opacity: uiFade }}>
@@ -77,7 +172,24 @@ export default function HeroSection() {
         }}
       />
       </motion.div>
-      {/* sygnał scrolla: kabel, po którym spływa impuls */}
+      {/* mobile: nagłówek + przyciski nad dioramą (widoczne w pierwszym ekranie), linie i statystyki pod nią;
+          desktop: lewa kolumna (nagłówek, linie, statystyki, przyciski) wyśrodkowana obok dioramy */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.5fr)] xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)] lg:grid-rows-[1fr_auto_auto_auto_1fr] lg:gap-x-6">
+        <CopyPart part="head" className="lg:col-start-1 lg:row-start-2" />
+        <CopyPart part="cta" className="lg:col-start-1 lg:row-start-4" />
+
+        <motion.div
+          initial={{ opacity: 1, y: 30, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+          className="mt-1 mb-2 sm:mt-8 sm:mb-6 lg:my-0 -mx-3 sm:mx-0 lg:col-start-2 lg:row-start-1 lg:row-span-5 lg:self-center lg:-mr-[1vw] xl:-mr-[3vw] 2xl:-mr-[6vw]"
+        >
+          <Diorama />
+        </motion.div>
+
+        <CopyPart part="body" className="lg:col-start-1 lg:row-start-3" />
+      </div>
+      {/* sygnał scrolla: kabel, po którym spływa impuls (w DOM za treścią — kolejność Tab: przyciski hero najpierw) */}
       <motion.a style={{ opacity: uiFade }} href="#about" aria-label="Scroll to about" className="absolute top-[calc(100svh-6.5rem)] left-1/2 -translate-x-1/2 hidden lg:flex [@media(max-height:760px)]:!hidden flex-col items-center gap-2 eyebrow hover:text-accent transition-colors">
         <span>scroll</span>
         <span className="relative block w-px h-12 bg-cocoa-500 overflow-hidden">
@@ -89,68 +201,6 @@ export default function HeroSection() {
           />
         </span>
       </motion.a>
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 grid lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)] gap-8 lg:gap-6 items-center">
-        {/* przy przełączeniu stara treść gaśnie razem ze światłami wyspy, nowa wjeżdża po zmianie motywu */}
-        <motion.div style={{ opacity: uiFade }} className="max-lg:!opacity-100">
-        <motion.div // przygaszone aż do wejścia nowej treści (akcent zmienia się już w fazie covered)
-        animate={{ opacity: phase === 'leaving' || phase === 'covered' ? 0.2 : 1, y: 0 }} transition={{ duration: 0.45, ease: EASE }}>
-        <AnimatePresence mode={reduce ? 'popLayout' : 'wait'}>
-          <motion.div key={theme} initial={reduce ? false : 'hidden'} animate="show" exit={reduce ? undefined : 'exit'} variants={{ show: { transition: { staggerChildren: 0.08, delayChildren: phase === 'idle' ? 0 : 0.3 } }, exit: { opacity: 0, transition: { duration: 0.15 } } }}>
-            <motion.p variants={fade} className="eyebrow mb-5">
-              <span className="inline-block px-3 py-1.5 border border-accent/50 text-accent">{c.eyebrow}</span>
-            </motion.p>
-
-            <h1 className="font-display text-[2.75rem] sm:text-6xl lg:text-[3.1rem] xl:text-[3.4rem] 2xl:text-[4rem] leading-[1.02] tracking-tight mb-6">
-              {c.title.map((line, i) => (
-                <span key={line} className="block pb-[0.08em]">
-                  <motion.span
-                    variants={rise}
-                    className={`block ${i === 1 ? 'text-accent [text-shadow:0_0_30px_rgb(var(--accent-rgb)/0.35)]' : ''}`}
-                  >
-                    {line}
-                  </motion.span>
-                </span>
-              ))}
-            </h1>
-
-            <p className="font-mono text-sm sm:text-base text-paper-muted leading-relaxed max-w-md mb-7">
-              {c.lines.map((l) => (
-                <motion.span key={l} variants={fade} className="block">
-                  {l}
-                </motion.span>
-              ))}
-            </p>
-
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-7 max-w-md">
-              {c.stats.map((s) => (
-                <motion.div key={s.value} variants={pop} className="paper-card px-2.5 sm:px-4 py-3 font-mono">
-                  <div className="text-accent text-[12px] xl:text-[13px] whitespace-nowrap">{s.value}</div>
-                  <div className="text-paper-dim text-[10px] sm:text-xs whitespace-nowrap">{s.label}</div>
-                </motion.div>
-              ))}
-            </div>
-
-            <motion.div variants={fade} className="flex flex-wrap items-center gap-4">
-              <a href="#projects" className="btn-accent">
-                See the work <span aria-hidden="true">↓</span>
-              </a>
-              <a href="#contact" className="btn-ghost">
-                Let&apos;s talk <span aria-hidden="true">↗</span>
-              </a>
-            </motion.div>
-          </motion.div>
-        </AnimatePresence>
-        </motion.div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 1, y: 30, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
-          className="order-first lg:order-none -mt-6 -mb-8 sm:my-0 -mx-3 sm:mx-0 lg:-mr-[1vw] xl:-mr-[3vw] 2xl:-mr-[6vw]"
-        >
-          <Diorama />
-        </motion.div>
       </div>
     </section>
   )

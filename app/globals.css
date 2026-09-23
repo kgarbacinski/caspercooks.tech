@@ -18,6 +18,11 @@ body.founder-mode {
 @layer base {
   /* płynny scroll robi Lenis (PageEffects) — natywny smooth by z nim kolidował */
 
+  /* kontener scrolla nie może być "static" — inaczej framer (useScroll z targetem) źle liczy przesunięcia */
+  html {
+    position: relative;
+  }
+
   body {
     @apply bg-night text-paper font-sans antialiased;
     /* ciepła poświata jak nad wyspą w hero */

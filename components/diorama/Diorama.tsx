@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion, useAnimate, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
+import { AnimatePresence, motion, useAnimate, useMotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { SWITCH, useTheme } from '@/contexts/ThemeContext'
 import type { Theme } from '@/contexts/ThemeContext'
@@ -72,7 +72,6 @@ export default function Diorama() {
   const k = KEY[theme]
   const info = ROOMS[theme]
   const boxes = ROOM_BOX[k]
-  const interactive = phase === 'idle' && ready
 
   const at = useCallback((ms: number, fn: () => void) => {
     timers.current.push(window.setTimeout(fn, ms))
@@ -192,10 +191,6 @@ export default function Diorama() {
   const spring = { damping: 26, stiffness: 110, mass: 0.7 }
   const { scrollY } = useScroll()
   const scrollYShift = useSpring(useTransform(scrollY, [0, 850], [0, 120]), spring)
-  const diveY = useSpring(useTransform(scrollY, [0, 620], [0, 470]), { stiffness: 90, damping: 24 })
-  // desktop: przy zjeździe z hero kamera "wjeżdża" w pierwszy pokój (ciągłość z sekcją About)
-  const diveScale = useSpring(useTransform(scrollY, [0, 620], [1, 1.9]), { stiffness: 90, damping: 24 })
-  const diveFade = useTransform(scrollY, [240, 560], [1, 0])
   const [wide, setWide] = useState(false)
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)')
@@ -206,10 +201,14 @@ export default function Diorama() {
   }, [])
   const dive = wide && !reduce
   const capFade = useTransform(scrollY, [0, 160], [1, 0])
-  // po zaniknięciu diorama nie może łapać kliknięć nad sekcją About
-  const [gone, setGone] = useState(false)
-  useMotionValueEvent(diveFade, 'change', (v) => setGone(v < 0.05))
 
+  /*
+   * Desktop: "wjazd kamery" w pierwszy pokój. Hero jest przypięte (sticky) przez D px scrolla,
+   * więc kadr stoi w miejscu, a wyspa (transform z originem 0 0) przesuwa się i rośnie tak, żeby
+   * pokój nr 1 wylądował DOKŁADNIE tam, gdzie leży pokój w przypiętej scenie About
+   * ([data-dive-target]). Reszta wyspy (baza, kable, pozostałe pokoje) gaśnie po drodze,
+   * a na końcu pokój + figurka podmieniają się 1:1 na te z sekcji About (bez skoku).
+   */
   // pętle CSS (lewitacja, oddychające światła) i iskry pauzują, gdy hero jest poza kadrem
   // albo już zgasło po wjeździe kamery — nie malujemy niewidocznej sceny
   const figureRef = useRef<HTMLElement>(null)
@@ -221,7 +220,100 @@ export default function Diorama() {
     io.observe(el)
     return () => io.disconnect()
   }, [])
-  const paused = !onScreen || (dive && gone)
+
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const floatRef = useRef<HTMLDivElement>(null)
+  type Geo = { L: number; T: number; W: number; H: number; rx: number; ry: number; tx: number; ty: number; s1: number }
+  const geo = useRef<Geo | null>(null)
+  const span = useRef(1) // D: długość przypięcia hero w px
+  const floatM = useRef(0) // przesunięcie zatrzymanej lewitacji (wchodzi do rachunku kamery)
+  const geoTick = useMotionValue(0)
+  const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
+  const diveP = useTransform([scrollY, geoTick], ([v]: number[]) => clamp01(v / span.current))
+  // kamera rusza od razu (wyspa wjeżdża w miejsce gasnącego tekstu), hamuje łagodnie
+  // i dojeżdża na 85% drogi — potem stoi, gdy obok wjeżdżają notatki About
+  const camE = useTransform(diveP, (p) => {
+    const t = clamp01(p / 0.85)
+    return 1 - (1 - t) * (1 - t)
+  })
+  const cam = (e: number) => {
+    const g = geo.current
+    if (!g) return { s: 1, x: 0, y: 0 }
+    const { rx, ry } = g
+    const m = floatM.current
+    // skala rośnie wykładniczo (równe tempo zbliżenia), środek pokoju jedzie po prostej
+    const s = Math.pow(g.s1, e)
+    const cx = g.L + rx * g.W + (g.tx - (g.L + rx * g.W)) * e
+    const cy = g.T + ry * g.H + m + (g.ty - (g.T + ry * g.H + m)) * e
+    return { s, x: cx - g.L - rx * g.W * s, y: cy - g.T - (ry * g.H + m) * s }
+  }
+  const camX = useTransform(camE, (e) => cam(e).x)
+  const camY = useTransform(camE, (e) => cam(e).y)
+  const camS = useTransform(camE, (e) => cam(e).s)
+  // reszta wyspy gaśnie w pierwszej połowie drogi — zanim obok pojawią się notatki
+  const rest = useTransform(diveP, [0.1, 0.46], [1, 0])
+  // podmiana na scenę About dokładnie w chwili jej przypięcia
+  const handoff = useTransform([scrollY, geoTick], ([v]: number[]) => (v >= span.current - 1 ? 0 : 1))
+
+  const measure = useCallback(() => {
+    const wrap = wrapRef.current
+    const sec = figureRef.current?.closest('section')
+    if (!wrap || !sec) return
+    const vh = window.innerHeight
+    span.current = Math.max(1, sec.offsetHeight - vh)
+    const tgt = document.querySelector<HTMLElement>('[data-dive-target]')
+    const box = tgt?.parentElement
+    const stage = tgt?.closest<HTMLElement>('[data-dive-stage]')
+    if (!tgt || !box || !stage || !tgt.offsetWidth) {
+      geo.current = null
+      geoTick.set(geoTick.get() + 1)
+      return
+    }
+    // położenie wyspy bez transformu kamery (po odpięciu hero przesunęło się w górę o nadmiar scrolla)
+    const r = wrap.getBoundingClientRect()
+    const over = Math.max(0, window.scrollY - span.current)
+    const L = r.left - camX.get()
+    const T = r.top - camY.get() + over
+    const W = wrap.offsetWidth
+    const H = wrap.offsetHeight
+    // cel: układ (bez transformów) pokoju w scenie About, względem przypiętej sceny (= okno)
+    const br = box.getBoundingClientRect()
+    const sr = stage.getBoundingClientRect()
+    const tx = br.left - sr.left + tgt.offsetLeft + tgt.offsetWidth / 2
+    const ty = br.top - sr.top + tgt.offsetTop + tgt.offsetHeight / 2
+    const b = ROOM_BOX[k][0]
+    geo.current = { L, T, W, H, rx: (b.l + b.w / 2) / 100, ry: (b.t + b.h / 2) / 100, tx, ty, s1: tgt.offsetWidth / ((b.w / 100) * W) }
+    geoTick.set(geoTick.get() + 1)
+  }, [k, camX, camY, geoTick])
+
+  useEffect(() => {
+    if (!dive) return
+    measure()
+    // obrazy/fonty mogą jeszcze przesuwać układ — pomiar też po chwili
+    const t = window.setTimeout(measure, 600)
+    window.addEventListener('resize', measure)
+    return () => {
+      clearTimeout(t)
+      window.removeEventListener('resize', measure)
+    }
+  }, [dive, measure])
+
+  // lewitacja zatrzymuje się, gdy kamera rusza (jej bieżące przesunięcie wchodzi do rachunku)
+  const [diving, setDiving] = useState(false)
+  useMotionValueEvent(scrollY, 'change', (v) => {
+    const d = dive && v > 2
+    if (d !== diving) {
+      if (d && floatRef.current) {
+        const tr = getComputedStyle(floatRef.current).transform
+        floatM.current = tr && tr !== 'none' ? new DOMMatrixReadOnly(tr).m42 : 0
+      }
+      if (!d) floatM.current = 0
+      setDiving(d)
+    }
+  })
+  // po zaniknięciu diorama nie może łapać kliknięć nad sekcją About
+  const [gone, setGone] = useState(false)
+  useMotionValueEvent(handoff, 'change', (v) => setGone(v < 0.5))
 
   const locate = useCallback(
     (clientX: number, clientY: number) => {
@@ -262,35 +354,41 @@ export default function Diorama() {
     scrollToHash(info[i].href)
   }
 
+  const paused = !onScreen || (dive && gone)
+  // w trakcie wjazdu kamery wyspa nie reaguje na hover/klik (etykiety nad powiększonym pokojem)
+  const interactive = phase === 'idle' && ready && !diving
   const accent = ACCENT[theme]
   const spot = hover !== null && interactive
 
   return (
     <figure ref={figureRef} data-paused={paused || undefined} className="relative m-0 select-none" aria-label="Interactive papercraft diorama">
       {/* iskry tylko przy myszy (desktop) — na dotyku to koszt baterii bez zysku */}
-      <Sparks accent={accent} reduce={reduce || !finePointer} paused={paused} />
+      <motion.div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ opacity: dive ? rest : 1 }}>
+        <Sparks accent={accent} reduce={reduce || !finePointer} paused={paused} />
 
-      {/* poświata kabli pod wyspą — w kolorze akcentu, zapala się razem z bazą */}
-      <div
-        aria-hidden="true"
-        className="absolute left-[12%] right-[12%] bottom-[2%] h-[34%] rounded-[50%] blur-3xl transition-opacity duration-700"
-        style={{ background: `rgba(${accent},${theme === 'developer' ? 0.13 : 0.22})`, opacity: baseLit ? 1 : 0 }}
-      />
+        {/* poświata kabli pod wyspą — w kolorze akcentu, zapala się razem z bazą */}
+        <div
+          className="absolute left-[12%] right-[12%] bottom-[2%] h-[34%] rounded-[50%] blur-3xl transition-opacity duration-700"
+          style={{ background: `rgba(${accent},${theme === 'developer' ? 0.13 : 0.22})`, opacity: baseLit ? 1 : 0 }}
+        />
+      </motion.div>
 
       {/* mobile: scena szersza niż ekran, przesuwana palcem (większe pokoje); desktop bez zmian */}
       {/* miękkie wygaszenie brzegów zamiast twardego cięcia sceny na krawędzi ekranu */}
       <div ref={panRef} className="overflow-x-auto overflow-y-visible sm:overflow-visible no-scrollbar snap-x max-sm:[mask-image:linear-gradient(90deg,transparent,#000_5%,#000_95%,transparent)]">
-      <div className="w-[165%] sm:w-full pt-16 pb-7 sm:p-0">
+      <div className="w-[165%] sm:w-full pt-12 pb-7 sm:p-0">
       <motion.div
+        ref={wrapRef}
         style={{
-          y: reduce ? 0 : dive ? diveY : scrollYShift,
-          scale: dive ? diveScale : 1,
-          opacity: dive ? diveFade : 1,
-          transformOrigin: '14% 40%',
+          x: dive ? camX : 0,
+          y: reduce ? 0 : dive ? camY : scrollYShift,
+          scale: dive ? camS : 1,
+          opacity: dive ? handoff : 1,
+          transformOrigin: '0 0',
           pointerEvents: dive && gone ? 'none' : 'auto',
         }}
       >
-        <div className={reduce ? 'relative' : 'relative animate-float'}>
+        <div ref={floatRef} className={reduce ? 'relative' : 'relative animate-float'} style={diving ? { animationPlayState: 'paused' } : undefined}>
           <div ref={bounceRef} className="relative">
           <div
             ref={boxRef}
@@ -301,9 +399,10 @@ export default function Diorama() {
             onClick={onClick}
           >
             {/* cień wyspy w pustce */}
-            <div aria-hidden="true" className="absolute left-[16%] right-[16%] top-[76%] h-[16%] rounded-[50%] bg-black/70 blur-2xl" />
+            <motion.div aria-hidden="true" className="absolute left-[16%] right-[16%] top-[76%] h-[16%] rounded-[50%] bg-black/70 blur-2xl" style={{ opacity: dive ? rest : 1 }} />
 
             {/* podstawa wyspy: skała, kable, pieczęć KG — przygasa przy hoverze i przy zgaszonych światłach */}
+            <motion.div className="absolute inset-0" style={{ opacity: dive ? rest : 1 }}>
             <AnimatePresence initial={false}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <motion.img
@@ -329,6 +428,7 @@ export default function Diorama() {
                 }}
               />
             </AnimatePresence>
+            </motion.div>
 
             {/* pokoje — każdy osobną warstwą w dokładnym kształcie */}
             {boxes.map((b, i) => {
@@ -355,6 +455,8 @@ export default function Diorama() {
                     transformOrigin: '50% 100%',
                     transformPerspective: 900,
                     zIndex: isHover ? 15 : 10,
+                    // przy wjeździe kamery zostaje tylko pokój nr 1
+                    opacity: dive && i > 0 ? rest : 1,
                   }}
                   initial={reduce ? false : { rotateX: FOLDED }}
                   animate={{ rotateX: s.up || reduce ? 0 : FOLDED }}
@@ -407,8 +509,9 @@ export default function Diorama() {
             })}
 
             {/* żywe światła (tylko przy zapalonych światłach i bez podświetlenia pokoju) */}
-            {!reduce &&
-              GLOWS[k].map((g, i) => (
+            {!reduce && (
+              <motion.div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ zIndex: 12, opacity: dive ? rest : 1 }}>
+              {GLOWS[k].map((g, i) => (
                 // zewnętrzny span: włącz/wyłącz (przejście), wewnętrzny: oddech na samym opacity (kompozytor, bez repaintu)
                 <span
                   key={`${k}-g${i}`}
@@ -431,6 +534,8 @@ export default function Diorama() {
                   />
                 </span>
               ))}
+              </motion.div>
+            )}
 
             {burst > 0 && <PaperBurst key={burst} accent={accent} />}
             {/* błysk światła, gdy nowe pokoje wyskakują */}

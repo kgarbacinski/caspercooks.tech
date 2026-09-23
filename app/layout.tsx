@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://caspercooks.tech'),
   title: TITLE,
   description: DESCRIPTION,
+  // imię i nazwisko w tej samej pisowni co na obrazie OG, w liście kontaktowym i w @KGarbacinski
+  authors: [{ name: 'Kacper Garbacinski', url: 'https://caspercooks.tech' }],
+  creator: 'Kacper Garbacinski',
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',

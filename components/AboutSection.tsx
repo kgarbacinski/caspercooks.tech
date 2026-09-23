@@ -9,6 +9,7 @@ import type { IconType } from 'react-icons'
 import { useTheme } from '@/contexts/ThemeContext'
 import { SectionHeader, EASE } from '@/components/ui/Section'
 import { KEY, ROOMS, roomSrc } from '@/components/diorama/rooms'
+import { FIG, ROOM_BOX } from '@/components/diorama/layout'
 
 /**
  * About = pokój nr 1 z wyspy (Dev cave / CEO office).
@@ -227,22 +228,38 @@ export default function AboutSection() {
   // scena przypięta: postęp scrolla → aktywna notatka + zoom kamery w pokój
   const sceneRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: sceneRef, offset: ['start start', 'end end'] })
-  const zoom = useSpring(useTransform(scrollYProgress, [0, 1], reduce ? [1, 1] : [1.06, 0.94]), { stiffness: 80, damping: 22 })
-  const panY = useSpring(useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [-10, 10]), { stiffness: 80, damping: 22 })
-  const glow = useTransform(scrollYProgress, [0, 0.5, 1], [0.35, 0.8, 0.55])
+  // start dokładnie w skali 1 i bez przesunięcia: w tym miejscu kończy się wjazd kamery z hero
+  const zoom = useSpring(useTransform(scrollYProgress, [0, 1], reduce ? [1, 1] : [1, 0.92]), { stiffness: 80, damping: 22 })
+  const panY = useSpring(useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 14]), { stiffness: 80, damping: 22 })
+  // pokój, figurka i poświata pojawiają się w chwili przypięcia sceny — do tego momentu
+  // ten sam pokój pokazuje powiększona wyspa z hero (podmiana 1:1, bez skoku)
+  const { scrollYProgress: pinIn } = useScroll({ target: sceneRef, offset: ['start end', 'start start'] })
+  const shown = useTransform(pinIn, (v): number => (reduce ? 1 : v >= 0.985 ? 1 : 0))
+  const glowBase = useTransform(scrollYProgress, [0, 0.5, 1], [0.35, 0.8, 0.55])
+  const glow = useTransform([glowBase, shown], ([g, v]: number[]) => g * v)
+  // figurka w tym samym miejscu względem pokoju co na wyspie
+  const rb = ROOM_BOX[KEY[theme]][0]
+  const fb = FIG[KEY[theme]]
+  const figPos = {
+    left: `${((fb.l - rb.l) / rb.w) * 100}%`,
+    top: `${((fb.t - rb.t) / rb.h) * 100}%`,
+    width: `${(fb.w / rb.w) * 100}%`,
+    height: `${(fb.h / rb.h) * 100}%`,
+  }
   const [active, setActive] = useState(0)
   const steps = s.notes.length + 1 // ostatni krok = statystyki
   useMotionValueEvent(scrollYProgress, 'change', (v) => setActive(Math.min(steps - 1, Math.floor(v * steps * 1.02))))
 
   return (
-    <section id="about" className="relative scroll-mt-20">
+    // desktop z ruchem: sekcja nachodzi na ostatni ekran przypiętego hero (patrz HeroSection)
+    <section id="about" className="relative z-20 scroll-mt-20 motion-safe:lg:-mt-[100vh]">
       <div className="lg:hidden max-w-6xl mx-auto px-4 sm:px-8 pt-20 sm:pt-28">
         <SectionHeader index="01" eyebrow="about.txt" title="About" />
       </div>
 
       {/* ——— desktop: przypięta scena ——— */}
       <div ref={sceneRef} className="relative hidden lg:block" style={{ height: `${steps * 62 + 60}vh` }}>
-        <div className="sticky top-0 h-screen overflow-hidden">
+        <div data-dive-stage className="sticky top-0 h-screen overflow-hidden">
           <div className="max-w-6xl mx-auto px-8 h-full grid grid-cols-[1.05fr_1fr] gap-10 items-center">
             {/* pokój, w który wjeżdża kamera */}
             <div className="relative h-[80vh] flex items-center justify-center">
@@ -251,7 +268,7 @@ export default function AboutSection() {
                 className="absolute inset-x-[8%] bottom-[6%] h-[40%] rounded-[50%] blur-3xl"
                 style={{ background: 'rgb(var(--accent-rgb) / 0.22)', opacity: glow }}
               />
-              <motion.div className="relative w-[84%] max-w-[480px] -translate-x-[4%]" style={{ scale: zoom, y: panY, transformOrigin: '50% 70%' }}>
+              <motion.div data-dive-target className="relative w-[74%] max-w-[430px] mr-[16%]" style={{ scale: zoom, y: panY, opacity: shown, transformOrigin: '50% 70%' }}>
                 <AnimatePresence mode="popLayout" initial={false}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <motion.img
@@ -259,21 +276,20 @@ export default function AboutSection() {
                     src={roomSrc(theme, 0)}
                     alt={`${room.label} — a papercraft room from the diorama`}
                     className="w-full h-auto drop-shadow-[0_40px_40px_rgba(0,0,0,0.7)]"
-                    style={{ transformOrigin: '50% 100%' }}
+                    // proporcje znane przed załadowaniem (pomiar celu kamery w hero)
+                    style={{ transformOrigin: '50% 100%', aspectRatio: `${rb.w * 24} / ${rb.h * 12.24}` }}
                     initial={{ rotateX: 86 }}
                     animate={{ rotateX: 0 }}
                     exit={{ rotateX: 86, transition: { duration: 0.3 } }}
                     transition={{ type: 'spring', stiffness: 160, damping: 14, delay: 0.3 }}
                   />
                 </AnimatePresence>
-                {/* figurka stoi w progu pokoju */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`/diorama/v2/fig-${KEY[theme]}.webp`}
-                  alt=""
-                  aria-hidden="true"
-                  className="absolute bottom-[1%] right-[-7%] h-[64%] w-auto drop-shadow-[0_18px_14px_rgba(0,0,0,0.6)]"
-                />
+                {/* figurka stoi w progu pokoju — dokładnie tam, gdzie na wyspie */}
+                <div aria-hidden="true" className="absolute" style={figPos}>
+                  <div className="absolute left-[-10%] right-[-10%] bottom-[-2.5%] h-[5%] rounded-[50%] bg-black/60 blur-[3px]" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`/diorama/v2/fig-${KEY[theme]}.webp`} alt="" className="absolute inset-0 w-full h-full" />
+                </div>
               </motion.div>
               <div className="absolute left-0 bottom-6 paper-tag !text-left -rotate-2">
                 <span className="block font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">room 01</span>
@@ -290,14 +306,16 @@ export default function AboutSection() {
                   {String(Math.min(active + 1, s.notes.length)).padStart(2, '0')} / {String(s.notes.length).padStart(2, '0')}
                 </span>
               </div>
-              <div className="relative h-[34vh] min-h-[250px]">
+              {/* stos notatek jako siatka jednokomórkowa: wysokość = najdłuższa notatka + miejsce na przesunięcia
+                  stosu (bez sztywnego 34vh, które zostawiało pustą dziurę nad biletami) */}
+              <div className="relative grid pb-14">
                 {s.notes.map((n, i) => {
                   const depth = Math.min(active, s.notes.length - 1) - i // 0 = na wierzchu
                   const shown = i <= active
                   return (
                     <motion.div
                       key={`${story}-${i}`}
-                      className="absolute inset-x-0 top-0"
+                      className="[grid-area:1/1] self-start"
                       initial={false}
                       animate={
                         reduce
