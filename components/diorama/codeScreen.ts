@@ -18,6 +18,8 @@ export type ScreenCfg = {
   palette: string[] // [zwykły, słowo kluczowe, komentarz/przygaszony, interpunkcja/akcent]
   num?: string // kolor numerów linii (inny niż komentarz, żeby nie udawały tekstu)
   glow: string
+  hl?: string // podświetlenie zaznaczonego wiersza
+  flash?: string // kolor błysku "skompilowane"
   seed: number
   bar: number // grubość belki względem odstępu wierszy
 }
@@ -49,6 +51,10 @@ class Model {
   version = 0
   t = -1
   blink = 0
+  hlRow = -1 // zaznaczony wiersz (indeks w lines)
+  hlUntil = -1e9
+  flashAt = -1e9 // "skompilowane": krótki błysk ekranu
+  nextFlash = 0
 
   constructor(cfg: ScreenCfg) {
     this.cfg = cfg
@@ -58,6 +64,7 @@ class Model {
     for (let i = 0; i < fill; i++) this.lines.push(this.gen())
     if (cfg.mode === 'code') this.lines.push(this.gen())
     this.scrollFrom = this.top()
+    this.nextFlash = this.rand(3000, 7000)
   }
 
   rand(a: number, b: number) {
@@ -150,7 +157,7 @@ class Model {
   }
 
   scrollNow(t: number) {
-    const k = Math.min(1, (t - this.scrollAt) / 320)
+    const k = Math.min(1, (t - this.scrollAt) / 220)
     const e = k < 1 ? 1 - Math.pow(1 - k, 3) : 1
     return this.scrollFrom + (this.top() - this.scrollFrom) * e
   }
@@ -164,8 +171,16 @@ class Model {
       changed = true
       this.event()
     }
-    if (t - this.scrollAt < 340) changed = true
-    const b = Math.floor(t / 530) % 2
+    if (t - this.scrollAt < 240) changed = true
+    // co kilka sekund "build": błysk ekranu i podświetlony wiersz
+    if (t >= this.nextFlash) {
+      this.flashAt = this.nextFlash
+      this.hlRow = Math.max(0, this.lines.length - 1 - this.int(0, 4))
+      this.hlUntil = t + 1100
+      this.nextFlash = t + this.rand(5500, 9500)
+    }
+    if (t - this.flashAt < 700 || t < this.hlUntil + 50) changed = true
+    const b = Math.floor(t / 450) % 2
     if (b !== this.blink) {
       this.blink = b
       changed = true
@@ -177,10 +192,10 @@ class Model {
     const t = this.next
     if (this.cfg.mode === 'log') {
       this.newLine(t, this.gen())
-      // czasem seria (wynik builda), zwykle spokojnie
-      const burst = this.r() < 0.22
-      this.next = t + (burst ? this.rand(90, 170) : this.rand(1400, 4200))
-      if (burst && this.r() < 0.35) this.next += this.rand(900, 1400)
+      // serie wpisów (build, testy) przeplatane krótkimi przerwami
+      const burst = this.r() < 0.55
+      this.next = t + (burst ? this.rand(70, 150) : this.rand(450, 1300))
+      if (burst && this.r() < 0.2) this.next += this.rand(500, 900)
       return
     }
     const cur = this.lines[this.lines.length - 1]
@@ -188,35 +203,40 @@ class Model {
       this.typed = Math.max(0, this.typed - 1)
       this.lastKey = t
       if (--this.backLeft <= 0) this.phase = 'type'
-      this.next = t + this.rand(45, 75)
+      this.next = t + this.rand(35, 60)
       return
     }
     if (this.phase === 'eol') {
       this.newLine(t, this.gen())
       this.typed = 0
       this.phase = 'type'
-      this.next = t + this.rand(60, 160)
+      this.next = t + this.rand(50, 120)
       return
     }
     if (this.typed >= cur.len) {
       // koniec wiersza: krótka pauza, czasem dłuższe "myślenie"
       this.phase = 'eol'
       // pisanie seriami: co kilka wierszy dłuższa przerwa (ekran stoi, miga tylko kursor)
-      const think = this.r() < 0.3
-      this.next = t + (think ? this.rand(2800, 6500) : this.rand(160, 560))
+      const think = this.r() < 0.16
+      this.next = t + (think ? this.rand(900, 2200) : this.rand(90, 260))
+      // czasem zaznaczenie wiersza (ktoś coś kopiuje / poprawia)
+      if (this.r() < 0.18) {
+        this.hlRow = Math.max(0, this.lines.length - 1 - this.int(1, 5))
+        this.hlUntil = t + this.rand(600, 1100)
+      }
       return
     }
     this.typed++
     this.lastKey = t
     // literówka: kilka znaków w tył i ponownie
-    if (this.typed > 4 && this.r() < 0.018) {
+    if (this.typed > 4 && this.r() < 0.025) {
       this.phase = 'back'
       this.backLeft = this.int(2, 4)
       this.next = t + this.rand(220, 380)
       return
     }
     const sp = this.charAt(cur, this.typed) === -1
-    this.next = t + (sp ? this.rand(35, 70) : this.rand(55, 125)) * (this.r() < 0.06 ? 3 : 1)
+    this.next = t + (sp ? this.rand(20, 40) : this.rand(30, 70)) * (this.r() < 0.05 ? 3 : 1)
   }
 
   charAt(l: Line, i: number) {
@@ -284,6 +304,16 @@ export function draw(ctx: CanvasRenderingContext2D, m: Model, W: number, H: numb
       ctx.fillRect(W * c.left * 0.3, y, cw * (li % 10 === 9 ? 2 : 1.3), th)
       ctx.globalAlpha = ga
     }
+    if (c.hl && li === m.hlRow && t < m.hlUntil) {
+      // podświetlony wiersz: jasny pasek pod tekstem
+      const ga = ctx.globalAlpha
+      ctx.save()
+      ctx.shadowBlur = 0
+      ctx.fillStyle = c.hl
+      ctx.fillRect(x0 - cw * 0.6, y - (pitch - th) / 2, W - x0 - W * 0.02, pitch)
+      ctx.restore()
+      ctx.globalAlpha = ga
+    }
     let x = x0
     let limit = Infinity
     let caretX = -1
@@ -320,4 +350,22 @@ export function draw(ctx: CanvasRenderingContext2D, m: Model, W: number, H: numb
   }
   ctx.globalAlpha = 1
   ctx.restore()
+  // błysk "skompilowane": jasna ramka i poświata ekranu, tekst zostaje czytelny (~150 ms, potem wygasa)
+  const fa = t - m.flashAt
+  if (c.flash && fa >= 0 && fa < 700) {
+    const k = fa < 60 ? fa / 60 : fa < 170 ? 1 : 1 - (fa - 170) / 530
+    ctx.save()
+    ctx.globalCompositeOperation = 'destination-over'
+    ctx.globalAlpha = 0.5 * k
+    ctx.fillStyle = c.flash
+    ctx.fillRect(0, 0, W, H)
+    ctx.globalCompositeOperation = 'source-over'
+    ctx.globalAlpha = 0.95 * k
+    ctx.strokeStyle = c.flash
+    ctx.lineWidth = H * 0.05
+    ctx.shadowColor = c.flash
+    ctx.shadowBlur = H * 0.08
+    ctx.strokeRect(H * 0.03, H * 0.03, W - H * 0.06, H - H * 0.06)
+    ctx.restore()
+  }
 }

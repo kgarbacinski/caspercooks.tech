@@ -526,6 +526,7 @@ export default function Diorama() {
                         room={i}
                         run={!paused && s.lit}
                         show={s.lit && !s.flicker && (!spot || isHover)}
+                        hot={isHover}
                         lite={!finePointer}
                         artClass={litClass}
                         // ta sama jasność co obrazek pokoju (bez filtra, gdy nic nie przygasa)

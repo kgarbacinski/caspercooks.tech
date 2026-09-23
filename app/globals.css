@@ -531,138 +531,241 @@ body.founder-mode {
 }
 
 /* ——— ambient dioramy (components/diorama/Ambient.tsx) ———
-   Epizody mają okna w 24-sekundowym cyklu świata, które na siebie nie nachodzą:
-   DEV: ramię 2–8 s, lampa w Infra 18 s (co 48 s); CEO: telefon 3–11 s, schemat 12–14 s i 21–22 s,
-   lampa w devs-hunting 18 s (co 48 s). Reszta to ciche pętle w swoich (rozstrojonych) rytmach. */
-.amb-arm {
-  animation: amb-arm 24s infinite;
-  will-change: transform;
-}
+   Żwawa miniatura: w każdym świecie naraz rusza się kilka rzeczy, każda w swoim (rozstrojonym)
+   rytmie, żeby nic nie szło w takt. Bez błysków na dużych polach (lampy migają tylko na
+   powierzchni klosza i plamy światła, najwyżej ~3 zmiany na sekundę w serii).
+   Główne epizody: DEV — sejf otwiera się co 19 s, ramię robota pije kawę co 9.6 s,
+   lampa w Infra mruga seriami co ~9 s; CEO — slajdy co 5 s, radar obraca się co 4 s,
+   luneta skanuje, telefon przewija co 8 s, lampa w devs-hunting mruga co ~12 s. */
+
+/* ramię: łokieć podnosi kubek (−22°), nadgarstek przechyla go ("łyk"), odstawia; w drugiej
+   połowie cyklu krótkie "sprawdzenie" (−9°) */
+.amb-arm { animation: amb-arm 9.6s infinite; will-change: transform; }
 @keyframes amb-arm {
-  0%, 8% { transform: rotate(0deg); animation-timing-function: cubic-bezier(.45, 0, .3, 1); }
-  16% { transform: rotate(-7.5deg); animation-timing-function: ease-in-out; }
-  21% { transform: rotate(-6.9deg); animation-timing-function: ease-in-out; }
-  26% { transform: rotate(-7.5deg); animation-timing-function: cubic-bezier(.45, 0, .3, 1); }
-  33.5% { transform: rotate(.35deg); animation-timing-function: ease-out; }
-  35.5%, 100% { transform: rotate(0deg); }
+  0%, 5% { transform: rotate(0deg); animation-timing-function: cubic-bezier(.45, 0, .3, 1); }
+  17% { transform: rotate(-22deg); animation-timing-function: ease-in-out; }
+  26% { transform: rotate(-20.5deg); animation-timing-function: ease-in-out; }
+  33% { transform: rotate(-22deg); animation-timing-function: cubic-bezier(.45, 0, .3, 1); }
+  45% { transform: rotate(1.2deg); animation-timing-function: ease-out; }
+  49%, 66% { transform: rotate(0deg); animation-timing-function: cubic-bezier(.45, 0, .3, 1); }
+  73% { transform: rotate(-9deg); animation-timing-function: ease-in-out; }
+  78% { transform: rotate(-8deg); animation-timing-function: cubic-bezier(.45, 0, .3, 1); }
+  86%, 100% { transform: rotate(0deg); }
+}
+.amb-wrist { animation: amb-wrist 9.6s infinite; will-change: transform; }
+@keyframes amb-wrist {
+  0%, 16% { transform: rotate(0deg); animation-timing-function: cubic-bezier(.4, 0, .3, 1); }
+  22% { transform: rotate(-30deg); animation-timing-function: ease-in-out; }
+  27% { transform: rotate(-26deg); animation-timing-function: ease-in-out; }
+  31% { transform: rotate(-30deg); animation-timing-function: cubic-bezier(.4, 0, .3, 1); }
+  37%, 70% { transform: rotate(0deg); animation-timing-function: ease-in-out; }
+  74% { transform: rotate(12deg); animation-timing-function: ease-in-out; }
+  78% { transform: rotate(-8deg); animation-timing-function: ease-in-out; }
+  82%, 100% { transform: rotate(0deg); }
 }
 .amb-steam {
   opacity: 0;
-  background: radial-gradient(ellipse 50% 50% at 50% 55%, rgba(255, 244, 232, .55), rgba(255, 244, 232, 0) 100%);
-  animation: amb-steam 4s ease-out infinite;
+  background: radial-gradient(ellipse 50% 50% at 50% 55%, rgba(255, 246, 236, .85), rgba(255, 246, 236, 0) 100%);
+  animation: amb-steam 2.8s ease-out infinite;
 }
 @keyframes amb-steam {
-  0% { transform: translateY(25%) scaleX(.55); opacity: 0; }
-  30% { opacity: .5; }
-  100% { transform: translate(18%, -120%) scaleX(1.25); opacity: 0; }
+  0% { transform: translateY(20%) scaleX(.5); opacity: 0; }
+  25% { opacity: .85; }
+  100% { transform: translate(22%, -150%) scaleX(1.35); opacity: 0; }
 }
 .amb-pulse {
   opacity: var(--lo);
-  animation: amb-pulse 6s ease-in-out infinite;
+  animation: amb-pulse 3s ease-in-out infinite;
 }
 @keyframes amb-pulse {
   0%, 100% { opacity: var(--lo); }
   50% { opacity: var(--hi); }
 }
-.amb-flicker {
-  opacity: 0;
-  animation: amb-flicker 48s linear infinite;
+/* lampy: "zgaszona" wersja pokoju nakładana na chwilę — seria 2–4 mrugnięć albo zgaśnięcie
+   z zająknięciem; dwie różne serie w jednym cyklu (lampa DEV 18.8 s, CEO 23.6 s) */
+.amb-lamp-dev { opacity: 0; animation: amb-lamp-dev 18.8s linear infinite; }
+@keyframes amb-lamp-dev {
+  0%, 9% { opacity: 0; }
+  9.3% { opacity: 1; } 10.1% { opacity: 1; } 10.4% { opacity: 0; }
+  11.4% { opacity: 0; } 11.7% { opacity: .9; } 12.3% { opacity: .9; } 12.6% { opacity: 0; }
+  13.6% { opacity: 0; } 13.9% { opacity: 1; } 14.8% { opacity: 1; } 15.2% { opacity: .15; }
+  16%, 57% { opacity: 0; }
+  57.3% { opacity: 1; } 61.5% { opacity: 1; }
+  61.8% { opacity: .3; } 62.6% { opacity: .3; } 62.9% { opacity: 1; } 64% { opacity: 1; }
+  64.4%, 100% { opacity: 0; }
 }
-@keyframes amb-flicker {
-  0%, 37.8% { opacity: 0; }
-  38% { opacity: .9; }
-  38.2% { opacity: .2; }
-  38.4% { opacity: 1; }
-  38.9% { opacity: .95; }
-  39.1% { opacity: .3; }
-  39.3% { opacity: .8; }
-  39.9%, 100% { opacity: 0; }
+.amb-lamp-ceo { opacity: 0; animation: amb-lamp-ceo 23.6s linear infinite; }
+@keyframes amb-lamp-ceo {
+  0%, 19% { opacity: 0; }
+  19.2% { opacity: 1; } 22.4% { opacity: 1; }
+  22.6% { opacity: .25; } 23.3% { opacity: .25; } 23.5% { opacity: 1; } 24.3% { opacity: 1; }
+  24.6%, 68% { opacity: 0; }
+  68.3% { opacity: 1; } 69% { opacity: 1; } 69.3% { opacity: 0; }
+  70.1% { opacity: 0; } 70.4% { opacity: 1; } 71% { opacity: 1; } 71.3% { opacity: 0; }
+  72.2% { opacity: 0; } 72.5% { opacity: .9; } 73.3% { opacity: .9; } 73.7% { opacity: 0; }
+  74.5% { opacity: 0; } 74.8% { opacity: 1; } 75.8% { opacity: 1; } 76.2%, 100% { opacity: 0; }
 }
-.amb-led {
-  opacity: 0;
-  animation: amb-led 4s linear infinite;
+/* diody serwerów: kilka wzorów "aktywności dysku" */
+.amb-led-a { opacity: 0; animation: amb-led-a 1s steps(1, end) infinite; }
+@keyframes amb-led-a {
+  0% { opacity: .95; } 12% { opacity: 0; } 22% { opacity: .95; } 30% { opacity: 0; }
+  55% { opacity: .95; } 62% { opacity: 0; } 80% { opacity: .95; } 88%, 100% { opacity: 0; }
 }
-@keyframes amb-led {
-  0%, 20% { opacity: 0; }
-  21%, 24% { opacity: .95; }
-  25%, 58% { opacity: 0; }
-  59% { opacity: .9; }
-  60%, 62% { opacity: 0; }
-  63% { opacity: .9; }
-  64.5%, 100% { opacity: 0; }
+.amb-led-b { opacity: 0; animation: amb-led-b 1s steps(1, end) infinite; }
+@keyframes amb-led-b {
+  0% { opacity: 0; } 40% { opacity: .95; } 75% { opacity: 0; } 100% { opacity: 0; }
 }
-.amb-rise {
-  opacity: 0;
-  animation: amb-rise 5s ease-out infinite;
-}
-@keyframes amb-rise {
-  0% { transform: translate(-50%, -50%) scale(.6); opacity: 0; }
-  22% { opacity: .9; }
-  100% { transform: translate(-50%, -50%) translate(70%, -850%) scale(.3); opacity: 0; }
-}
-.amb-spin {
-  animation: amb-spin 11s linear infinite;
-}
-@keyframes amb-spin {
-  to { transform: rotate(360deg); }
-}
-.amb-blip {
-  opacity: 0;
-  animation: amb-blip 22s linear infinite;
-}
-@keyframes amb-blip {
-  0%, 17.6% { opacity: 0; }
-  18% { opacity: 1; }
-  42%, 100% { opacity: 0; }
-}
-.amb-phone {
-  animation: amb-phone 24s infinite;
-}
-@keyframes amb-phone {
-  0%, 12% { transform: translateY(0); animation-timing-function: cubic-bezier(.25, .6, .3, 1); }
-  17% { transform: translateY(-12%); }
-  24% { transform: translateY(-12%); animation-timing-function: cubic-bezier(.25, .6, .3, 1); }
-  29.5% { transform: translateY(-26%); }
-  36% { transform: translateY(-26%); animation-timing-function: cubic-bezier(.42, 0, .58, 1); }
-  45%, 100% { transform: translateY(0); }
-}
-.amb-win {
-  opacity: 0;
-  animation: amb-win 40s linear infinite;
-}
-@keyframes amb-win {
-  0%, 60% { opacity: 0; }
-  60.4%, 90% { opacity: 1; }
-  90.4%, 100% { opacity: 0; }
-}
-.amb-twinkle {
-  opacity: 0;
-  animation: amb-twinkle 5s ease-in-out infinite;
-}
-@keyframes amb-twinkle {
-  0%, 100% { opacity: 0; }
-  50% { opacity: .75; }
-}
-.amb-flow {
-  opacity: 0;
-  animation: amb-flow 24s linear infinite;
-}
-.amb-rec {
-  animation: amb-rec 3.2s ease-in-out infinite;
-}
-@keyframes amb-rec {
-  0%, 60% { opacity: 1; }
-  68%, 92% { opacity: .35; }
-  100% { opacity: 1; }
-}
-.amb-led-flash {
-  opacity: 0;
-  animation: amb-led-flash 5s ease-out infinite;
-}
+.amb-led-flash { opacity: 0; animation: amb-led-flash 1s ease-out infinite; }
 @keyframes amb-led-flash {
-  0%, 70% { opacity: 0; }
-  71.5% { opacity: .9; }
-  74% { opacity: .2; }
-  75.5% { opacity: .8; }
-  80%, 100% { opacity: 0; }
+  0%, 60% { opacity: 0; } 63% { opacity: 1; } 72% { opacity: .35; } 76% { opacity: .95; } 90%, 100% { opacity: 0; }
 }
+.amb-rise { opacity: 0; animation: amb-rise 3.4s ease-out infinite; }
+@keyframes amb-rise {
+  0% { transform: translate(-50%, -50%) scale(.7); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(-50%, -50%) translate(60%, -900%) scale(.3); opacity: 0; }
+}
+.amb-spin { animation: amb-spin 4s linear infinite; }
+@keyframes amb-spin { to { transform: rotate(360deg); } }
+.amb-blip { opacity: 0; animation: amb-blip 4s linear infinite; }
+@keyframes amb-blip {
+  0% { opacity: 0; } 1% { opacity: 1; transform: translate(-50%, -50%) scale(1.25); }
+  10% { transform: translate(-50%, -50%) scale(1); }
+  55%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}
+.amb-phone { animation: amb-phone 8s infinite; }
+@keyframes amb-phone {
+  0%, 8% { transform: translateY(0); animation-timing-function: cubic-bezier(.2, .8, .3, 1.15); }
+  17% { transform: translateY(-20%); }
+  30% { transform: translateY(-20%); animation-timing-function: cubic-bezier(.2, .8, .3, 1.15); }
+  39% { transform: translateY(-38%); }
+  56% { transform: translateY(-38%); animation-timing-function: cubic-bezier(.2, .8, .3, 1.15); }
+  63% { transform: translateY(-28%); }
+  74% { transform: translateY(-28%); animation-timing-function: cubic-bezier(.42, 0, .58, 1); }
+  86%, 100% { transform: translateY(0); }
+}
+.amb-win { opacity: 0; animation: amb-win 12s steps(1, end) infinite; }
+@keyframes amb-win {
+  0% { opacity: 0; } 58% { opacity: 1; } 92% { opacity: 0; } 100% { opacity: 0; }
+}
+.amb-twinkle { opacity: 0; animation: amb-twinkle 3s ease-in-out infinite; }
+@keyframes amb-twinkle {
+  0%, 100% { opacity: .1; } 50% { opacity: 1; }
+}
+.amb-flow { opacity: 0; animation: amb-flow 20s linear infinite; }
+/* lampka "REC" kamery: równe, spokojne 1 Hz */
+.amb-rec { animation: amb-rec 2s steps(1, end) infinite; }
+@keyframes amb-rec { 0% { opacity: 1; } 50% { opacity: .08; } 100% { opacity: .08; } }
+/* poświata monitorów na biurku: nieregularne drganie jasności */
+.amb-screenglow { animation: amb-screenglow 5.3s linear infinite; }
+@keyframes amb-screenglow {
+  0% { opacity: .3; } 14% { opacity: .75; } 18% { opacity: .35; } 35% { opacity: 1; } 41% { opacity: .4; }
+  58% { opacity: .6; } 61% { opacity: 1; } 64% { opacity: .45; } 82% { opacity: .85; } 100% { opacity: .3; }
+}
+/* kaczka kołysze się na podstawie */
+.amb-duck { animation: amb-duck 7s ease-in-out infinite; }
+@keyframes amb-duck {
+  0%, 100% { transform: rotate(-4deg); }
+  14% { transform: rotate(4deg); } 28% { transform: rotate(-4deg); } 42% { transform: rotate(4deg); } 56% { transform: rotate(-3deg); }
+  64% { transform: translateY(0) scale(1.1, .85) rotate(0deg); animation-timing-function: cubic-bezier(.2, .7, .4, 1); }
+  71% { transform: translateY(-72%) scale(.92, 1.1) rotate(-16deg); animation-timing-function: cubic-bezier(.6, 0, .8, .4); }
+  78% { transform: translateY(0) scale(1.14, .82) rotate(10deg); animation-timing-function: ease-out; }
+  84% { transform: translateY(-16%) rotate(-6deg); }
+  90% { transform: translateY(0) rotate(3deg); }
+}
+/* luneta: powolne skanowanie horyzontu z przystankami */
+.amb-scope { animation: amb-scope 11s ease-in-out infinite; }
+@keyframes amb-scope {
+  0%, 10% { transform: rotate(0deg); }
+  26%, 42% { transform: rotate(-9deg); }
+  60%, 74% { transform: rotate(6deg); }
+  90%, 100% { transform: rotate(0deg); }
+}
+/* sejf (19 s): koło kręci się, drzwi wychylają na zawiasie, zielone światło wylewa się, zamyka */
+.amb-vault-door { animation: amb-vault-door 19s infinite; transform: perspective(320cqw) rotateY(0deg); will-change: transform; }
+@keyframes amb-vault-door {
+  0%, 61% { transform: perspective(320cqw) rotateY(0deg); animation-timing-function: cubic-bezier(.3, .1, .2, 1); }
+  68% { transform: perspective(320cqw) rotateY(-80deg); animation-timing-function: ease-in-out; }
+  70% { transform: perspective(320cqw) rotateY(-75deg); animation-timing-function: ease-in-out; }
+  86% { transform: perspective(320cqw) rotateY(-78deg); animation-timing-function: cubic-bezier(.6, 0, .8, .4); }
+  92.5% { transform: perspective(320cqw) rotateY(2deg); animation-timing-function: ease-out; }
+  94%, 100% { transform: perspective(320cqw) rotateY(0deg); }
+}
+.amb-vault-shade { opacity: 0; animation: amb-vault-shade 19s infinite; }
+@keyframes amb-vault-shade {
+  0%, 61% { opacity: 0; } 68%, 86% { opacity: .55; } 92.5%, 100% { opacity: 0; }
+}
+.amb-vault-wheel { animation: amb-vault-wheel 19s infinite; }
+@keyframes amb-vault-wheel {
+  0%, 54% { transform: rotate(0deg); animation-timing-function: cubic-bezier(.5, 0, .3, 1); }
+  60.5%, 93% { transform: rotate(-360deg); animation-timing-function: cubic-bezier(.5, 0, .3, 1); }
+  99%, 100% { transform: rotate(0deg); }
+}
+.amb-vault-spill { opacity: 0; animation: amb-vault-spill 19s infinite; }
+@keyframes amb-vault-spill {
+  0%, 62% { opacity: 0; } 68% { opacity: 1; } 76% { opacity: .8; } 84% { opacity: 1; } 91%, 100% { opacity: 0; }
+}
+/* najechanie na pokój: sejf otwiera się i czeka otwarty */
+.amb-hot .amb-vault-door { animation: amb-vault-door-hot 1.3s cubic-bezier(.3, .1, .2, 1) forwards; }
+@keyframes amb-vault-door-hot { from { transform: perspective(320cqw) rotateY(0deg); } to { transform: perspective(320cqw) rotateY(-78deg); } }
+.amb-hot .amb-vault-shade { animation: amb-fade-in-42 1.3s forwards; }
+@keyframes amb-fade-in-42 { to { opacity: .55; } }
+.amb-hot .amb-vault-spill { animation: amb-fade-in 1.3s forwards; }
+@keyframes amb-fade-in { to { opacity: 1; } }
+.amb-hot .amb-vault-wheel { animation: none; }
+/* webinar (20 s): schemat z grafiki → wykres → lista → donut; wejście slajdu krótkim przesunięciem */
+.amb-sbg { opacity: 0; animation: amb-sbg 20s infinite; }
+@keyframes amb-sbg { 0%, 24.2% { opacity: 0; } 25.2%, 98.8% { opacity: 1; } 100% { opacity: 0; } }
+.amb-s2 { opacity: 0; animation: amb-s2 20s infinite; }
+@keyframes amb-s2 { 0%, 24.2% { opacity: 0; transform: translateX(4%); } 25.6%, 49% { opacity: 1; transform: translateX(0); } 50.4%, 100% { opacity: 0; } }
+.amb-s2b { opacity: 0; animation: amb-s2b 20s infinite; }
+@keyframes amb-s2b {
+  0%, 25.4% { opacity: 0; transform: scaleY(0); }
+  25.8% { opacity: 1; transform: scaleY(0); animation-timing-function: cubic-bezier(.3, 1.4, .5, 1); }
+  30%, 49% { opacity: 1; transform: scaleY(1); }
+  50.4%, 100% { opacity: 0; transform: scaleY(1); }
+}
+.amb-s3 { opacity: 0; animation: amb-s3 20s infinite; }
+@keyframes amb-s3 { 0%, 49% { opacity: 0; transform: translateX(4%); } 50.4%, 74% { opacity: 1; transform: translateX(0); } 75.4%, 100% { opacity: 0; } }
+.amb-s3b { opacity: 0; animation: amb-s3b 20s steps(1, end) infinite; clip-path: inset(0 0 100% 0); }
+@keyframes amb-s3b {
+  0% { opacity: 0; } 52% { opacity: 1; clip-path: inset(0 0 50% 0); } 55.5% { clip-path: inset(0 0 35% 0); }
+  59% { clip-path: inset(0 0 20% 0); } 62.5% { clip-path: inset(0 0 0 0); } 74.5%, 100% { opacity: 0; }
+}
+.amb-s4 { opacity: 0; animation: amb-s4 20s infinite; }
+@keyframes amb-s4 { 0%, 74% { opacity: 0; transform: translateX(4%); } 75.4%, 98.8% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; } }
+/* telefon: "dotknięcie" ekranu przed każdym przewinięciem */
+.amb-tap { opacity: 0; animation: amb-tap 8s ease-out infinite; }
+@keyframes amb-tap {
+  0%, 4% { opacity: 0; transform: translate(-50%, -50%) scale(.2); }
+  5% { opacity: .7; } 10%, 25% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
+  26% { opacity: 0; transform: translate(-50%, -50%) scale(.2); } 27% { opacity: .7; }
+  32%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
+}
+/* okna: poświata zapalonego okna (screen) */
+.amb-winglow { opacity: 0; animation: amb-winglow 12s steps(1, end) infinite; }
+@keyframes amb-winglow { 0% { opacity: 1; } 40% { opacity: 0; } 100% { opacity: 0; } }
+/* światło ostrzegawcze na wieżowcu: podwójne mrugnięcie */
+.amb-beacon { opacity: .1; animation: amb-beacon 1.8s steps(1, end) infinite; }
+@keyframes amb-beacon { 0% { opacity: 1; } 10% { opacity: .1; } 20% { opacity: 1; } 30%, 100% { opacity: .1; } }
+/* spadająca gwiazda nad miastem (co 6.5 s) */
+.amb-meteor { opacity: 0; animation: amb-meteor 6.5s linear infinite; }
+@keyframes amb-meteor {
+  0%, 60% { opacity: 0; transform: translate(0, 0) rotate(-18deg); }
+  61% { opacity: 1; }
+  70% { opacity: 1; }
+  72%, 100% { opacity: 0; transform: translate(-260%, 80%) rotate(-18deg); }
+}
+/* diody: "wyścig" w dół kolumny szafy */
+.amb-led-chase { opacity: 0; animation: amb-led-chase 2.2s linear infinite; }
+@keyframes amb-led-chase { 0% { opacity: 1; } 8% { opacity: .2; } 14%, 100% { opacity: 0; } }
+/* lewy telefon: powiadomienie wjeżdża z góry, chwilę wisi, znika */
+.amb-toast { opacity: 0; animation: amb-toast 8s cubic-bezier(.2, .8, .3, 1.2) infinite; animation-delay: -3s; }
+@keyframes amb-toast {
+  0%, 40% { opacity: 0; transform: translateY(-120%); }
+  46%, 70% { opacity: 1; transform: translateY(0); }
+  76%, 100% { opacity: 0; transform: translateY(-120%); }
+}
+/* laptopy kursantów: krótki błysk ekranu co 6.4 s, każdy z innym opóźnieniem */
+.amb-laptop { opacity: 0; animation: amb-laptop 6.4s steps(1, end) infinite; }
+@keyframes amb-laptop { 0% { opacity: .9; } 6% { opacity: .2; } 9% { opacity: .9; } 22%, 100% { opacity: 0; } }
