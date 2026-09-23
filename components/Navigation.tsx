@@ -40,7 +40,8 @@ export default function Navigation() {
       if (el) observer.observe(el)
     })
     return () => observer.disconnect()
-  }, [])
+    // sekcja Stack montuje się na nowo po zmianie trybu — obserwujemy świeże elementy
+  }, [theme])
 
   return (
     <nav

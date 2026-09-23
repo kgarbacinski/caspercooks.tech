@@ -10,9 +10,9 @@ import { useMemo } from 'react'
 export default function PaperBurst({ accent }: { accent: string }) {
   const bits = useMemo(
     () =>
-      Array.from({ length: 56 }, (_, i) => {
+      Array.from({ length: 32 }, (_, i) => {
         const a = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.25
-        const v = 120 + Math.random() * 220
+        const v = 90 + Math.random() * 150 // ścinki zostają w obrębie wyspy
         return {
           x0: 6 + Math.random() * 88, // start wzdłuż podłogi pokoi (% szerokości)
           dx: Math.cos(a) * v,

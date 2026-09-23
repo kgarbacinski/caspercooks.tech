@@ -38,21 +38,20 @@ const COPY = {
 } as const
 
 const EASE = [0.22, 1, 0.36, 1] as const
+// wyjście starej treści = jedno szybkie zgaśnięcie całego bloku (bez kaskady), żeby statystyki
+// DEV nie wisiały w kolorze CEO po zmianie akcentu
 // nagłówek: samo przenikanie z uniesieniem (bez rozmycia — filtr na dużym tekście to zbędny koszt i szum)
 const rise = {
   hidden: { opacity: 0, y: 14 },
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE } },
-  exit: { opacity: 0, y: -8, transition: { duration: 0.2, ease: EASE } },
 }
 const fade = {
   hidden: { opacity: 0, y: 14 },
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } },
-  exit: { opacity: 0, y: -8, transition: { duration: 0.2 } },
 }
 const pop = {
   hidden: { opacity: 0, y: 18, rotateX: -60 },
   show: { opacity: 1, y: 0, rotateX: 0, transition: { duration: 0.7, ease: EASE } },
-  exit: { opacity: 0, y: -8, transition: { duration: 0.2 } },
 }
 
 export default function HeroSection() {
@@ -96,7 +95,7 @@ export default function HeroSection() {
         <motion.div // przygaszone aż do wejścia nowej treści (akcent zmienia się już w fazie covered)
         animate={{ opacity: phase === 'leaving' || phase === 'covered' ? 0.2 : 1, y: 0 }} transition={{ duration: 0.45, ease: EASE }}>
         <AnimatePresence mode={reduce ? 'popLayout' : 'wait'}>
-          <motion.div key={theme} initial={reduce ? false : 'hidden'} animate="show" exit={reduce ? undefined : 'exit'} variants={{ show: { transition: { staggerChildren: 0.08, delayChildren: phase === 'idle' ? 0 : 0.3 } }, exit: { transition: { staggerChildren: 0.03 } } }}>
+          <motion.div key={theme} initial={reduce ? false : 'hidden'} animate="show" exit={reduce ? undefined : 'exit'} variants={{ show: { transition: { staggerChildren: 0.08, delayChildren: phase === 'idle' ? 0 : 0.3 } }, exit: { opacity: 0, transition: { duration: 0.15 } } }}>
             <motion.p variants={fade} className="eyebrow mb-5">
               <span className="inline-block px-3 py-1.5 border border-accent/50 text-accent">{c.eyebrow}</span>
             </motion.p>
