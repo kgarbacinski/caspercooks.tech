@@ -117,7 +117,7 @@ export default function HeroSection() {
             <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-7 max-w-md">
               {c.stats.map((s) => (
                 <motion.div key={s.value} variants={pop} className="paper-card px-2.5 sm:px-4 py-3 font-mono">
-                  <div className="text-accent text-[12px] sm:text-[13px] xl:text-sm whitespace-nowrap">{s.value}</div>
+                  <div className="text-accent text-[12px] xl:text-[13px] whitespace-nowrap">{s.value}</div>
                   <div className="text-paper-dim text-[10px] sm:text-xs whitespace-nowrap">{s.label}</div>
                 </motion.div>
               ))}
@@ -136,7 +136,7 @@ export default function HeroSection() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 40, scale: 0.96 }}
+          initial={{ opacity: 1, y: 30, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
           className="order-first lg:order-none mt-6 lg:mt-0 -mx-3 sm:mx-0 lg:-mr-[1vw] xl:-mr-[3vw] 2xl:-mr-[6vw]"

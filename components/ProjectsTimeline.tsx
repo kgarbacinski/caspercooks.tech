@@ -205,7 +205,8 @@ function Folder({ p, i, active }: { p: Project; i: number; active: boolean }) {
       </div>
       <div className="folder-body">
         <div className="flex items-start justify-between gap-4 mb-5">
-          <span className={`font-mono text-[10px] uppercase tracking-[0.2em] px-2 py-1 border ${isDev ? 'border-accent/50 text-accent' : 'border-ember/60 text-ember'}`}>
+          <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.2em] px-2 py-1 border border-ink/30 text-ink/75">
+            <span className={`w-1.5 h-1.5 rounded-full ${isDev ? 'bg-[#0f9f5c]' : 'bg-[#d4541f]'}`} />
             {isDev ? 'dev track' : 'ceo track'}
           </span>
           {/* logo firmy jako pieczątka */}

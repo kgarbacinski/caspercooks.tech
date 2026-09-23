@@ -46,10 +46,10 @@ const Figure = forwardRef<FigureHandle, { theme: Theme; dim: boolean; reduce: bo
     await animate(scope.current, { scaleY: 0.84, scaleX: 1.1, y: '3%' }, { duration: 0.16, ease: 'easeOut' })
     if (gen.current !== run) return
     setPose('jump')
-    await animate(scope.current, { scaleY: 1.08, scaleX: 0.95, y: '-105%', x: '-40%', rotate: -12 }, { duration: 0.32, ease: [0.2, 0.8, 0.4, 1] })
+    await animate(scope.current, { scaleY: 1.08, scaleX: 0.95, y: '-115%', x: '60%', rotate: 14 }, { duration: 0.32, ease: [0.2, 0.8, 0.4, 1] })
     if (gen.current !== run) return
-    // łukiem w górę i w lewo, poza wyspę (nie przez skałę)
-    await animate(scope.current, { y: '-40%', x: '-340%', rotate: -50, scaleY: 1, scaleX: 1, opacity: 0 }, { duration: 0.55, ease: [0.4, 0, 0.8, 0.6] })
+    // łukiem w górę i w prawo, nad pokojami, z dala od tekstu (nie przez skałę)
+    await animate(scope.current, { y: '-150%', x: '320%', rotate: 60, scaleY: 0.9, scaleX: 0.9, opacity: 0 }, { duration: 0.6, ease: [0.3, 0, 0.7, 1] })
   }, [animate, scope])
 
   const hide = useCallback(() => {
@@ -70,8 +70,8 @@ const Figure = forwardRef<FigureHandle, { theme: Theme; dim: boolean; reduce: bo
     // jawne klatki startowe: niezależnie od tego, gdzie skończyła poprzednia sekwencja
     await animate(
       scope.current,
-      { opacity: [1, 1], y: ['-330%', '0%'], x: ['-25%', '0%'], rotate: [-14, 0], scaleX: [0.94, 0.94], scaleY: [1.06, 1.06] },
-      { duration: 0.46, ease: [0.45, 0, 0.95, 0.55] },
+      { opacity: [0, 1, 1], y: ['-170%', '-120%', '0%'], x: ['-25%', '-18%', '0%'], rotate: [-14, -10, 0], scaleX: [0.94, 0.94, 0.94], scaleY: [1.06, 1.06, 1.06] },
+      { duration: 0.5, ease: [0.45, 0, 0.95, 0.55], times: [0, 0.15, 1] },
     )
     if (gen.current !== run) return
     setPose('stand')

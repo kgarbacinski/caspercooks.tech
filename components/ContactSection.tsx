@@ -282,14 +282,16 @@ export default function ContactSection() {
                     initial={{ scale: 1.6, rotate: -8, opacity: 0 }}
                     animate={{ scale: 1, rotate: -3, opacity: 1, transition: { delay: 2.3, type: 'spring', stiffness: 380, damping: 16 } }}
                   >
-                    {/* pieczątka pocztowa: tusz w kolorze wosku, lekko przesunięty jak prawdziwy odcisk */}
-                    <div className="relative inline-grid place-items-center w-72 h-72 rounded-full border-[5px] border-double border-[#c2541f]/85 text-[#d8662c]" style={{ filter: 'url(#ink)' }}>
+                    {/* pieczątka pocztowa na pocztówce (papierowe tło = kontrast) */}
+                    <div className="letter-paper px-10 py-10 sm:px-16 rotate-[2deg]">
+                    <div className="relative inline-grid place-items-center w-72 h-72 rounded-full border-[5px] border-double border-[#b8461a]/85 text-[#b8461a]" style={{ filter: 'url(#ink)' }}>
                       <div className="absolute inset-4 rounded-full border border-dashed border-[#c2541f]/60" />
                       <div className="text-center px-6">
                         <div className="font-mono text-[9px] uppercase tracking-[0.2em] mb-2 whitespace-nowrap">caspercooks.tech · post</div>
                         <div className="font-display text-[28px] leading-tight whitespace-nowrap">✓ Message Sent!</div>
                         <div className="font-mono text-[9px] uppercase tracking-[0.16em] mt-2 opacity-80 whitespace-nowrap">the envelope is on its way</div>
                       </div>
+                    </div>
                     </div>
                     <svg width="0" height="0" className="absolute" aria-hidden="true">
                       <filter id="ink">
@@ -306,24 +308,25 @@ export default function ContactSection() {
           {/* ——— adresy i notka ——— */}
           <div className="space-y-8">
             <motion.div
-              className="paper-card p-6 sm:p-8"
+              className="index-card px-6 pb-4 pt-5 sm:px-8"
+              style={{ rotate: '-0.8deg' }}
               initial={reduce ? false : { opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-80px' }}
               transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
             >
-              <h3 className="font-display text-2xl text-paper mb-4 sm:mb-6">Get In Touch</h3>
-              <div className="divide-y divide-dashed divide-cocoa-500/50">
+              <h3 className="font-display text-2xl text-ink h-[38px] mb-5">Get In Touch</h3>
+              <div>
                 {contactMethods.map((method) => (
-                  <a key={method.label} href={method.link} className="group flex items-center gap-4 py-3.5">
+                  <a key={method.label} href={method.link} className="group flex items-center gap-4 h-[54px]">
                     <span className="postmark">
                       <method.icon className="w-4 h-4" />
                     </span>
                     <span className="min-w-0">
-                      <span className="block font-mono text-[11px] text-paper-dim">{method.label}</span>
-                      <span className="block text-[15px] text-paper truncate group-hover:text-accent transition-colors">{method.value}</span>
+                      <span className="block font-mono text-[10px] uppercase tracking-[0.14em] text-ink/50">{method.label}</span>
+                      <span className="block text-[15px] text-ink truncate group-hover:text-[#b8461a] transition-colors">{method.value}</span>
                     </span>
-                    <span className="ml-auto text-paper-dim group-hover:text-accent group-hover:translate-x-1 transition" aria-hidden="true">
+                    <span className="ml-auto text-ink/40 group-hover:text-[#b8461a] group-hover:translate-x-1 transition" aria-hidden="true">
                       →
                     </span>
                   </a>

@@ -106,45 +106,54 @@ export function SectionHeader({
   )
 }
 
-const CABLE = 'M0 8 C 200 8, 260 56, 420 56 S 640 8, 800 8 S 1040 56, 1200 40'
-
 /**
- * Świecący kabel (motyw spod wyspy) jako separator sekcji: rysuje się przy wejściu
- * w widok, potem wzdłuż niego biegnie impuls światła (jak dane w światłowodzie).
+ * Separator sekcji: papierowa girlanda (sznurek + chorągiewki z kraftu, kremu, terakoty i akcentu).
+ * Sznurek rysuje się przy wejściu w widok, chorągiewki spadają kolejno i lekko się kołyszą.
  */
+const W = 1200
+const SAG = 38
+const twineY = (x: number) => 10 + SAG * Math.sin((Math.PI * x) / W)
+const TWINE = `M0 10 Q ${W / 2} ${10 + SAG * 2} ${W} 10`
+const FLAGS = Array.from({ length: 17 }, (_, i) => (i + 0.5) * (W / 17))
+const FLAG_COLORS = ['#efe2c7', '#c9a882', '#b8663f', 'rgb(var(--accent-rgb))']
+
 export function CableDivider({ className = '' }: { className?: string }) {
   const reduce = useReducedMotion()
   return (
-    <div className={`relative h-16 max-w-6xl mx-auto px-4 sm:px-8 ${className}`} aria-hidden="true">
-      <svg viewBox="0 0 1200 64" preserveAspectRatio="none" className="w-full h-full overflow-visible">
+    <div className={`relative max-w-6xl mx-auto px-4 sm:px-8 py-4 ${className}`} aria-hidden="true">
+      <svg viewBox={`0 0 ${W} 90`} className="w-full h-auto overflow-visible">
         <motion.path
-          d={CABLE}
+          d={TWINE}
           fill="none"
-          stroke="rgb(var(--accent-rgb) / 0.22)"
-          strokeWidth="7"
-          style={{ filter: 'blur(7px)' }}
+          stroke="#8d6a45"
+          strokeWidth="2"
+          vectorEffect="non-scaling-stroke"
           initial={reduce ? undefined : { pathLength: 0 }}
           whileInView={reduce ? undefined : { pathLength: 1 }}
           viewport={{ once: true, margin: '-40px' }}
-          transition={{ duration: 1.6, ease: 'easeInOut' }}
+          transition={{ duration: 1.1, ease: 'easeInOut' }}
         />
-        <motion.path
-          d={CABLE}
-          fill="none"
-          stroke="rgb(var(--accent-rgb) / 0.8)"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          initial={reduce ? undefined : { pathLength: 0 }}
-          whileInView={reduce ? undefined : { pathLength: 1 }}
-          viewport={{ once: true, margin: '-40px' }}
-          transition={{ duration: 1.6, ease: 'easeInOut' }}
-        />
-        {!reduce && (
-          <circle r="4" opacity="0" fill="rgb(var(--accent-rgb))" style={{ filter: 'drop-shadow(0 0 6px rgb(var(--accent-rgb)))' }}>
-            <animate attributeName="opacity" values="0;1" begin="1.6s" dur="0.2s" fill="freeze" />
-            <animateMotion dur="3.2s" repeatCount="indefinite" begin="1.6s" path={CABLE} keyPoints="0;1" keyTimes="0;1" calcMode="linear" />
-          </circle>
-        )}
+        {FLAGS.map((x, i) => {
+          const y = twineY(x)
+          return (
+            <motion.g
+              key={i}
+              initial={reduce ? undefined : { opacity: 0, y: -14 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 12, delay: 0.5 + i * 0.05 }}
+            >
+              <g className={reduce ? '' : 'animate-flag-sway'} style={{ transformOrigin: `${x}px ${y}px`, transformBox: 'view-box', animationDelay: `${(i % 5) * 0.35}s` }}>
+                <polygon
+                  points={`${x - 22},${y} ${x + 22},${y} ${x},${y + 38}`}
+                  fill={FLAG_COLORS[i % FLAG_COLORS.length]}
+                  opacity={i % 4 === 3 ? 0.85 : 0.95}
+                  style={{ filter: 'drop-shadow(0 6px 5px rgba(0,0,0,0.45))' }}
+                />
+              </g>
+            </motion.g>
+          )
+        })}
       </svg>
     </div>
   )

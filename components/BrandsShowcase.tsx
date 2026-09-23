@@ -240,9 +240,11 @@ export default function BrandsShowcase() {
           transition={{ duration: 1.6, ease: 'easeOut' }}
           style={{ transformOrigin: '50% -60px' }}
         >
+          {/* drążek, na którym wisi szyld */}
+          <span aria-hidden="true" className="absolute left-[10%] right-[10%] -top-[84px] h-2 rounded-full bg-gradient-to-b from-[#8d6a45] to-[#5a3e28] shadow-[0_6px_10px_rgba(0,0,0,0.6)]" />
           {/* sznurki */}
-          <span aria-hidden="true" className="absolute left-[18%] -top-20 h-20 w-px bg-gradient-to-b from-transparent to-kraft/70" />
-          <span aria-hidden="true" className="absolute right-[18%] -top-20 h-20 w-px bg-gradient-to-b from-transparent to-kraft/70" />
+          <span aria-hidden="true" className="absolute left-[18%] -top-20 h-20 w-[2px] bg-kraft/70" />
+          <span aria-hidden="true" className="absolute right-[18%] -top-20 h-20 w-[2px] bg-kraft/70" />
           <div className="hanging-sign text-center px-6 py-10 sm:px-12 sm:py-12">
             <h3 className="font-display text-3xl sm:text-4xl text-ink mb-4">Interested in Collaboration?</h3>
             <p className="text-ink/70 text-base sm:text-lg mb-8 max-w-2xl mx-auto">

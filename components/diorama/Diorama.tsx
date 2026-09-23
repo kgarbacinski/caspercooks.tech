@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion, useMotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
+import { AnimatePresence, motion, useAnimate, useMotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { SWITCH, useTheme } from '@/contexts/ThemeContext'
 import type { Theme } from '@/contexts/ThemeContext'
@@ -26,7 +26,23 @@ import PaperBurst from './PaperBurst'
 const ASPECT = `${FRAME.w} / ${FRAME.h}`
 const ACCENT: Record<Theme, string> = { developer: '0,255,136', founder: '255,107,53' }
 const FOLDED = 86 // kąt złożonego pokoju (leży płasko do tyłu)
-const OFF = 0.3 // jasność pokoju ze zgaszonym światłem (półmrok, nie czerń)
+const OFF = 0.45 // jasność pokoju ze zgaszonym światłem (półmrok, nie czerń)
+
+// żywe światła w pokojach (pozycje w % kadru): delikatnie pulsujące poświaty ekranów, lamp i ring lighta
+const GLOWS: Record<'dev' | 'ceo', { x: number; y: number; r: number; c: string; d: number }[]> = {
+  dev: [
+    { x: 16.8, y: 39, r: 7, c: '120,255,180', d: 3.1 }, // monitory w Dev cave
+    { x: 50.7, y: 39, r: 9, c: '90,255,160', d: 4.2 }, // skarbiec web3
+    { x: 72.3, y: 41, r: 6, c: '140,255,190', d: 2.7 }, // ekrany AI lab
+    { x: 82.3, y: 35.5, r: 6, c: '255,236,200', d: 3.6 }, // ring light
+  ],
+  ceo: [
+    { x: 16.4, y: 30, r: 8, c: '150,180,255', d: 4.4 }, // okno z miastem
+    { x: 33.7, y: 35, r: 7, c: '255,190,120', d: 3.3 }, // tablica
+    { x: 71.2, y: 32.5, r: 5, c: '120,255,150', d: 2.4 }, // radar
+    { x: 82.3, y: 35.5, r: 6, c: '255,236,200', d: 3.6 }, // ring light
+  ],
+}
 
 type RoomState = { up: boolean; lit: boolean; flicker: boolean }
 const allRooms = (s: RoomState) => Array.from({ length: 5 }, () => ({ ...s }))
@@ -45,6 +61,8 @@ export default function Diorama() {
   const [finePointer, setFinePointer] = useState(true)
   const [ready, setReady] = useState(false)
   const [burst, setBurst] = useState(0)
+  const [flash, setFlash] = useState(0)
+  const [bounceRef, animateBounce] = useAnimate()
   const k = KEY[theme]
   const info = ROOMS[theme]
   const boxes = ROOM_BOX[k]
@@ -87,11 +105,16 @@ export default function Diorama() {
       const E = SWITCH.enter
       for (let i = 0; i < 5; i++) at(delay + E.popUp + i * 70, () => setRooms((r) => r.map((s, j) => (j === i ? { ...s, up: true } : s))))
       at(delay + E.figure, () => figRef.current?.arrive())
+      // lądowanie figurki: cała wyspa ugina się i odbija (moment "bum")
+      at(delay + E.figure + 500, () => {
+        if (bounceRef.current)
+          animateBounce(bounceRef.current, { y: [0, 12, -5, 2, 0], rotateZ: [0, -0.6, 0.3, 0, 0] }, { duration: 0.7, ease: 'easeOut' })
+      })
       for (let i = 0; i < 5; i++)
         at(delay + E.lights + i * 110, () => setRooms((r) => r.map((s, j) => (j === i ? { ...s, lit: true, flicker: true } : s))))
       at(delay + E.lights + 4 * 110 + 100, () => setBaseLit(true))
     },
-    [at],
+    [at, animateBounce, bounceRef],
   )
 
   // intro po załadowaniu grafik
@@ -150,6 +173,7 @@ export default function Diorama() {
     if (phase === 'entering') {
       // papierowe ścinki wystrzeliwują z wyspy, gdy wyskakuje nowy świat
       setBurst((b) => b + 1)
+      setFlash((f) => f + 1)
       enter(mode === 'curtain' ? 150 : 0)
     }
   }, [phase, mode, reduce, at, enter])
@@ -265,6 +289,7 @@ export default function Diorama() {
         }}
       >
         <div className={reduce ? 'relative' : 'relative animate-float'}>
+          <div ref={bounceRef} className="relative">
           <div
             ref={boxRef}
             className={`relative ${spot ? 'cursor-pointer' : ''}`}
@@ -379,7 +404,41 @@ export default function Diorama() {
               )
             })}
 
+            {/* żywe światła (tylko przy zapalonych światłach i bez podświetlenia pokoju) */}
+            {!reduce &&
+              GLOWS[k].map((g, i) => (
+                <span
+                  key={`${k}-g${i}`}
+                  aria-hidden="true"
+                  className="absolute rounded-full pointer-events-none mix-blend-screen animate-glow-breathe"
+                  style={{
+                    left: `${g.x}%`,
+                    top: `${g.y}%`,
+                    width: `${g.r * 2}%`,
+                    aspectRatio: '1',
+                    transform: 'translate(-50%,-50%)',
+                    background: `radial-gradient(circle, rgba(${g.c},0.35), rgba(${g.c},0.08) 45%, transparent 70%)`,
+                    opacity: baseLit && !spot ? 1 : 0,
+                    transition: 'opacity .6s ease',
+                    animationDuration: `${g.d}s`,
+                    zIndex: 12,
+                  }}
+                />
+              ))}
+
             {burst > 0 && <PaperBurst key={burst} accent={accent} />}
+            {/* błysk światła, gdy nowe pokoje wyskakują */}
+            {flash > 0 && (
+              <motion.span
+                key={`flash-${flash}`}
+                aria-hidden="true"
+                className="absolute inset-[-10%] pointer-events-none z-[25] mix-blend-screen"
+                style={{ background: `radial-gradient(ellipse 60% 45% at 50% 42%, rgba(255,240,215,0.55), rgba(${accent},0.15) 45%, transparent 70%)` }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ duration: 0.55, times: [0, 0.25, 1] }}
+              />
+            )}
 
             {/* figurka — własna warstwa i paralaksa */}
             <motion.div className="absolute inset-0 pointer-events-none" style={{ x: reduce ? 0 : figX, zIndex: 20 }}>
@@ -453,6 +512,7 @@ export default function Diorama() {
                 </motion.div>
               )}
             </AnimatePresence>
+          </div>
           </div>
         </div>
       </motion.div>

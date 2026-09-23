@@ -227,8 +227,8 @@ export default function AboutSection() {
   // scena przypięta: postęp scrolla → aktywna notatka + zoom kamery w pokój
   const sceneRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: sceneRef, offset: ['start start', 'end end'] })
-  const zoom = useSpring(useTransform(scrollYProgress, [0, 1], reduce ? [1, 1] : [0.9, 1.12]), { stiffness: 80, damping: 22 })
-  const panY = useSpring(useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [40, 0]), { stiffness: 80, damping: 22 })
+  const zoom = useSpring(useTransform(scrollYProgress, [0, 1], reduce ? [1, 1] : [1.18, 0.96]), { stiffness: 80, damping: 22 })
+  const panY = useSpring(useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [-10, 10]), { stiffness: 80, damping: 22 })
   const glow = useTransform(scrollYProgress, [0, 0.5, 1], [0.35, 0.8, 0.55])
   const [active, setActive] = useState(0)
   const steps = s.notes.length + 1 // ostatni krok = statystyki
@@ -245,13 +245,13 @@ export default function AboutSection() {
         <div className="sticky top-0 h-screen overflow-hidden">
           <div className="max-w-6xl mx-auto px-8 h-full grid grid-cols-[1.05fr_1fr] gap-10 items-center">
             {/* pokój, w który wjeżdża kamera */}
-            <div className="relative h-[78vh] flex items-end justify-center">
+            <div className="relative h-[80vh] flex items-center justify-center">
               <motion.div
                 aria-hidden="true"
                 className="absolute inset-x-[8%] bottom-[6%] h-[40%] rounded-[50%] blur-3xl"
                 style={{ background: 'rgb(var(--accent-rgb) / 0.22)', opacity: glow }}
               />
-              <motion.div className="relative w-[88%] max-w-[520px]" style={{ scale: zoom, y: panY, transformOrigin: '50% 70%' }}>
+              <motion.div className="relative w-[92%] max-w-[580px] mt-10" style={{ scale: zoom, y: panY, transformOrigin: '50% 70%' }}>
                 <AnimatePresence mode="popLayout" initial={false}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <motion.img
