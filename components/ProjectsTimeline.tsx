@@ -300,7 +300,7 @@ export default function ProjectsTimeline() {
     <section id="projects" className="relative scroll-mt-20">
       {/* desktop: przypięty poziomy przejazd */}
       <div ref={wrapRef} className="relative hidden lg:block" style={{ height: `calc(100vh + ${dist}px)` }}>
-        <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center">
+        <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center pt-16">
           <div className="max-w-6xl w-full mx-auto px-8 mb-10 flex items-end justify-between gap-8">
             {header}
             <div className="shrink-0 text-right font-mono text-xs text-paper-dim pb-2">
