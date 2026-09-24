@@ -52,6 +52,17 @@ export default function Navigation() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // otwarte menu mobilne zamyka się, gdy użytkownik przewinie stronę pod nim (> 48 px) — nie wisi nad treścią
+  useEffect(() => {
+    if (!isMobileMenuOpen) return
+    const y0 = window.scrollY
+    const on = () => {
+      if (Math.abs(window.scrollY - y0) > 48) setIsMobileMenuOpen(false)
+    }
+    window.addEventListener('scroll', on, { passive: true })
+    return () => window.removeEventListener('scroll', on)
+  }, [isMobileMenuOpen])
+
   // aktywny link = sekcja przecinająca linię 30% wysokości pod paskiem (z pozycji, nie z IntersectionObservera:
   // ten gubił stan przy szybkim przejeździe Lenisa przez przypięte sceny, a kontakt na dole strony nigdy nie
   // dochodził do pasma obserwacji). #stack nie ma linku — nad pegboardem podświetlenie gaśnie.
@@ -90,7 +101,9 @@ export default function Navigation() {
   return (
     <nav
       className={`fixed top-0 inset-x-0 z-50 transition-colors duration-300 ${
-        scrolled ? 'bg-night/95 backdrop-blur-md border-b border-cocoa-500/40' : 'bg-transparent'
+        // rozmycie tła tylko na desktopie: na telefonie tło i tak jest w 95% kryjące, a backdrop-filter
+        // na przypiętym pasku przelicza się w każdej klatce przewijania dotykiem
+        scrolled ? 'bg-night/95 lg:backdrop-blur-md border-b border-cocoa-500/40' : 'bg-transparent'
       }`}
     >
       {/* data-nav-bar: wysokość paska dla nawigacji po stronie (components/scrollNav) */}
@@ -152,7 +165,7 @@ export default function Navigation() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden overflow-hidden bg-night/95 backdrop-blur-lg border-t border-cocoa-500/40"
+            className="lg:hidden overflow-hidden bg-night/[0.97] border-t border-cocoa-500/40"
           >
             {/* niski ekran (telefon poziomo): lista przewija się zamiast wychodzić poza ekran */}
             <div className="px-4 sm:px-8 py-2 max-h-[calc(100svh-4rem)] overflow-y-auto overscroll-contain">

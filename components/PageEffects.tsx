@@ -15,7 +15,9 @@ export default function PageEffects() {
   useEffect(() => {
     // hero ma zawsze startować od góry (wejście wyspy), więc bez przywracania scrolla po odświeżeniu
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
-    if (!location.hash) window.scrollTo(0, 0)
+    // …ale nie, jeśli użytkownik zaczął już przewijać przed hydracją (wolny telefon) — skok na górę
+    // w trakcie przewijania palcem to najgorsze, co może się stać (flaga z app/layout.tsx)
+    if (!location.hash && !(window as unknown as { __userScrolled?: boolean }).__userScrolled) window.scrollTo(0, 0)
     // kotwice (#about, #brands/coderiv, # = góra) przez wspólną nawigację: pasek, przypięte sceny,
     // głębokie linki; działa też bez Lenisa (prefers-reduced-motion → skok bez animacji)
     const onClick = (e: MouseEvent) => {

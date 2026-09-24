@@ -49,6 +49,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${display.variable} ${mono.variable}`}>
+      <head>
+        {/* przed hydracją: bez przywracania scrolla przez przeglądarkę (hero startuje od góry) i flaga,
+            że użytkownik już sam przewija — PageEffects nie cofnie go wtedy na górę strony */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{history.scrollRestoration='manual'}catch(e){}['touchstart','wheel','keydown'].forEach(function(t){addEventListener(t,function(){window.__userScrolled=true},{once:true,passive:true})})",
+          }}
+        />
+      </head>
       <body>
         <ThemeProvider>
           {children}
