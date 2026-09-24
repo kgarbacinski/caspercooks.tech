@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
-import { SectionHeader, RoomCutout, EASE } from '@/components/ui/Section'
+import { SectionHeader, RoomCutout, EASE, ROOM_CLS, ROOM_ROW } from '@/components/ui/Section'
 import { useTheme } from '@/contexts/ThemeContext'
 import { FaGraduationCap, FaMobileAlt, FaBullseye, FaRobot } from 'react-icons/fa'
 import type { IconType } from 'react-icons'
@@ -251,7 +251,7 @@ export default function BrandsShowcase() {
   return (
     <section id="brands" className="relative py-16 sm:py-24 scroll-mt-20 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
-        <div className="flex items-end justify-between gap-8 mb-14 sm:mb-16">
+        <div className={`${ROOM_ROW} mb-14 sm:mb-16`}>
           <SectionHeader
             index={theme === 'developer' ? '04' : '03'}
             eyebrow="/brands"
@@ -264,7 +264,7 @@ export default function BrandsShowcase() {
               </>
             }
           />
-          <RoomCutout world="ceo" room={2} className="hidden md:block w-56 lg:w-72 shrink-0 -mb-6" />
+          <RoomCutout world="ceo" room={2} className={ROOM_CLS} />
         </div>
       </div>
 

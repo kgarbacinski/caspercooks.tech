@@ -292,6 +292,7 @@ export default function AboutSection() {
   const mRoom = useRef<HTMLDivElement>(null)
   const mInView = useInView(mRoom)
   const mPeek = useRef<DepthTarget>({ x: 0, y: 0 })
+  const mLayer = useRef<HTMLDivElement>(null)
   const { scrollYProgress: mProg } = useScroll({ target: mRoom, offset: ['start end', 'end start'] })
   useMotionValueEvent(mProg, 'change', (v) => {
     mPeek.current = { x: 0, y: Math.max(-1, Math.min(1, (0.5 - v) * 2.2)) }
@@ -411,9 +412,10 @@ export default function AboutSection() {
 
       {/* ——— mobile / tablet: pokój + notatki w pionie ——— */}
       <div className="lg:hidden max-w-2xl mx-auto px-4 sm:px-8 pb-8">
-        <div ref={mRoom} className="relative mx-auto w-[74%] max-w-[380px] mt-10 mb-16">
+        {/* data-paused: pętle CSS animacji pokoju stoją, gdy pokój jest poza kadrem */}
+        <div ref={mRoom} data-paused={mInView ? undefined : true} className="relative mx-auto w-[74%] max-w-[380px] mt-10 mb-16">
           <div aria-hidden="true" className="absolute inset-x-[5%] bottom-0 h-1/3 rounded-[50%] blur-3xl" style={{ background: 'rgb(var(--accent-rgb) / 0.22)' }} />
-          <div className="relative">
+          <div ref={mLayer} className="relative">
             <DepthRoom
               src={roomSrc(theme, 0)}
               srcSet={roomSrcSet(KEY[theme], 0)}
@@ -422,10 +424,14 @@ export default function AboutSection() {
               target={mPeek}
               active={mInView && !reduce}
               amp={0.07}
+              // sprite'y animacji leżą na płaskiej warstwie DOM — paralaksa 2.5D ich nie rozjeżdża
+              freeze={mLayer}
               imgProps={{ alt: `${room.label} — a papercraft room from the diorama`, loading: 'lazy' }}
               className="relative w-full h-auto drop-shadow-[0_30px_30px_rgba(0,0,0,0.7)]"
               style={{ aspectRatio: `${rb.w * 24} / ${rb.h * 12.24}` }}
             />
+            {/* te same żywe animacje pokoju co w hero i w scenie desktopowej (ekrany z kodem / okna miasta…) */}
+            {!reduce && <RoomAmbient world={KEY[theme]} room={0} run={mInView} show lite hi />}
           </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={`/diorama/v2/fig-${KEY[theme]}.webp`} srcSet={FIG_SET(KEY[theme])} sizes="(min-width: 640px) 150px, 28vw" alt="" aria-hidden="true" loading="lazy" className="absolute bottom-0 right-[-10%] h-[72%] w-auto" />

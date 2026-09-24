@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { SectionHeader, RoomCutout, EASE } from '@/components/ui/Section'
+import { SectionHeader, RoomCutout, EASE, ROOM_CLS, ROOM_ROW } from '@/components/ui/Section'
 import {
   SiPython, SiJavascript, SiTypescript, SiCplusplus, SiSolidity, SiGo,
   SiDjango, SiFastapi, SiFlask, SiNodedotjs, SiNextdotjs, SiReact, SiGraphql, SiCelery, SiRabbitmq,
@@ -179,7 +179,7 @@ export default function TechStack() {
   return (
     <section id="stack" className="relative py-16 sm:py-24 scroll-mt-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
-        <div className="flex items-end justify-between gap-8 mb-12 sm:mb-14">
+        <div className={`${ROOM_ROW} mb-12 sm:mb-14`}>
           <SectionHeader
             index="03"
             eyebrow="ls -la /usr/bin/skills"
@@ -192,7 +192,7 @@ export default function TechStack() {
             }
             lead="Adaptability allows writing efficient code in any stack"
           />
-          <RoomCutout room={3} className="hidden md:block w-56 lg:w-72 shrink-0 -mb-6" />
+          <RoomCutout room={3} className={ROOM_CLS} />
         </div>
 
         {/* naklejki kategorii */}

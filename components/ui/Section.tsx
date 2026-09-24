@@ -12,6 +12,10 @@ import RoomAmbient from '@/components/diorama/Ambient'
 
 export const EASE = [0.22, 1, 0.36, 1] as const
 
+/** nagłówek sekcji + pokój z wyspy: obok siebie od md, na telefonie pokój pod nagłówkiem (też żywy — nie chowamy go) */
+export const ROOM_ROW = 'flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-8'
+export const ROOM_CLS = 'w-[68%] max-w-[16.5rem] self-center md:self-auto md:max-w-none md:w-56 lg:w-72 shrink-0 md:-mb-6'
+
 /**
  * Pokój z dioramy wycięty dokładnie po kształcie (ta sama grafika co w hero) — "żywa makieta":
  *  - pop-up book: pokój leży złożony płasko i wstaje razem ze scrollem, gdy wjeżdża w kadr
