@@ -14,9 +14,11 @@ let last = 0
 let virt = 0
 let hidden = false
 
+let held = false
+
 function frame(now: number) {
   raf = 0
-  if (hidden || !subs.size) return
+  if (hidden || held || !subs.size) return
   // krok zegara ograniczony do 100 ms (po zamrożonej klatce nie przeskakujemy do przodu)
   virt += Math.min(100, Math.max(0, now - (last || now)))
   last = now
@@ -25,7 +27,7 @@ function frame(now: number) {
 }
 
 function start() {
-  if (raf || hidden || !subs.size) return
+  if (raf || hidden || held || !subs.size) return
   last = 0
   raf = requestAnimationFrame(frame)
 }
@@ -53,3 +55,18 @@ export function subscribe(fn: Sub) {
 }
 
 export const clockNow = () => virt
+
+/**
+ * Wstrzymanie pętli na czas przesuwania panoramy palcem (telefon): ekrany z kodem i sejf nie malują
+ * się wtedy co klatkę, więc wątek główny nie konkuruje z przewijaniem. Czas wirtualny stoi —
+ * po puszczeniu świat rusza dokładnie tam, gdzie stanął (bez skoku). Pętle CSS chodzą dalej.
+ */
+export function hold(on: boolean) {
+  if (held === on) return
+  held = on
+  if (on && raf) {
+    cancelAnimationFrame(raf)
+    raf = 0
+  }
+  if (!on) start()
+}

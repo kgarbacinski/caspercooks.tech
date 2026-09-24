@@ -34,9 +34,25 @@ export default function PageEffects() {
 
     let lenis: Lenis | null = null
     let raf = 0
+    let offTouch = () => {}
     if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      lenis = new Lenis({ duration: 0.95, smoothWheel: true }) // krócej: kamera i teczki mają jeszcze własne sprężyny
+      // telefon / tablet (dotyk jako główne wejście): Lenis i tak nie wygładza dotyku (syncTouch: false),
+      // a jego touchstart/touchmove/wheel na window są NIEPASYWNE — każdy ruch palca (także w poziomej
+      // panoramie hero) czekał wtedy na wolny wątek główny, zanim przeglądarka mogła przewinąć. Na dotyku
+      // Lenis nasłuchuje więc na odłączonym elemencie (zero listenerów na stronie, scroll w całości natywny
+      // na kompozytorze), a zostaje tylko do programowego scrollTo nawigacji (components/scrollNav).
+      const touch = window.matchMedia('(hover: none) and (pointer: coarse)').matches
+      lenis = new Lenis({ duration: 0.95, smoothWheel: true, ...(touch ? { eventsTarget: document.createElement('div') } : {}) }) // krócej: kamera i teczki mają jeszcze własne sprężyny
       ;(window as unknown as { __lenis?: Lenis }).__lenis = lenis
+      if (touch) {
+        // jak wcześniej: palec przerywa płynny przejazd nawigacji (pasywnie, bez blokowania scrolla)
+        const l = lenis
+        const onMove = () => {
+          if (l.isScrolling === 'smooth') l.scrollTo(window.scrollY, { immediate: true, force: true })
+        }
+        window.addEventListener('touchmove', onMove, { passive: true })
+        offTouch = () => window.removeEventListener('touchmove', onMove)
+      }
       const loop = (t: number) => {
         lenis!.raf(t)
         raf = requestAnimationFrame(loop)
@@ -56,6 +72,7 @@ export default function PageEffects() {
     return () => {
       clearTimeout(t)
       cancelAnimationFrame(raf)
+      offTouch()
       document.removeEventListener('click', onClick)
       window.removeEventListener('hashchange', onHash)
       lenis?.destroy()

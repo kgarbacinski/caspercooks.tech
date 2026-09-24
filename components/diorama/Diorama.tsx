@@ -15,6 +15,7 @@ import RoomAmbient from './Ambient'
 import DepthRoom, { type DepthTarget } from './DepthRoom'
 import Cables from './Cables'
 import { MQ } from '@/hooks/media'
+import { hold as holdAmbient } from './ambientClock'
 
 /**
  * Lewitująca diorama v2 — złożona z warstw zamiast jednego obrazka:
@@ -80,12 +81,60 @@ export default function Diorama() {
   const figLayer = useRef<HTMLDivElement>(null)
   const [peekLive, setPeekLive] = useState<number | null>(null)
   const pending = useRef<{ val: number | null | undefined; n: number; t: number }>({ val: undefined, n: 0, t: 0 })
-  // podpowiedź „→” gaśnie, gdy scena jest przesunięta do prawej krawędzi (i wraca po cofnięciu)
+  // podpowiedź „→” gaśnie, gdy scena jest przesunięta do prawej krawędzi (i wraca po cofnięciu) —
+  // znacznik końca sceny + IntersectionObserver: zero JS i zero renderów Reacta na każde zdarzenie scroll
   const [panEnd, setPanEnd] = useState(false)
-  const onPan = () => {
+  const panEndRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const root = panRef.current
+    const el = panEndRef.current
+    if (!root || !el) return
+    const io = new IntersectionObserver(([e]) => setPanEnd(e.isIntersecting), { root, rootMargin: '0px 8px 0px 0px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+  // w trakcie przesuwania panoramy palcem (i wygasania pędu) pętla JS ekranów z kodem / sejfu stoi —
+  // wątek główny nie maluje canvasów co klatkę, gdy przeglądarka przewija; pętle CSS chodzą dalej.
+  // Nasłuch pasywny, bez stanu Reacta (nic się nie renderuje ponownie).
+  useEffect(() => {
     const el = panRef.current
-    if (el) setPanEnd(el.scrollLeft >= el.scrollWidth - el.clientWidth - 8)
-  }
+    if (!el) return
+    let touching = false
+    let t = 0
+    const release = () => {
+      window.clearTimeout(t)
+      t = window.setTimeout(() => {
+        if (!touching) holdAmbient(false)
+      }, 160)
+    }
+    const onStart = () => {
+      touching = true
+      window.clearTimeout(t)
+      holdAmbient(true)
+    }
+    const onEnd = () => {
+      touching = false
+      release()
+    }
+    // pęd po puszczeniu palca: każde zdarzenie scroll przedłuża pauzę, koniec = 160 ms bez ruchu
+    const onScroll = () => {
+      holdAmbient(true)
+      release()
+    }
+    const o = { passive: true } as const
+    el.addEventListener('touchstart', onStart, o)
+    el.addEventListener('touchend', onEnd, o)
+    el.addEventListener('touchcancel', onEnd, o)
+    el.addEventListener('scroll', onScroll, o)
+    return () => {
+      window.clearTimeout(t)
+      el.removeEventListener('touchstart', onStart)
+      el.removeEventListener('touchend', onEnd)
+      el.removeEventListener('touchcancel', onEnd)
+      el.removeEventListener('scroll', onScroll)
+      holdAmbient(false)
+    }
+  }, [])
   // mobile: startowo pokazujemy pokój z figurką
   useEffect(() => {
     const el = panRef.current
@@ -456,11 +505,12 @@ export default function Diorama() {
       </motion.div>
 
       {/* mobile: scena szersza niż ekran, przesuwana palcem (większe pokoje); desktop bez zmian */}
-      {/* miękkie wygaszenie brzegów zamiast twardego cięcia sceny na krawędzi ekranu */}
       {/* overflow-y hidden (a nie visible, które przy overflow-x auto i tak liczy się jako auto): scena przewija
           się palcem tylko w bok, pionowy swipe na wyspie zawsze przewija stronę (paralaksa nie tworzy już
-          pionowego przewijania w środku); overscroll-x contain: koniec sceny nie uruchamia gestu „wstecz” */}
-      <div ref={panRef} onScroll={onPan} className="overflow-x-auto overflow-y-hidden overscroll-x-contain sm:overflow-visible no-scrollbar snap-x max-sm:[mask-image:linear-gradient(90deg,transparent,#000_5%,#000_95%,transparent)]">
+          pionowego przewijania w środku); overscroll-x contain: koniec sceny nie uruchamia gestu „wstecz”.
+          Przewijanie w całości natywne (kompozytor): bez maski na samym kontenerze (maska na przewijanym
+          elemencie wymusza przemalowanie przy każdym przesunięciu), bez snapa i bez JS w pętli scrolla. */}
+      <div ref={panRef} className="overflow-x-auto overflow-y-hidden overscroll-x-contain sm:overflow-visible no-scrollbar">
       <div className="w-[165%] sm:w-full pt-12 pb-7 sm:p-0">
       <motion.div
         ref={wrapRef}
@@ -787,8 +837,14 @@ export default function Diorama() {
           </div>
         </div>
       </motion.div>
+      {/* znacznik prawego końca sceny (IntersectionObserver podpowiedzi „→”) */}
+      <div ref={panEndRef} aria-hidden="true" className="ml-auto -mt-px h-px w-px sm:hidden" />
       </div>
       </div>
+      {/* miękkie wygaszenie brzegów panoramy: statyczne nakładki nad przewijanym kontenerem (nie przewijają się
+          i nie malują się ponownie przy scrollu) zamiast mask-image na samym kontenerze */}
+      <div aria-hidden="true" className="sm:hidden pointer-events-none absolute left-0 top-0 bottom-0 w-[5%] bg-gradient-to-r from-night to-transparent" />
+      <div aria-hidden="true" className="sm:hidden pointer-events-none absolute right-0 top-0 bottom-0 w-[5%] bg-gradient-to-l from-night to-transparent" />
       {!finePointer && (
         <div aria-hidden="true" style={{ opacity: panEnd ? 0 : 1 }} className="sm:hidden transition-opacity duration-300 pointer-events-none absolute right-0 top-0 bottom-0 w-14 bg-gradient-to-l from-night/80 to-transparent flex items-center justify-end pr-2">
           <span className="grid place-items-center w-7 h-7 rounded-full bg-cream text-ink text-sm shadow-lg animate-nudge-3">→</span>
