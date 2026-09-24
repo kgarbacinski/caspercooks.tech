@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useRef } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
+import EffectBoundary from '@/components/ui/EffectBoundary'
 import { ARM, ARM2, CITY, DUCKS, FLOW, GLOW, LAMP, LEDS, OFFICE, PHONES, RADAR, REC, SCOPE, SCREENS, SLIDES, VAULT } from './ambientLayout'
 import type { Pct } from './ambientLayout'
 import { ROOM_BOX } from './layout'
@@ -993,7 +994,16 @@ function Duck({ id }: { id: keyof typeof DUCKS }) {
   )
 }
 
-export default function RoomAmbient({ world, room, run, show, hot, lite, artClass, artStyle, hi = false }: Props) {
+/** Animacje pokoju w granicy błędów: wyjątek w animacji zostawia sam statyczny pokój (bez „Application error”). */
+export default function RoomAmbient(props: Props) {
+  return (
+    <EffectBoundary name="room-ambient" resetKey={`${props.world}-${props.room}`}>
+      <RoomAmbientLive {...props} />
+    </EffectBoundary>
+  )
+}
+
+function RoomAmbientLive({ world, room, run, show, hot, lite, artClass, artStyle, hi = false }: Props) {
   const key = `${world}${room}`
   // warstwa "grafiki": płyty, sprite'y, ekrany — dostaje ten sam filtr co obrazek pokoju
   let art: ReactNode = null
@@ -1168,7 +1178,7 @@ export default function RoomAmbient({ world, room, run, show, hot, lite, artClas
   if (!art && !fx) return null
   return (
     <HiRes.Provider value={hi}>
-    <div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ containerType: 'inline-size' }}>
+    <div data-amb aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ containerType: 'inline-size' }}>
       {art && (
         <div data-amb-art className={`absolute inset-0 ${artClass ?? ''}`} style={artStyle}>
           {art}

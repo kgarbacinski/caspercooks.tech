@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties, MutableRefObject, RefObject } from 'react'
+import EffectBoundary from '@/components/ui/EffectBoundary'
 
 /**
  * Pokój 2.5D: ta sama grafika pokoju + mapa głębi z AI (Depth Anything V2, casper-room/v3/depth.py)
@@ -125,7 +126,22 @@ function loadImg(src: string) {
   })
 }
 
-export default function DepthRoom({ src, srcSet, sizes: sizesHint, depth, target, active, amp = 0.05, freeze, rim, followers, className = '', style, imgProps, pad = 0, onLive }: Props) {
+/** Pokój 2.5D w granicy błędów: gdyby WebGL mimo wszystko się wysypał, zostaje zwykły obrazek pokoju. */
+export default function DepthRoom(props: Props) {
+  const { src, srcSet, sizes, className, style, imgProps } = props
+  return (
+    <EffectBoundary
+      name="depth-room"
+      resetKey={src}
+      // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+      fallback={<img {...imgProps} src={src} srcSet={srcSet} sizes={srcSet ? sizes : undefined} draggable={false} className={className} style={style} />}
+    >
+      <DepthRoomLive {...props} />
+    </EffectBoundary>
+  )
+}
+
+function DepthRoomLive({ src, srcSet, sizes: sizesHint, depth, target, active, amp = 0.05, freeze, rim, followers, className = '', style, imgProps, pad = 0, onLive }: Props) {
   const [gl, setGl] = useState(false) // canvas zamontowany
   const imgRef = useRef<HTMLImageElement>(null)
   // sizes = faktyczna szerokość <img> w px (tylko rośnie — bez podmiany na mniejszy plik)
@@ -152,7 +168,11 @@ export default function DepthRoom({ src, srcSet, sizes: sizesHint, depth, target
     const cs = imgRef.current?.currentSrc
     return cs && cs.includes(src.replace(/\.\w+$/, '')) ? cs : src
   }
-  const [live, setLive] = useState(false) // canvas pokazuje obraz (img ukryty)
+  // canvas pokazuje obraz (img ukryty) — zapamiętane DLA KONKRETNEGO źródła: po zmianie pokoju nowy, jeszcze
+  // pusty canvas nie zasłania obrazka, zanim narysuje pierwszą klatkę
+  const srcKey = `${src}|${depth}`
+  const [liveFor, setLiveFor] = useState<string | null>(null)
+  const live = liveFor === srcKey
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const activeRef = useRef(active)
   activeRef.current = active
@@ -172,12 +192,23 @@ export default function DepthRoom({ src, srcSet, sizes: sizesHint, depth, target
     if (!gl) return
     const cv = canvasRef.current
     if (!cv) return
-    const ctx = cv.getContext('webgl', { premultipliedAlpha: true, alpha: true, antialias: false })
-    if (!ctx) {
+    // Każde źródło (pokój DEV / CEO, zakładka About) dostaje NOWY canvas (key w JSX): sprzątanie poprzedniego
+    // przebiegu woła loseContext(), a getContext na tym samym elemencie zwróciłby ten sam, już utracony kontekst —
+    // createShader dawał wtedy null i WebKit rzucał TypeError w shaderSource („Application error” na iPhonie
+    // przy przełączeniu DEV → CEO). Niezależnie od tego: każdy błąd / utrata kontekstu = powrót do zwykłego <img>.
+    let ctx: WebGLRenderingContext | null = null
+    try {
+      ctx = cv.getContext('webgl', { premultipliedAlpha: true, alpha: true, antialias: false })
+    } catch {
+      ctx = null
+    }
+    if (!ctx || ctx.isContextLost()) {
       setGl(false)
       return
     }
     const g = ctx
+    const myKey = srcKey
+    const setLive = (v: boolean) => setLiveFor((cur) => (v ? myKey : cur === myKey ? null : cur))
     let raf = 0
     let dead = false
     const cur = { x: 0, y: 0 }
@@ -190,16 +221,28 @@ export default function DepthRoom({ src, srcSet, sizes: sizesHint, depth, target
     const fol = (followers ?? []).map((f) => ({ ...f, px: 0 }))
 
     const sh = (type: number, s: string) => {
-      const o = g.createShader(type)!
+      const o = g.createShader(type)
+      if (!o) throw new Error('webgl: createShader')
       g.shaderSource(o, s)
       g.compileShader(o)
       return o
     }
-    const prog = g.createProgram()!
-    g.attachShader(prog, sh(g.VERTEX_SHADER, VS))
-    g.attachShader(prog, sh(g.FRAGMENT_SHADER, FS))
-    g.linkProgram(prog)
-    g.useProgram(prog)
+    let prog: WebGLProgram
+    try {
+      const p = g.createProgram()
+      if (!p) throw new Error('webgl: createProgram')
+      g.attachShader(p, sh(g.VERTEX_SHADER, VS))
+      g.attachShader(p, sh(g.FRAGMENT_SHADER, FS))
+      g.linkProgram(p)
+      if (!g.getProgramParameter(p, g.LINK_STATUS) && !g.isContextLost()) throw new Error('webgl: link')
+      g.useProgram(p)
+      prog = p
+    } catch {
+      // brak zasobów GL (limit kontekstów, utracony kontekst) — zostaje zwykły obrazek
+      g.getExtension('WEBGL_lose_context')?.loseContext()
+      setGl(false)
+      return
+    }
     const buf = g.createBuffer()
     g.bindBuffer(g.ARRAY_BUFFER, buf)
     g.bufferData(g.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), g.STATIC_DRAW)
@@ -269,6 +312,7 @@ export default function DepthRoom({ src, srcSet, sizes: sizesHint, depth, target
     }
 
     const draw = () => {
+      if (dead || g.isContextLost()) return
       g.uniform2f(uOff, cur.x * amp, cur.y * amp * (cv.offsetWidth / Math.max(1, cv.offsetHeight)))
       g.uniform1f(uRefL, uRef)
       g.uniform1f(uRimL, rim ? rimCur : 0)
@@ -332,8 +376,17 @@ export default function DepthRoom({ src, srcSet, sizes: sizesHint, depth, target
       if (!raf && !dead) raf = requestAnimationFrame(tick)
     }
     kick.current = start
+    // system odebrał kontekst (iOS przy braku pamięci GPU / zbyt wielu kontekstach): z powrotem obrazek
+    const onLost = (e: Event) => {
+      e.preventDefault()
+      dead = true
+      cancelAnimationFrame(raf)
+      setLive(false)
+      setGl(false)
+    }
+    cv.addEventListener('webglcontextlost', onLost)
     const ro = new ResizeObserver(() => {
-      if (!ready) return
+      if (!ready || dead) return
       size()
       draw()
     })
@@ -341,7 +394,7 @@ export default function DepthRoom({ src, srcSet, sizes: sizesHint, depth, target
 
     const first = pickSrc()
     swapTex.current = (im) => {
-      if (dead || !ready) return
+      if (dead || !ready || g.isContextLost()) return
       g.activeTexture(g.TEXTURE0)
       const old = g.getParameter(g.TEXTURE_BINDING_2D)
       tex(0, im, true)
@@ -350,7 +403,7 @@ export default function DepthRoom({ src, srcSet, sizes: sizesHint, depth, target
     }
     Promise.all([loadImg(first), loadImg(depth), measureFreeze()])
       .then(([im, dm]) => {
-        if (dead) return
+        if (dead || g.isContextLost()) return
         texSrc.current = first
         tex(0, im, true)
         tex(1, dm, false)
@@ -363,13 +416,16 @@ export default function DepthRoom({ src, srcSet, sizes: sizesHint, depth, target
         })
         start()
       })
-      .catch(() => setGl(false))
+      .catch(() => {
+        if (!dead) setGl(false)
+      })
 
     return () => {
       dead = true
       kick.current = () => {}
       cancelAnimationFrame(raf)
       ro.disconnect()
+      cv.removeEventListener('webglcontextlost', onLost)
       for (const f of fol) if (f.el.current) f.el.current.style.transform = ''
       g.getExtension('WEBGL_lose_context')?.loseContext()
     }
@@ -397,6 +453,8 @@ export default function DepthRoom({ src, srcSet, sizes: sizesHint, depth, target
         draggable={false} className={className} style={{ ...style, ...(live ? { opacity: 0 } : null) }} />
       {gl && (
         <canvas
+          // nowy element przy zmianie źródła: utracony kontekst poprzedniego nie wraca przez getContext
+          key={srcKey}
           ref={canvasRef}
           aria-hidden="true"
           className={className}

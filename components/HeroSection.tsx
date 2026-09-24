@@ -4,6 +4,26 @@ import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import Diorama from './diorama/Diorama'
+import EffectBoundary from './ui/EffectBoundary'
+import { KEY } from './diorama/rooms'
+import { FRAME } from './diorama/layout'
+
+/** Zapas na wypadek błędu dioramy: ta sama wyspa jako jeden statyczny obraz (bez animacji). */
+function StaticIsland() {
+  const { theme } = useTheme()
+  const k = KEY[theme]
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={`/diorama/v2/island-${k}.webp`}
+      srcSet={`/diorama/v2/island-${k}-sm.webp 1200w, /diorama/v2/island-${k}.webp 2400w`}
+      sizes="(min-width: 1024px) and (min-aspect-ratio: 4/5) 66vw, 100vw"
+      alt="Papercraft diorama of Casper's workspace on a floating island"
+      className="block w-full h-auto"
+      style={{ aspectRatio: `${FRAME.w} / ${FRAME.h}` }}
+    />
+  )
+}
 
 /** Treść obu trybów bez zmian względem poprzedniej wersji — zmienił się tylko wygląd. */
 const COPY = {
@@ -204,7 +224,9 @@ export default function HeroSection() {
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
           className="mt-1 mb-2 sm:mt-8 sm:mb-6 lg:my-0 -mx-3 sm:mx-0 lg:col-start-2 lg:row-start-1 lg:row-span-6 lg:self-center lg:-mr-[1vw] xl:-mr-[min(3vw,calc((100vw-80rem)/2+1.5rem))] 2xl:-mr-[6vw]"
         >
-          <Diorama />
+          <EffectBoundary name="diorama" fallback={<StaticIsland />}>
+            <Diorama />
+          </EffectBoundary>
         </motion.div>
 
         <CopyPart part="lines" className="lg:col-start-1 lg:row-start-3" />
