@@ -75,6 +75,37 @@ function Pivot({ o, className, children, style }: { o: readonly number[]; classN
   )
 }
 
+/**
+ * Telefon: wiele drobnych świateł (diody, okna) mruga GRUPAMI — jedna animacja opacity na kontenerze grupy
+ * zamiast osobnej animacji (i osobnej warstwy z trybem mieszania) na każdym punkcie. Wygląd ten sam
+ * (punkty w swoich miejscach, różne rytmy grup), a kompozytor ma kilka warstw zamiast kilkudziesięciu —
+ * przewijanie panoramy i strony nie dławi się ich składaniem. Kontener = obrys punktów grupy (+ zapas),
+ * nie cały pokój, więc warstwy są małe.
+ */
+type Dot = { x: number; y: number; w: number; h?: number; style: CSSProperties }
+function Group({ dots, className, style, pad = 0 }: { dots: Dot[]; className: string; style?: CSSProperties; pad?: number }) {
+  if (!dots.length) return null
+  // w (i h) w % szerokości/wysokości pokoju; punkty bez h są kwadratami (aspect-ratio) wyśrodkowanymi w (x, y)
+  const l = Math.min(...dots.map((d) => (d.h === undefined ? d.x - d.w : d.x))) - pad
+  const r = Math.max(...dots.map((d) => (d.h === undefined ? d.x + d.w : d.x + d.w))) + pad
+  const t = Math.min(...dots.map((d) => (d.h === undefined ? d.y - d.w * 1.5 : d.y))) - pad
+  const b = Math.max(...dots.map((d) => (d.h === undefined ? d.y + d.w * 1.5 : d.y + (d.h ?? 0)))) + pad
+  const W = r - l
+  const H = b - t
+  const f = (v: number) => `${v.toFixed(3)}%`
+  return (
+    <span className={`absolute ${className}`} style={{ left: f(l), top: f(t), width: f(W), height: f(H), ...style }}>
+      {dots.map((d, i) => (
+        <span
+          key={i}
+          className="absolute"
+          style={{ ...d.style, left: f(((d.x - l) / W) * 100), top: f(((d.y - t) / H) * 100), width: f((d.w / W) * 100), ...(d.h === undefined ? {} : { height: f((d.h / H) * 100) }) }}
+        />
+      ))}
+    </span>
+  )
+}
+
 const CFG: Record<keyof typeof SCREENS, ScreenCfg> = {
   // Dev cave, lewy monitor: edytor, ktoś szybko pisze
   dev0L: {
@@ -273,6 +304,52 @@ function Leds({ lite }: { lite?: boolean }) {
   const chase = LEDS.filter(([x]) => Math.abs(x - 83) < 1 || Math.abs(x - 90) < 1)
     .slice()
     .sort((a, b) => a[0] - b[0] || a[1] - b[1])
+  const LED_BG = 'radial-gradient(circle, rgba(255,236,190,1) 18%, rgba(255,160,70,0.7) 40%, transparent 72%)'
+  const FLASH_BG = 'radial-gradient(circle, rgba(255,226,170,0.95) 12%, rgba(255,150,60,0.4) 36%, transparent 70%)'
+  const dot = (x: number, y: number, w: number, bg: string): Dot => ({
+    x,
+    y,
+    w,
+    style: { aspectRatio: '1', transform: 'translate(-50%,-50%)', borderRadius: '9999px', background: bg },
+  })
+  // telefon: te same diody (wszystkie, powiększone), ale mrugają w 8 grupach (2 wzory × 4 tempa) i 3 grupach
+  // rozbłysków — kilka warstw kompozytora zamiast ~75
+  const alarm = (
+    <span
+      className="amb-led-a absolute rounded-full mix-blend-screen"
+      style={{
+        left: `${LEDS[11][0]}%`,
+        top: `${LEDS[11][1]}%`,
+        width: pc(9),
+        aspectRatio: '1',
+        transform: 'translate(-50%,-50%)',
+        background: 'radial-gradient(circle, rgba(255,150,140,1) 10%, rgba(255,40,30,0.8) 26%, rgba(255,30,20,0.25) 46%, transparent 70%)',
+        animationName: 'amb-beacon',
+        animationDuration: '1.4s',
+      }}
+    />
+  )
+  if (lite) {
+    const TEMPO = [0.85, 1.35, 1.9, 2.6]
+    const groups = Array.from({ length: 8 }, (_, g) => ({ cls: g < 4 ? 'amb-led-a' : 'amb-led-b', dur: TEMPO[g % 4], dots: [] as Dot[] }))
+    on.forEach(([x, y], i) => {
+      const g = (hash(i + 5) < 0.55 ? 0 : 4) + Math.min(3, Math.floor(hash(i) * 4))
+      groups[g].dots.push(dot(x, y, (x > 60 ? 3.4 : 2.2) * k, LED_BG))
+    })
+    const fl = Array.from({ length: 3 }, () => [] as Dot[])
+    flash.forEach(([x, y], i) => fl[i % 3].push(dot(x, y, 4 * k, FLASH_BG)))
+    return (
+      <>
+        {groups.map((g, i) => (
+          <Group key={`g${i}`} dots={g.dots} className={`${g.cls} mix-blend-screen`} style={{ animationDuration: sec(g.dur), animationDelay: sec(-hash(i + 40) * 3) }} />
+        ))}
+        {alarm}
+        {fl.map((d, i) => (
+          <Group key={`f${i}`} dots={d} className="amb-led-flash mix-blend-screen" style={{ animationDuration: sec(2.4 + i * 1.3), animationDelay: sec(-hash(i + 120) * 5) }} />
+        ))}
+      </>
+    )
+  }
   return (
     <>
       {on.map(([x, y], i) => (
@@ -309,19 +386,7 @@ function Leds({ lite }: { lite?: boolean }) {
           />
         ))}
       {/* jedna czerwona dioda alarmu */}
-      <span
-        className="amb-led-a absolute rounded-full mix-blend-screen"
-        style={{
-          left: `${LEDS[11][0]}%`,
-          top: `${LEDS[11][1]}%`,
-          width: pc(9),
-          aspectRatio: '1',
-          transform: 'translate(-50%,-50%)',
-          background: 'radial-gradient(circle, rgba(255,150,140,1) 10%, rgba(255,40,30,0.8) 26%, rgba(255,30,20,0.25) 46%, transparent 70%)',
-          animationName: 'amb-beacon',
-          animationDuration: '1.4s',
-        }}
-      />
+      {alarm}
       {flash.map(([x, y], i) => (
         <span
           key={`f${i}`}
@@ -638,8 +703,34 @@ function Phone() {
 // grupa = połowa budynku (górne / dolne piętra) — gaśnie i zapala się razem, więc zmiana jest widoczna z daleka
 const BUILDINGS = [45, 51, 59, 72]
 const winGroup = (x: number, y: number) => BUILDINGS.filter((b) => x > b).length * 10 + (y < 50 ? 0 : 1)
-function Windows() {
+// telefon: okna (i ich poświaty) jednego piętra budynku gasną i zapalają się razem — jedna animacja
+// na grupę zamiast na każde okno (~90 → ~10 warstw)
+function winGroups() {
+  const m = new Map<number, number[]>()
+  CITY.windows.forEach(([x, y], i) => {
+    const g = winGroup(x, y)
+    m.set(g, [...(m.get(g) ?? []), i])
+  })
+  return Array.from(m.entries())
+}
+function Windows({ lite }: { lite?: boolean }) {
   const list = CITY.windows
+  if (lite)
+    return (
+      <>
+        {winGroups().map(([g, idx]) => (
+          <Group
+            key={g}
+            className="amb-win"
+            style={{ animationDuration: sec(4 + hash(g + 7) * 4), animationDelay: sec(-hash(g + 70) * 8) }}
+            dots={idx.map((i) => {
+              const [x, y, w, h, c] = list[i]
+              return { x, y, w, h, style: { background: `rgb(${c.join(',')})` } }
+            })}
+          />
+        ))}
+      </>
+    )
   return (
     <>
       {list.map(([x, y, w, h, c], i) => {
@@ -665,8 +756,37 @@ function Windows() {
 }
 
 /** jaśniejsze "zapalone" okna: ciepła albo chłodna poświata na części okien, grupami */
-function WindowGlow() {
+function WindowGlow({ lite }: { lite?: boolean }) {
   const list = CITY.windows
+  if (lite)
+    return (
+      <>
+        {winGroups().map(([g, idx]) => {
+          const warm = hash(g + 3) < 0.6
+          return (
+            <Group
+              key={g}
+              className="amb-winglow mix-blend-screen"
+              pad={1}
+              style={{ animationDuration: sec(5 + hash(g + 17) * 5), animationDelay: sec(-hash(g + 71) * 10 - 1.7) }}
+              dots={idx.map((i) => {
+                const [x, y, w, h] = list[i]
+                return {
+                  x,
+                  y,
+                  w,
+                  h,
+                  style: {
+                    background: warm ? 'rgb(255,214,140)' : 'rgb(160,200,255)',
+                    boxShadow: `0 0 0.6cqw 0.15cqw ${warm ? 'rgba(255,200,120,0.6)' : 'rgba(150,190,255,0.55)'}`,
+                  },
+                }
+              })}
+            />
+          )
+        })}
+      </>
+    )
   return (
     <>
       {list.map(([x, y, w, h], i) => {
@@ -988,10 +1108,10 @@ export default function RoomAmbient({ world, room, run, show, hot, lite, artClas
       )
       break
     case 'ceo0':
-      art = <Windows />
+      art = <Windows lite={lite} />
       fx = (
         <>
-          <WindowGlow />
+          <WindowGlow lite={lite} />
           <Stars />
           <OfficeSky lite={lite} />
         </>
