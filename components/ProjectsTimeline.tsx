@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { motion, useMotionValueEvent, useScroll, useTransform } from 'framer-motion'
+import { motion, useInView, useMotionValueEvent, useScroll, useTransform } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { SectionHeader, EASE } from '@/components/ui/Section'
 import { docTop, registerTarget } from '@/components/scrollNav'
+import RowDots from '@/components/ui/RowDots'
 
 /**
  * Projekty = archiwum teczek (pokój "Infra" / "devs-mentoring").
@@ -278,6 +279,9 @@ export default function ProjectsTimeline() {
   // mobile: po zmianie trybu kolejność teczek się zmienia — rząd wraca na początek
   // (inaczej przeglądarka trzyma w kadrze poprzednią pierwszą teczkę, np. Octant w trybie CEO)
   const rowRef = useRef<HTMLDivElement>(null)
+  // wejście teczek liczone dla całego rzędu (wjazd w pionie), a nie dla każdej teczki osobno —
+  // teczki za prawą krawędzią nie czekają z animacją na swipe i nie podjeżdżają w trakcie przesuwania
+  const rowInView = useInView(rowRef, { once: true, margin: '-40px 0px' })
   useEffect(() => {
     if (rowRef.current) rowRef.current.scrollLeft = 0
   }, [theme])
@@ -291,7 +295,9 @@ export default function ProjectsTimeline() {
   useEffect(() => {
     const measure = () => {
       const t = trackRef.current
-      if (!t) return
+      // telefon / tablet: przypięta scena jest ukryta — pasek adresu chowający się przy przewijaniu
+      // wywołuje resize, a pomiar ukrytej sceny przerysowywał całą sekcję w trakcie scrolla
+      if (!t || wrapRef.current?.offsetParent === null) return
       const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
       const vh = window.innerHeight
       const head = headRef.current?.offsetHeight ?? 0
@@ -417,15 +423,24 @@ export default function ProjectsTimeline() {
 
       {/* mobile / tablet: rząd teczek przewijany palcem */}
       <div className="lg:hidden pt-20 sm:pt-28 pb-2">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 mb-10">{header(false)}</div>
-        <div ref={rowRef} data-rwd-carousel className="flex gap-5 overflow-x-auto snap-x snap-mandatory px-4 sm:px-8 pt-8 pb-10 no-scrollbar" style={{ scrollPaddingInline: '1rem' }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 mb-6">{header(false)}</div>
+        {/* wskaźnik nad rzędem: teczki są prawie tak wysokie jak ekran, więc pod nimi nie byłoby go widać w trakcie swipe'u */}
+        <RowDots rowRef={rowRef} count={ordered.length} className="px-4 sm:px-8 !mb-0" />
+        {/* overflow-y hidden: rząd przewija się tylko w bok (pionowy swipe na teczce zawsze przewija stronę);
+            overscroll-x contain: koniec rzędu nie uruchamia gestu „wstecz” przeglądarki */}
+        <div
+          ref={rowRef}
+          data-rwd-carousel
+          className="flex gap-5 overflow-x-auto overflow-y-hidden overscroll-x-contain snap-x snap-mandatory px-4 sm:px-8 pt-8 pb-10 no-scrollbar"
+          style={{ scrollPaddingInline: '1rem' }}
+        >
           {ordered.map((p, i) => (
             <motion.div
               key={p.id}
-              className="snap-start"
+              // snap-stop: szybki flick przesuwa o jedną teczkę (na tablecie przelatywał po 4) — czyta się po kolei
+              className="snap-start [scroll-snap-stop:always]"
               initial={reduce ? false : { opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              animate={rowInView ? { opacity: 1, y: 0 } : undefined}
               transition={{ duration: 0.6, ease: EASE, delay: Math.min(i, 3) * 0.06 }}
             >
               <Folder p={p} i={i} active={p.type === theme} />

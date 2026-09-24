@@ -1,13 +1,14 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { motion, useInView } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { SectionHeader, RoomCutout, EASE } from '@/components/ui/Section'
 import { useTheme } from '@/contexts/ThemeContext'
 import { FaGraduationCap, FaMobileAlt, FaBullseye, FaRobot } from 'react-icons/fa'
 import type { IconType } from 'react-icons'
 import type { DeepLink } from '@/components/scrollNav'
+import RowDots from '@/components/ui/RowDots'
 
 /**
  * Marki = papierowa uliczka ze sklepami. Pokój przy nagłówku to zawsze "coderiv" (studio aplikacji
@@ -100,7 +101,16 @@ const ExternalIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
   </svg>
 )
 
-function Shop({ brand, index }: { brand: Brand; index: number }) {
+const SHOP_HIDDEN = { opacity: 0, y: 60, rotateX: -25 }
+const SHOP_SHOWN = { opacity: 1, y: 0, rotateX: 0 }
+
+/**
+ * `rowShown`: telefon (poziomy rząd) — wejście całego rzędu, gdy rząd wjeżdża w kadr w pionie
+ * (sklepy za prawą krawędzią nie czekają na przesunięcie palcem i nie „wyskakują” w trakcie swipe'u;
+ * przesunięcie y:60 nie wystaje też poza rząd, więc rząd nie ma pionowego przewijania).
+ * `null` = siatka (tablet / desktop): każdy sklep wchodzi sam, jak dotąd.
+ */
+function Shop({ brand, index, rowShown }: { brand: Brand; index: number; rowShown: boolean | null }) {
   const reduce = useReducedMotion()
   const [lit, setLit] = useState(false)
   const hasUrl = brand.url && brand.url !== '#'
@@ -124,10 +134,11 @@ function Shop({ brand, index }: { brand: Brand; index: number }) {
   return (
     <motion.article
       data-deep={brand.slug}
-      className="group relative flex flex-col snap-center shrink-0 w-[78vw] sm:w-auto"
-      initial={reduce ? false : { opacity: 0, y: 60, rotateX: -25 }}
-      whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
+      className="group relative flex flex-col snap-center [scroll-snap-stop:always] shrink-0 w-[78vw] sm:w-auto"
+      initial={reduce ? false : SHOP_HIDDEN}
+      {...(rowShown === null
+        ? { whileInView: SHOP_SHOWN, viewport: { once: true, margin: '-60px' } }
+        : { animate: rowShown ? SHOP_SHOWN : SHOP_HIDDEN })}
       transition={{ duration: 0.9, ease: EASE, delay: index * 0.1 }}
       style={{ transformPerspective: 900, transformOrigin: '50% 100%' }}
       onMouseEnter={() => setLit(true)}
@@ -226,6 +237,17 @@ function Shop({ brand, index }: { brand: Brand; index: number }) {
 export default function BrandsShowcase() {
   const reduce = useReducedMotion()
   const { theme } = useTheme()
+  // telefon (< 640 px): sklepy w poziomym rzędzie przewijanym palcem; od sm siatka
+  const rowRef = useRef<HTMLDivElement>(null)
+  const [isRow, setIsRow] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)')
+    const sync = () => setIsRow(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+  const rowInView = useInView(rowRef, { once: true, margin: '-60px 0px' })
   return (
     <section id="brands" className="relative py-16 sm:py-24 scroll-mt-20 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
@@ -248,9 +270,16 @@ export default function BrandsShowcase() {
 
       {/* uliczka */}
       <div className="relative max-w-7xl mx-auto">
-        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 items-stretch gap-6 sm:gap-8 lg:gap-6 overflow-x-auto sm:overflow-visible snap-x snap-mandatory px-4 sm:px-8 pb-6 no-scrollbar">
+        {/* wskaźnik nad rzędem sklepów (telefon): widoczny w trakcie przesuwania, a nie dopiero pod sklepami */}
+        <RowDots rowRef={rowRef} count={brands.length} className="sm:hidden -mt-6 mb-5" />
+        {/* telefon: overflow-y hidden — rząd przewija się tylko w bok, pionowy swipe zawsze przewija stronę;
+            overscroll-x contain: dojechanie do końca rzędu nie uruchamia gestu „wstecz” przeglądarki */}
+        <div
+          ref={rowRef}
+          className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 items-stretch gap-6 sm:gap-8 lg:gap-6 overflow-x-auto overflow-y-hidden overscroll-x-contain sm:overflow-visible snap-x snap-mandatory px-4 sm:px-8 pb-6 no-scrollbar"
+        >
           {brands.map((brand, index) => (
-            <Shop key={brand.name} brand={brand} index={index} />
+            <Shop key={brand.name} brand={brand} index={index} rowShown={isRow ? rowInView : null} />
           ))}
         </div>
         <p className="sm:hidden px-4 font-mono text-xs uppercase tracking-[0.18em] text-paper-dim text-center">swipe → 4 shops</p>
@@ -261,8 +290,11 @@ export default function BrandsShowcase() {
       {/* wiszący szyld CTA */}
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
         <motion.div
+          // (key: stan początkowy framer czyta tylko przy montażu — po rozpoznaniu telefonu szyld montuje się od nowa, zanim wjedzie w kadr)
+          key={isRow ? 'row' : 'grid'}
           className="relative mx-auto mt-24 sm:mt-28 max-w-3xl"
-          initial={reduce ? false : { rotate: -6, y: -40, opacity: 0 }}
+          // telefon: krótszy spadek (belka szyldu nie przejeżdża przez podpis „swipe → 4 shops” nad nim)
+          initial={reduce ? false : { rotate: -6, y: isRow ? -12 : -40, opacity: 0 }}
           whileInView={{ rotate: [-6, 3, -1.5, 0.5, 0], y: 0, opacity: 1 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 1.6, ease: 'easeOut' }}
