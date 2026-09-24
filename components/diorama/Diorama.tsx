@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion, useAnimate, useMotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
+import { AnimatePresence, motion, useAnimate, useMotionValue, useMotionValueEvent, useScroll, useTransform } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { SWITCH, useTheme } from '@/contexts/ThemeContext'
 import type { Theme } from '@/contexts/ThemeContext'
@@ -80,6 +80,12 @@ export default function Diorama() {
   const figLayer = useRef<HTMLDivElement>(null)
   const [peekLive, setPeekLive] = useState<number | null>(null)
   const pending = useRef<{ val: number | null | undefined; n: number; t: number }>({ val: undefined, n: 0, t: 0 })
+  // podpowiedź „→” gaśnie, gdy scena jest przesunięta do prawej krawędzi (i wraca po cofnięciu)
+  const [panEnd, setPanEnd] = useState(false)
+  const onPan = () => {
+    const el = panRef.current
+    if (el) setPanEnd(el.scrollLeft >= el.scrollWidth - el.clientWidth - 8)
+  }
   // mobile: startowo pokazujemy pokój z figurką
   useEffect(() => {
     const el = panRef.current
@@ -207,9 +213,10 @@ export default function Diorama() {
   // Wyspa NIE pochyla się za kursorem (świadomie): to płaski render, więc tilt zdradzał "kartkę",
   // dublował się z lewitacją i hoverem pokoi, a hit-test po obróconym prostokącie trafiał obok.
   // Jedyna reakcja na kursor = podświetlenie pokoju. Ruch wyspy zostaje tylko ze scrolla.
-  const spring = { damping: 26, stiffness: 110, mass: 0.7 }
   const { scrollY } = useScroll()
-  const scrollYShift = useSpring(useTransform(scrollY, [0, 850], [0, 120]), spring)
+  // paralaksa wyspy przy scrollu (telefon / tablet; desktop ma wjazd kamery): bez sprężyny — przy
+  // natywnym scrollu dotykowym sprężyna dociągała wyspę jeszcze po zatrzymaniu palca („guma”)
+  const scrollYShift = useTransform(scrollY, [0, 850], [0, 120])
   const [wide, setWide] = useState(false)
   useEffect(() => {
     const mq = window.matchMedia(MQ.lg)
@@ -447,7 +454,10 @@ export default function Diorama() {
 
       {/* mobile: scena szersza niż ekran, przesuwana palcem (większe pokoje); desktop bez zmian */}
       {/* miękkie wygaszenie brzegów zamiast twardego cięcia sceny na krawędzi ekranu */}
-      <div ref={panRef} className="overflow-x-auto overflow-y-visible sm:overflow-visible no-scrollbar snap-x max-sm:[mask-image:linear-gradient(90deg,transparent,#000_5%,#000_95%,transparent)]">
+      {/* overflow-y hidden (a nie visible, które przy overflow-x auto i tak liczy się jako auto): scena przewija
+          się palcem tylko w bok, pionowy swipe na wyspie zawsze przewija stronę (paralaksa nie tworzy już
+          pionowego przewijania w środku); overscroll-x contain: koniec sceny nie uruchamia gestu „wstecz” */}
+      <div ref={panRef} onScroll={onPan} className="overflow-x-auto overflow-y-hidden overscroll-x-contain sm:overflow-visible no-scrollbar snap-x max-sm:[mask-image:linear-gradient(90deg,transparent,#000_5%,#000_95%,transparent)]">
       <div className="w-[165%] sm:w-full pt-12 pb-7 sm:p-0">
       <motion.div
         ref={wrapRef}
@@ -777,7 +787,7 @@ export default function Diorama() {
       </div>
       </div>
       {!finePointer && (
-        <div aria-hidden="true" className="sm:hidden pointer-events-none absolute right-0 top-0 bottom-0 w-14 bg-gradient-to-l from-night/80 to-transparent flex items-center justify-end pr-2">
+        <div aria-hidden="true" style={{ opacity: panEnd ? 0 : 1 }} className="sm:hidden transition-opacity duration-300 pointer-events-none absolute right-0 top-0 bottom-0 w-14 bg-gradient-to-l from-night/80 to-transparent flex items-center justify-end pr-2">
           <span className="grid place-items-center w-7 h-7 rounded-full bg-cream text-ink text-sm shadow-lg animate-nudge-3">→</span>
         </div>
       )}

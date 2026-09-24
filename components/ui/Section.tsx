@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { AnimatePresence, motion, useInView, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
+import { AnimatePresence, motion, useInView, useMotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { KEY, roomSrcOf, roomSrcSet } from '@/components/diorama/rooms'
@@ -51,14 +51,25 @@ export function RoomCutout({
   const inView = useInView(ref, { margin: '120px' })
   // wstawanie: od wjazdu dolnej krawędzi w kadr do ~60% wysokości ekranu
   const { scrollYProgress: rise } = useScroll({ target: ref, offset: ['start 0.98', 'start 0.62'] })
-  const fold = useSpring(useTransform(rise, [0, 1], [84, 0]), { stiffness: 140, damping: 22, mass: 0.6 })
+  // dotyk (lite): pop-up odgrywa się raz, gdy pokój wjeżdża w kadr (played 0 → 1), zamiast iść za palcem —
+  // przy natywnym scrollu z pędem składanie/rozkładanie w obie strony i gaszenie światła przy każdym
+  // powrocie było nerwowe; mysz na desktopie: bez zmian (wstawanie sterowane scrollem)
+  const played = useMotionValue(0)
+  const liteMV = useMotionValue(0)
+  const foldTarget = useTransform([rise, played, liteMV], ([r, p, l]: number[]) => (l ? (p ? 0 : 84) : 84 * (1 - Math.min(1, Math.max(0, r)))))
+  const fold = useSpring(foldTarget, { stiffness: 140, damping: 22, mass: 0.6 })
   const shadow = useTransform(fold, [84, 0], [0.25, 1])
   const [lit, setLit] = useState(true)
   // dotyk / wąski ekran: wariant "lite" animacji (bez najdroższych drobiazgów), jak w hero
   const [lite, setLite] = useState(false)
   useEffect(() => {
     const mq = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 768px)')
-    const sync = () => setLite(!mq.matches)
+    const sync = () => {
+      setLite(!mq.matches)
+      // (odświeżenie w połowie strony: pokój, który już minął próg, stoi od razu)
+      if (!mq.matches && rise.get() >= 0.5) played.set(1)
+      liteMV.set(mq.matches ? 0 : 1)
+    }
     sync()
     mq.addEventListener('change', sync)
     return () => mq.removeEventListener('change', sync)
@@ -67,8 +78,24 @@ export function RoomCutout({
   const [flick, setFlick] = useState(false)
   const flickT = useRef(0)
   useEffect(() => () => window.clearTimeout(flickT.current), [])
+  const litOnce = () => {
+    if (lit || flickT.current) return
+    flickT.current = window.setTimeout(() => {
+      flickT.current = 0
+      setLit(true)
+      setFlick(true)
+    }, 520) // po rozłożeniu pokoju (sprężyna ~0,5 s)
+  }
   useMotionValueEvent(rise, 'change', (v) => {
     if (reduce) return
+    if (liteMV.get()) {
+      // raz i na stałe: przewinięcie w górę nie składa pokoju ani nie gasi światła
+      if (v >= 0.5 && !played.get()) {
+        played.set(1)
+        litOnce()
+      }
+      return
+    }
     // światło dopiero, gdy pokój już stoi (pop-up najpierw, potem mrugnięcie lampy)
     if (v >= 0.995 && !lit && !flickT.current) {
       flickT.current = window.setTimeout(() => {
@@ -84,7 +111,7 @@ export function RoomCutout({
   })
   useEffect(() => {
     // stan początkowy zgodny z położeniem (np. po odświeżeniu w połowie strony)
-    if (!reduce) setLit(rise.get() >= 0.995)
+    if (!reduce) setLit(rise.get() >= (liteMV.get() ? 0.5 : 0.995))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reduce])
 
