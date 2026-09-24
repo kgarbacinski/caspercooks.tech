@@ -395,12 +395,72 @@ body.founder-mode {
     @apply text-night;
     background: rgb(var(--accent-rgb));
   }
+  /* przycisk wysyłki listu: atramentowa etykieta z woskową pieczęcią i paskiem akcentu u dołu
+     (jak .paper-tag). Stany: data-state = idle | sending | sent | error. */
   .seal-btn {
-    @apply inline-flex items-center gap-3 pl-3 pr-6 py-3 font-mono text-sm text-cream bg-ink transition-transform duration-200;
-    box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.8);
+    @apply relative inline-flex items-center justify-center gap-3 min-h-[48px] pl-2.5 pr-5 py-2 font-mono text-sm text-cream bg-ink select-none;
+    box-shadow: inset 0 -3px 0 rgb(var(--accent-rgb) / 0.9), 0 14px 30px -12px rgba(0, 0, 0, 0.8);
+    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease, background-color 0.25s ease, color 0.25s ease;
   }
-  .seal-btn:not(:disabled):hover {
+  .seal-btn__seal {
+    @apply block w-9 h-9 shrink-0;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .seal-btn__arrow {
+    @apply inline-block text-base leading-none;
+    color: rgb(var(--accent-rgb));
+    transition: transform 0.2s ease, color 0.25s ease;
+  }
+  .seal-btn:not([aria-disabled='true']):hover {
     transform: translateY(-2px);
+    box-shadow: inset 0 -4px 0 rgb(var(--accent-rgb)), 0 20px 34px -14px rgba(0, 0, 0, 0.85);
+  }
+  .seal-btn:not([aria-disabled='true']):hover .seal-btn__seal {
+    transform: rotate(-14deg) scale(1.06);
+  }
+  .seal-btn:not([aria-disabled='true']):hover .seal-btn__arrow {
+    transform: translateX(3px);
+  }
+  /* wciśnięcie = odciśnięcie pieczęci */
+  .seal-btn:not([aria-disabled='true']):active {
+    transform: translateY(1px);
+    box-shadow: inset 0 -2px 0 rgb(var(--accent-rgb)), 0 6px 14px -8px rgba(0, 0, 0, 0.8);
+  }
+  .seal-btn:not([aria-disabled='true']):active .seal-btn__seal {
+    transform: rotate(0deg) scale(0.92);
+  }
+  /* fokus na kremowym papierze: ciemny obrys (akcent na kremie ma za niski kontrast) */
+  .seal-btn:focus-visible {
+    outline: 2px solid #2a1a10;
+    outline-offset: 3px;
+  }
+  .seal-btn[aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+  .seal-btn[data-state='sending'] {
+    cursor: progress;
+  }
+  .seal-btn[data-state='sending'] .seal-btn__seal {
+    animation: seal-stamp 0.9s ease-in-out infinite;
+  }
+  .seal-btn[data-state='sending'] .seal-btn__arrow {
+    opacity: 0.45;
+  }
+  .seal-btn[data-state='sent'] {
+    @apply text-night;
+    background: rgb(var(--accent-rgb));
+    box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.18), 0 14px 30px -12px rgba(0, 0, 0, 0.8);
+    cursor: default;
+  }
+  .seal-btn[data-state='sent'] .seal-btn__arrow {
+    color: inherit;
+  }
+  .seal-btn[data-state='error'] {
+    box-shadow: inset 0 -3px 0 #c42b1c, 0 0 0 1px #c42b1c, 0 14px 30px -12px rgba(0, 0, 0, 0.8);
+    animation: seal-shake 0.4s ease-in-out 1;
+  }
+  .seal-btn[data-state='error'] .seal-btn__arrow {
+    color: #ff8a7a;
   }
   .postmark {
     @apply grid place-items-center w-10 h-10 shrink-0 rounded-full border-2 border-dashed transition;
@@ -517,6 +577,19 @@ body.founder-mode {
 [data-paused] *::before,
 [data-paused] *::after {
   animation-play-state: paused !important;
+}
+
+/* przycisk wysyłki: pieczęć "stempluje" w trakcie wysyłania, przy błędzie krótkie potrząśnięcie */
+@keyframes seal-stamp {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  40% { transform: translateY(-3px) rotate(-10deg); }
+  60% { transform: translateY(1px) rotate(4deg) scale(0.94); }
+}
+@keyframes seal-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(3px); }
+  75% { transform: translateX(-2px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

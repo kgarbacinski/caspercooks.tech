@@ -65,6 +65,7 @@ export default function Navigation() {
             <a
               key={link.label}
               href={link.href}
+              aria-current={activeSection === link.label ? 'location' : undefined}
               className={`relative py-1 transition-colors ${
                 activeSection === link.label ? 'text-accent' : 'text-paper-muted hover:text-paper'
               }`}
@@ -82,7 +83,8 @@ export default function Navigation() {
           <button
             onClick={toggleTheme}
             // nazwa dostępna = widoczny tekst (DEV CEO) + opis w sr-only — wymóg WCAG "label in name"
-            className="relative flex items-center w-[104px] h-10 p-1 border border-cocoa-500 bg-cocoa-800 font-mono text-[11px]"
+            type="button"
+            className="relative flex items-center w-[104px] h-10 p-1 border border-cocoa-500 hover:border-accent/60 bg-cocoa-800 font-mono text-[11px] transition-colors"
           >
             <motion.span
               layout
@@ -97,7 +99,8 @@ export default function Navigation() {
 
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden w-10 h-10 grid place-items-center border border-cocoa-500 text-paper"
+            type="button"
+            className="lg:hidden w-10 h-10 grid place-items-center border border-cocoa-500 hover:border-accent/60 text-paper transition-colors"
             aria-label="Toggle menu"
             aria-expanded={isMobileMenuOpen}
           >

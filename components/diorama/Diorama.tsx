@@ -201,7 +201,6 @@ export default function Diorama() {
     return () => mq.removeEventListener('change', sync)
   }, [])
   const dive = wide && !reduce
-  const capFade = useTransform(scrollY, [0, 50], [1, 0]) // podpisy gasną razem z tekstem hero
 
   /*
    * Desktop: "wjazd kamery" w pierwszy pokój. Hero jest przypięte (sticky) przez D px scrolla,
@@ -660,19 +659,10 @@ export default function Diorama() {
       </div>
       </div>
       {!finePointer && (
-        <div aria-hidden="true" className="sm:hidden pointer-events-none absolute right-0 top-0 bottom-10 w-14 bg-gradient-to-l from-night/80 to-transparent flex items-center justify-end pr-2">
+        <div aria-hidden="true" className="sm:hidden pointer-events-none absolute right-0 top-0 bottom-0 w-14 bg-gradient-to-l from-night/80 to-transparent flex items-center justify-end pr-2">
           <span className="grid place-items-center w-7 h-7 rounded-full bg-cream text-ink text-sm shadow-lg animate-nudge-3">→</span>
         </div>
       )}
-
-      <motion.figcaption style={{ opacity: baseLit ? (dive ? capFade : 1) : 0 }} className="mt-0 mb-5 sm:mb-0 sm:mt-5 px-3 sm:px-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 eyebrow !text-[10px] sm:!text-[11px]">
-        <AnimatePresence mode="wait">
-          <motion.span key={theme} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
-            {theme === 'developer' ? 'My very normal workspace' : 'The companies I build'}
-          </motion.span>
-        </AnimatePresence>
-        <span className="text-accent/80 text-right">{finePointer ? 'hover a room · click Casper to switch DEV ⇄ CEO' : 'swipe ↔ · tap a room'}</span>
-      </motion.figcaption>
     </figure>
   )
 }

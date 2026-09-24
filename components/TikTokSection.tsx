@@ -48,7 +48,7 @@ export default function TikTokSection() {
     <section id="studio" className="relative pt-12 sm:pt-16 pb-12 sm:pb-16 scroll-mt-20 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
         <div className="flex items-end justify-between gap-8 mb-14 sm:mb-16">
-          <SectionHeader index="05" eyebrow="tiktok --lang=pl --content=dev" title="Programming content in Polish" />
+          <SectionHeader index={theme === 'developer' ? '05' : '04'} eyebrow="tiktok --lang=pl --content=dev" title="Programming content in Polish" />
         </div>
 
         <div className="grid md:grid-cols-[1fr_1.05fr] gap-14 lg:gap-20 items-center">

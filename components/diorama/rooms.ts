@@ -10,7 +10,7 @@ export const ROOMS: Record<Theme, RoomInfo[]> = {
   developer: [
     { label: 'Dev cave', hint: 'who I am', href: '#about' },
     { label: 'Infra', hint: 'systems I shipped', href: '#projects' },
-    { label: 'Web3 vault', hint: 'Octant, DeFi, Solidity', href: '#brands' },
+    { label: 'Web3 vault', hint: 'Octant, DeFi, Solidity', href: '#projects' },
     { label: 'AI lab', hint: 'my stack', href: '#stack' },
     { label: 'Studio', hint: 'content I make', href: '#studio' },
   ],
@@ -24,7 +24,9 @@ export const ROOMS: Record<Theme, RoomInfo[]> = {
 }
 
 /** Ścieżka wyciętego pokoju (dokładny kształt, przezroczyste tło). */
-export const roomSrc = (theme: Theme, i: number, small = false) => `/diorama/v2/room-${KEY[theme]}-${i}${small ? '-sm' : ''}.webp`
+export const roomSrc = (theme: Theme, i: number, small = false) => roomSrcOf(KEY[theme], i, small)
+/** To samo, ale z jawnie wskazanego świata (sekcja, której treść nie zależy od trybu). */
+export const roomSrcOf = (world: 'dev' | 'ceo', i: number, small = false) => `/diorama/v2/room-${world}-${i}${small ? '-sm' : ''}.webp`
 
 /** Przewinięcie do sekcji przez Lenis (albo natywnie, gdy Lenis wyłączony). */
 export function scrollToHash(href: string) {

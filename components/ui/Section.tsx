@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { useTheme } from '@/contexts/ThemeContext'
-import { roomSrc } from '@/components/diorama/rooms'
+import { roomSrc, roomSrcOf } from '@/components/diorama/rooms'
 
 export const EASE = [0.22, 1, 0.36, 1] as const
 
@@ -12,14 +12,18 @@ export const EASE = [0.22, 1, 0.36, 1] as const
  * Pokój z dioramy wycięty dokładnie po kształcie (ta sama grafika co w hero).
  * Przy zmianie motywu pokój składa się i wyskakuje już z nowego świata (jak w hero).
  * Domyślnie stoi nieruchomo — pętla lewitacji zostaje tylko w hero (float = wyjątek).
+ * Z jawnym `world` grafika nie zależy od trybu (i nie przeskakuje przy przełączeniu).
  */
 export function RoomCutout({
   room,
   className = '',
   float = false,
   hi = false,
+  world,
 }: {
   room: number
+  /** stały świat grafiki (np. marki: zawsze pokój z wyspy CEO); domyślnie świat aktywnego trybu */
+  world?: 'dev' | 'ceo'
   className?: string
   float?: boolean
   /** pełna rozdzielczość (duże ujęcia) */
@@ -27,7 +31,7 @@ export function RoomCutout({
 }) {
   const { theme } = useTheme()
   const reduce = useReducedMotion()
-  const src = roomSrc(theme, room, !hi)
+  const src = world ? roomSrcOf(world, room, !hi) : roomSrc(theme, room, !hi)
   return (
     <div aria-hidden="true" className={`relative ${className}`} style={{ perspective: 900 }}>
       <div className={reduce || !float ? '' : 'animate-float'} style={{ animationDuration: '6.5s' }}>

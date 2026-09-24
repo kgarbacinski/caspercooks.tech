@@ -37,12 +37,12 @@ export default function Footer() {
           {/* Quick Links */}
           <div>
             <h3 className="eyebrow mb-4">Quick Links</h3>
-            <div className="space-y-2">
+            <div className="space-y-0.5">
               {['About', 'Projects', 'Brands', 'Studio', 'Contact'].map((link) => (
                 <a
                   key={link}
                   href={`#${link.toLowerCase()}`}
-                  className="block text-sm text-paper-muted hover:text-accent transition-colors"
+                  className="block w-fit py-1 text-sm text-paper-muted hover:text-accent transition-colors"
                 >
                   {link}
                 </a>
@@ -58,8 +58,8 @@ export default function Footer() {
                 <a
                   key={social.name}
                   href={social.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  // mailto bez nowej karty (inaczej zostaje pusta karta)
+                  {...(social.url.startsWith('mailto:') ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
                   title={social.name}
                   aria-label={social.name}
                   className="w-10 h-10 grid place-items-center border border-cocoa-500/60 bg-cocoa-900 text-paper-muted hover:text-accent hover:border-accent/50 hover:-translate-y-0.5 transition"
@@ -73,7 +73,7 @@ export default function Footer() {
 
         {/* Bottom */}
         <div className="pt-6 border-t border-cocoa-500/40 flex flex-col sm:flex-row sm:justify-between gap-2 text-center sm:text-left font-mono text-xs text-paper-dim">
-          <p>© {currentYear} caspercooks.tech // Built with Next.js + TypeScript + Framer Motion</p>
+          <p className="text-balance">© {currentYear} caspercooks.tech // Built with Next.js + TypeScript + Framer Motion</p>
           <p>
             <span className="text-accent">{theme === 'developer' ? '0x' : '#'}</span>
             {theme === 'developer' ? 'CODED' : 'BUILT'} with passion

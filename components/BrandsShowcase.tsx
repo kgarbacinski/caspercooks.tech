@@ -4,11 +4,13 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { SectionHeader, RoomCutout, EASE } from '@/components/ui/Section'
+import { useTheme } from '@/contexts/ThemeContext'
 import { FaGraduationCap, FaMobileAlt, FaBullseye, FaRobot } from 'react-icons/fa'
 import type { IconType } from 'react-icons'
 
 /**
- * Marki = papierowa uliczka ze sklepami (pokój "coderiv" / "Web3 vault").
+ * Marki = papierowa uliczka ze sklepami. Pokój przy nagłówku to zawsze "coderiv" (studio aplikacji
+ * z wyspy CEO) — marki są te same w obu trybach, a pokoje DEV (np. Web3 vault) nie pasują do firm.
  * Każda marka to fasada z Gemini (ta sama grafika, markiza przebarwiona na kolor marki),
  * logo na szyldzie, tagline jak neon w witrynie. Hover zapala latarnie i neon.
  * Pod fasadą papierowa tabliczka z opisem i statystykami. Treść bez zmian.
@@ -198,12 +200,13 @@ function Shop({ brand, index }: { brand: Brand; index: number }) {
 
 export default function BrandsShowcase() {
   const reduce = useReducedMotion()
+  const { theme } = useTheme()
   return (
     <section id="brands" className="relative py-16 sm:py-24 scroll-mt-20 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
         <div className="flex items-end justify-between gap-8 mb-14 sm:mb-16">
           <SectionHeader
-            index="04"
+            index={theme === 'developer' ? '04' : '03'}
             eyebrow="/brands"
             title="Building companies that empower developers"
             lead={
@@ -214,7 +217,7 @@ export default function BrandsShowcase() {
               </>
             }
           />
-          <RoomCutout room={2} hi className="hidden md:block w-56 lg:w-72 shrink-0 -mb-6" />
+          <RoomCutout world="ceo" room={2} hi className="hidden md:block w-56 lg:w-72 shrink-0 -mb-6" />
         </div>
       </div>
 

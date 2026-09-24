@@ -258,6 +258,12 @@ export default function ProjectsTimeline() {
 
   // przypięta sekcja: pionowy scroll → poziomy przejazd rzędu teczek
   const wrapRef = useRef<HTMLDivElement>(null)
+  // mobile: po zmianie trybu kolejność teczek się zmienia — rząd wraca na początek
+  // (inaczej przeglądarka trzyma w kadrze poprzednią pierwszą teczkę, np. Octant w trybie CEO)
+  const rowRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (rowRef.current) rowRef.current.scrollLeft = 0
+  }, [theme])
   const trackRef = useRef<HTMLDivElement>(null)
   const [dist, setDist] = useState(0)
   useEffect(() => {
@@ -300,8 +306,8 @@ export default function ProjectsTimeline() {
     <section id="projects" className="relative scroll-mt-20">
       {/* desktop: przypięty poziomy przejazd */}
       <div ref={wrapRef} className="relative hidden lg:block" style={{ height: `calc(100vh + ${dist}px)` }}>
-        <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center pt-16">
-          <div className="max-w-6xl w-full mx-auto px-8 mb-10 flex items-end justify-between gap-8">
+        <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center pt-20">
+          <div className="max-w-6xl w-full mx-auto px-8 mb-8 flex items-end justify-between gap-8">
             {header}
             <div className="shrink-0 text-right font-mono text-xs text-paper-dim pb-2">
               <div className="text-accent text-2xl font-display tabular-nums">
@@ -326,7 +332,7 @@ export default function ProjectsTimeline() {
             ))}
           </motion.div>
           {/* linia czasu jak kabel z impulsem = postęp */}
-          <div className="max-w-6xl w-full mx-auto px-8 mt-14" aria-hidden="true">
+          <div className="max-w-6xl w-full mx-auto px-8 mt-10" aria-hidden="true">
             <div className="relative h-px bg-cocoa-500/50">
               <motion.div className="absolute inset-y-0 left-0 w-full bg-accent shadow-glow origin-left" style={{ scaleX: scrollYProgress }} />
               {ordered.map((p, i) => (
@@ -344,7 +350,7 @@ export default function ProjectsTimeline() {
       {/* mobile / tablet: rząd teczek przewijany palcem */}
       <div className="lg:hidden pt-24 sm:pt-32 pb-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 mb-10">{header}</div>
-        <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory px-4 sm:px-8 pt-8 pb-14 no-scrollbar" style={{ scrollPaddingInline: '1rem' }}>
+        <div ref={rowRef} className="flex gap-5 overflow-x-auto snap-x snap-mandatory px-4 sm:px-8 pt-8 pb-14 no-scrollbar" style={{ scrollPaddingInline: '1rem' }}>
           {ordered.map((p, i) => (
             <motion.div
               key={p.id}
