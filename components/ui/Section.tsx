@@ -8,6 +8,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { KEY, roomSrcOf, roomSrcSet } from '@/components/diorama/rooms'
 import { ROOM_BOX } from '@/components/diorama/layout'
 import DepthRoom, { type DepthTarget } from '@/components/diorama/DepthRoom'
+import RoomAmbient from '@/components/diorama/Ambient'
 
 export const EASE = [0.22, 1, 0.36, 1] as const
 
@@ -17,7 +18,10 @@ export const EASE = [0.22, 1, 0.36, 1] as const
  *    (scroll w górę składa go z powrotem); po wstaniu zapala się w nim światło (mrugnięcie jak w hero),
  *  - 2.5D: mapa głębi z AI → przy przewijaniu kamera schodzi z widoku z góry na wprost,
  *    a na desktopie lekko podąża za kursorem (DepthRoom, WebGL tylko gdy pokój jest w kadrze),
- *  - przy zmianie motywu pokój składa się i wyskakuje już z nowego świata (jak w hero).
+ *  - przy zmianie motywu pokój składa się i wyskakuje już z nowego świata (jak w hero),
+ *  - żywe animacje pokoju z hero (RoomAmbient: ekrany z kodem, lampki, ramię robota, sejf…) na tej
+ *    samej geometrii (% wyciętego pokoju); pętle chodzą tylko w kadrze i dopiero po wstaniu pokoju,
+ *    poświaty zapalają się razem z lampą; przy reduced motion pokój zostaje statyczny.
  * Z jawnym `world` grafika nie zależy od trybu (i nie przeskakuje przy przełączeniu).
  */
 export function RoomCutout({
@@ -50,6 +54,16 @@ export function RoomCutout({
   const fold = useSpring(useTransform(rise, [0, 1], [84, 0]), { stiffness: 140, damping: 22, mass: 0.6 })
   const shadow = useTransform(fold, [84, 0], [0.25, 1])
   const [lit, setLit] = useState(true)
+  // dotyk / wąski ekran: wariant "lite" animacji (bez najdroższych drobiazgów), jak w hero
+  const [lite, setLite] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 768px)')
+    const sync = () => setLite(!mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+  const layer = useRef<HTMLDivElement>(null)
   const [flick, setFlick] = useState(false)
   const flickT = useRef(0)
   useEffect(() => () => window.clearTimeout(flickT.current), [])
@@ -101,7 +115,8 @@ export function RoomCutout({
     : { filter: `brightness(${on ? 1 : 0.5}) saturate(${on ? 1 : 0.7})`, transition: 'filter .5s ease' }
 
   return (
-    <div ref={ref} aria-hidden="true" className={`relative ${className}`} style={{ perspective: 900 }}>
+    // data-paused: pętle CSS animacji pokoju stoją, gdy pokój jest poza kadrem
+    <div ref={ref} aria-hidden="true" data-paused={inView ? undefined : true} className={`relative ${className}`} style={{ perspective: 900 }}>
       <div className={reduce || !float ? '' : 'animate-float'} style={{ animationDuration: '6.5s' }}>
         <motion.div className="relative" style={{ aspectRatio: '6 / 7', rotateX: reduce ? 0 : fold, transformOrigin: '50% 100%', transformPerspective: 800 }}>
           <AnimatePresence initial={false} mode="popLayout">
@@ -114,18 +129,35 @@ export function RoomCutout({
               exit={reduce ? { opacity: 0 } : { rotateX: 86, transition: { duration: 0.35, ease: [0.55, 0, 0.85, 0.35] } }}
               transition={{ type: 'spring', stiffness: 170, damping: 14, delay: 0.35 }}
             >
-              <DepthRoom
-                src={src}
-                srcSet={roomSrcSet(w, room)}
-                sizes={sizes}
-                depth={`/diorama/v2/depth-${w}-${room}.webp`}
-                target={peek}
-                active={inView && !reduce}
-                amp={0.05}
-                className={`absolute inset-0 w-full h-full ${flick ? 'animate-lights-on' : ''}`}
-                style={light}
-                imgProps={{ alt: '', loading: 'lazy', onAnimationEnd: () => setFlick(false) }}
-              />
+              <div ref={layer} className="absolute inset-0">
+                <DepthRoom
+                  src={src}
+                  srcSet={roomSrcSet(w, room)}
+                  sizes={sizes}
+                  depth={`/diorama/v2/depth-${w}-${room}.webp`}
+                  target={peek}
+                  active={inView && !reduce}
+                  amp={0.05}
+                  // sprite'y animacji leżą na płaskiej warstwie DOM — paralaksa 2.5D ich nie rozjeżdża
+                  freeze={layer}
+                  className={`absolute inset-0 w-full h-full ${flick ? 'animate-lights-on' : ''}`}
+                  style={light}
+                  imgProps={{ alt: '', loading: 'lazy', onAnimationEnd: () => setFlick(false) }}
+                />
+                {/* te same animacje co w hero; grafika animacji dostaje tę samą jasność/mrugnięcie co obrazek */}
+                {!reduce && (
+                  <RoomAmbient
+                    world={w}
+                    room={room}
+                    run={inView && on}
+                    show={on && !flick}
+                    lite={lite}
+                    hi
+                    artClass={flick ? 'animate-lights-on' : ''}
+                    artStyle={light}
+                  />
+                )}
+              </div>
             </motion.div>
           </AnimatePresence>
         </motion.div>
