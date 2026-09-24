@@ -178,7 +178,7 @@ export default function Navigation() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden overflow-hidden bg-night/[0.97] border-t border-cocoa-500/40"
+            className="lg:hidden overflow-hidden bg-night border-t border-cocoa-500/40"
           >
             {/* niski ekran (telefon poziomo): lista przewija się zamiast wychodzić poza ekran */}
             <div className="px-4 sm:px-8 py-2 max-h-[calc(100svh-4rem)] overflow-y-auto overscroll-contain">
