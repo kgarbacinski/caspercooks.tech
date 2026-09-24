@@ -9,7 +9,7 @@ const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' })
 
 const TITLE = 'caspercooks.tech - Developer & Founder'
 const DESCRIPTION =
-  '$ whoami | Full-stack developer since 2015 | Founder of coderiv, devs-mentoring, devs-hunting & efektywniejsi | Web2 + Web3 | Low-level programming enthusiast'
+  '$ whoami | Full-stack developer since 2015 | Founder of coderiv, devs-mentoring, devs-hunting & efektywniejsi | Web2 + Web3 + AI agents | Low-level programming enthusiast'
 
 // obraz do udostępnień (1200×630, z dioramy) leży w app/opengraph-image.jpg i app/twitter-image.jpg —
 // Next dopina go do og:image / twitter:image sam, tu tylko reszta kart

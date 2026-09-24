@@ -19,7 +19,7 @@ export const ROOMS: Record<Theme, RoomInfo[]> = {
     { label: 'devs-mentoring', hint: '300+ devs mentored', href: '#projects' },
     { label: 'coderiv', hint: 'the app studio', href: '#brands' },
     { label: 'devs-hunting', hint: 'talent scouting', href: '#brands' },
-    { label: 'Efektywniejsi', hint: 'AI webinars', href: '#studio' },
+    { label: 'Efektywniejsi', hint: 'AI automation & training', href: '#studio' },
   ],
 }
 

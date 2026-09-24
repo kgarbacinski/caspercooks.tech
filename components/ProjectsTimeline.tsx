@@ -12,7 +12,7 @@ import { SectionHeader, EASE } from '@/components/ui/Section'
  * Desktop: sekcja przypięta, a scroll przesuwa poziomy rząd papierowych teczek jak `git log`
  * (każda teczka = commit: hash, data, logo firmy jako pieczątka, impact na żółtej karteczce).
  * Najpierw ścieżka aktywnego trybu, potem druga. Mobile: przewijany palcem rząd teczek.
- * Treść projektów bez zmian.
+ * Treść projektów wg CV 2026.
  */
 
 interface Project {
@@ -28,6 +28,7 @@ interface Project {
   logo?: string
 }
 
+// kolejność = `git log`: w obrębie toru od najnowszego (daty i role wg CV 2026); id stałe, bo liczy się z nich hash
 const projects: Project[] = [
   {
     id: 1,
@@ -35,116 +36,25 @@ const projects: Project[] = [
     company: 'Golem Foundation',
     year: '02.2024-Present',
     type: 'developer',
-    tech: ['Python', 'LLM / RAG', 'Temporal', 'Solidity', 'tRPC', 'React'],
+    tech: ['Python', 'TypeScript', 'LLM / RAG', 'Temporal', 'Solidity', 'React'],
     description:
-      "Built Octant V2 from scratch - architecture, agentic AI layer (LLM/RAG on Temporal) and smart-contract integration for on-chain public-goods funding on Golem's GLM token.",
+      'Built Octant V2 from scratch - architecture, agentic AI layer and smart contracts - distributing on-chain public-goods funding across multiple epochs.',
     role: 'Senior AI Engineer',
     logo: '/logos/golem.png',
-    impact: 'Rebuilt entire platform V2, enabling decentralized funding for public goods projects',
+    impact: 'Durable Temporal agent layer for long-running workflows; LLM spend cut via caching & model routing',
   },
   {
     id: 2,
-    title: 'Efektywniejsi AI Platform',
+    title: 'Efektywniejsi AI Automation',
     company: 'Efektywniejsi',
-    year: '2025-Present',
+    year: '01.2025-04.2026',
     type: 'founder',
-    tech: ['AI Agents', 'n8n', 'Automation', 'Education'],
+    tech: ['LLMs', 'Temporal', 'Agentic Workflows', 'n8n', 'FastAPI'],
     description:
-      'Co-founded platform teaching people to leverage AI agents and n8n automation. Conducted multiple webinars and live sessions sharing knowledge.',
-    impact: '200+ people educated on AI automation',
-    role: 'Co-Founder & Educator',
+      "Led AI engineering for an AI-powered automation ecosystem that removes repetitive manual steps from clients' marketing operations. Shipped production agentic automations; taught via live sessions and webinars.",
+    impact: '200+ people trained on AI automation; production agentic automations shipped',
+    role: 'Co-Founder & Leading AI Engineer',
     logo: '/logos/efektywniejsi.svg',
-  },
-  {
-    id: 3,
-    title: 'Many projects as an outsourcer',
-    company: 'DAC.Digital',
-    year: '01.2022-02.2024',
-    type: 'developer',
-    tech: ['Python', 'GoLang', 'GraphQL', 'FastAPI', 'Kubernetes', 'CI/CD'],
-    description:
-      'Led a team of 4 building microservices for a leading DeFi protocol (private ledger blockchain). Drove Event Storming & DDD; delivered 3 projects for different customers as a contractor.',
-    role: 'Backend Team Leader',
-    logo: '/logos/dac_logo.png',
-    impact: 'Built critical infrastructure for DeFi protocol, delivered 3 customer projects',
-  },
-  {
-    id: 4,
-    title: 'Microservices Architecture',
-    company: 'Invicta',
-    year: '06.2020-06.2021',
-    type: 'developer',
-    tech: ['Python', 'Flask', 'FastAPI', 'Docker', 'AWS', 'CI/CD'],
-    description:
-      'Working in a start-up environment. Led a DevOps transition and built microservices architecture from scratch. Hands-on with Domain-Driven Design (DDD) and direct business ownership.',
-    role: 'Senior Software Developer',
-    logo: '/logos/invicta.png',
-    impact: 'Built scalable microservices from scratch, established DevOps best practices',
-  },
-  {
-    id: 5,
-    title: 'devs-mentoring Platform',
-    company: 'devs-mentoring.pl',
-    year: '03.2021-Present',
-    type: 'founder',
-    tech: ['Team Building', 'Mentorship', 'Education'],
-    description:
-      'Built and scaled a team of 15 expert programming mentors. Created a mentorship platform helping Mid and Senior developers advance their careers.',
-    impact: '300+ developers mentored, 90% career advancement rate',
-    role: 'Founder & Lead Organizer',
-    logo: '/logos/devs-mentoring.png',
-  },
-  {
-    id: 6,
-    title: 'Architect Consultant & Mentor',
-    company: 'Fathom Group',
-    year: '08.2022-11.2022',
-    type: 'developer',
-    tech: ['Architecture', 'Product Strategy', 'Team Management'],
-    description:
-      'Helped company build product vision from scratch. Organized and facilitated development work and strategy for new product launch in the UK.',
-    role: 'Architect Consultant & Mentor',
-    logo: '/logos/fathom_logo.jpeg',
-    impact: 'Established product vision and development strategy from ground zero',
-  },
-  {
-    id: 7,
-    title: 'Soccer Players Platform',
-    company: 'Red Bull',
-    year: '06.2021-01.2022',
-    type: 'developer',
-    tech: ['Python', 'Django', 'PostgreSQL', 'Redis'],
-    description:
-      'Built a data + backend platform for scouting soccer players. Led and mentored the engineering team, combining data and backend implementations.',
-    role: 'Backend Team Leader',
-    logo: '/logos/redbull.png',
-    impact: 'Delivered a data + backend platform for player scouting; led the engineering team',
-  },
-  {
-    id: 8,
-    title: 'Software Engineering Project',
-    company: 'Inter Cars',
-    year: '12.2018-06.2019',
-    type: 'developer',
-    tech: ['Software Engineering', 'Full-stack Development'],
-    description:
-      'A 6-month contract during which I developed and contributed engineering value to the project as a Software Engineer in the monolithic application.',
-    role: 'Software Engineer',
-    logo: '/logos/intercars_logo.webp',
-    impact: '6-month successful contract delivery',
-  },
-  {
-    id: 9,
-    title: 'R&D Software Engineer',
-    company: 'Nokia',
-    year: '06.2019-06.2020',
-    type: 'developer',
-    tech: ['Python', 'Testing', 'Code Review', 'Team Management'],
-    description:
-      'Responsible for improving processes, implementing features, analyzing bugs, designing solutions, and coordinating guidelines in the 5G area. Shared best practices through coaching and contributed to SW design decisions.',
-    role: 'R&D Software Engineer',
-    logo: '/logos/nokia_logo.jpg',
-    impact: 'Led team management, established coding standards, mentored developers',
   },
   {
     id: 10,
@@ -160,6 +70,58 @@ const projects: Project[] = [
     logo: '/logos/coderiv.png',
   },
   {
+    id: 6,
+    title: 'Architecture Consultant',
+    company: 'Fathom Group',
+    year: '08.2022-11.2022',
+    type: 'developer',
+    tech: ['Architecture', 'Product Strategy', 'Team Management'],
+    description:
+      'Shaped product vision and architecture from scratch for a UK launch. Organized and facilitated development work and strategy for the new product.',
+    role: 'Architecture Consultant',
+    logo: '/logos/fathom_logo.jpeg',
+    impact: 'Established product vision and architecture from ground zero',
+  },
+  {
+    id: 3,
+    title: 'Client Products & DeFi Microservices',
+    company: 'DAC Digital',
+    year: '01.2022-02.2024',
+    type: 'developer',
+    tech: ['Python', 'GoLang', 'GraphQL', 'FastAPI', 'Django', 'AWS', 'CI/CD'],
+    description:
+      'Led a team of 4 (devs + PO) delivering 3 client products from scratch (AllCloud, Amini). Built Go microservices for a DeFi protocol on AWS (EC2, EKS, RDS, S3); drove Event Storming & DDD.',
+    role: 'Backend Team Leader',
+    logo: '/logos/dac_logo.png',
+    impact: '3 client products delivered from scratch; Go microservices for a DeFi protocol on AWS',
+  },
+  {
+    id: 7,
+    title: 'Soccer Players Platform',
+    company: 'Red Bull',
+    year: '06.2021-01.2022',
+    type: 'developer',
+    tech: ['Python', 'Django', 'PostgreSQL', 'Redis'],
+    description:
+      'Built a data + backend platform for scouting soccer players. Led and mentored the engineering team, combining data and backend implementations.',
+    role: 'Backend Team Leader',
+    logo: '/logos/redbull.png',
+    impact: 'Delivered a data + backend platform for player scouting; led the engineering team',
+  },
+  {
+    id: 5,
+    title: 'devs-mentoring Platform',
+    company: 'devs-mentoring.pl',
+    year: '03.2021-Present',
+    type: 'founder',
+    tech: ['Mentorship', 'Code Review', 'Python', 'Team Building'],
+    description:
+      'Founded and scaled a mentoring company: 15 expert mentors helping Mid and Senior developers advance their careers. Author of the training plan & materials; coaching and code review.',
+    impact: '300+ developers mentored, 80+ five-star reviews',
+    role: 'Founder, Mentor & Dev Leader',
+    logo: '/logos/devs-mentoring.png',
+  },
+  {
     id: 11,
     title: 'devs-hunting Agency',
     company: 'devs-hunting.com',
@@ -173,12 +135,51 @@ const projects: Project[] = [
     logo: '/logos/devs-hunting.svg',
   },
   {
+    id: 4,
+    title: 'Microservices Architecture',
+    company: 'Invicta',
+    year: '06.2020-06.2021',
+    type: 'developer',
+    tech: ['Python', 'Flask', 'FastAPI', 'Docker', 'AWS', 'Nginx', 'CI/CD'],
+    description:
+      'Start-up environment. Led a DevOps transition (CI/CD) and built a microservices architecture from scratch; authored ADRs with direct business ownership.',
+    role: 'Senior Software Developer',
+    logo: '/logos/invicta.png',
+    impact: 'Same-day releases after the DevOps transition; microservices built from scratch',
+  },
+  {
+    id: 9,
+    title: 'R&D Software Engineer',
+    company: 'Nokia',
+    year: '06.2019-06.2020',
+    type: 'developer',
+    tech: ['Python', 'C++', 'Flask', 'Docker', 'Kubernetes', 'PyTest'],
+    description:
+      'Delivered features, tests and process improvements in a large R&D organization (5G area): analyzing bugs, designing solutions and coordinating guidelines. Shared best practices through coaching and contributed to SW design decisions.',
+    role: 'R&D Software Engineer',
+    logo: '/logos/nokia_logo.jpg',
+    impact: 'Led team management, established coding standards, mentored developers',
+  },
+  {
+    id: 8,
+    title: 'Short-Term Contract',
+    company: 'Inter Cars',
+    year: '12.2018-06.2019',
+    type: 'developer',
+    tech: ['Django', 'DRF', 'JavaScript', 'HTML & CSS', 'Celery'],
+    description:
+      'A 6-month contract during which I developed and contributed engineering value as a Software Engineer in a monolithic application.',
+    role: 'Software Engineer',
+    logo: '/logos/intercars_logo.webp',
+    impact: '6-month successful contract delivery',
+  },
+  {
     id: 12,
     title: 'C++/Python Software Engineer',
     company: 'DevsHouse',
     year: '12.2015-12.2018',
     type: 'developer',
-    tech: ['C++', 'Python', 'REST', 'Microservices', 'Unit Testing'],
+    tech: ['C++', 'Python', 'Flask', 'REST', 'SQL', 'Docker', 'Keycloak'],
     description:
       'Started professional career while in high school. Supported companies with project estimations, designed software architecture, built and maintained microservices for e-commerce platforms.',
     role: 'C++/Python Software Engineer',
@@ -229,7 +230,7 @@ function Folder({ p, i, active }: { p: Project; i: number; active: boolean }) {
           {p.company} • {p.role}
         </p>
         <p className="text-[15px] text-paper-muted leading-relaxed mb-5">{p.description}</p>
-        <div className="flex flex-wrap gap-1.5 mb-16">
+        <div className="flex flex-wrap gap-1.5 mb-28 sm:mb-16">
           {p.tech.map((t) => (
             <span key={t} className="label-chip">
               {t}
