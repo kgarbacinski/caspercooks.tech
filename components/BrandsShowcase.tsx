@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { SectionHeader, RoomCutout, EASE } from '@/components/ui/Section'
 import { useTheme } from '@/contexts/ThemeContext'
 import { FaGraduationCap, FaMobileAlt, FaBullseye, FaRobot } from 'react-icons/fa'
 import type { IconType } from 'react-icons'
+import type { DeepLink } from '@/components/scrollNav'
 
 /**
  * Marki = papierowa uliczka ze sklepami. Pokój przy nagłówku to zawsze "coderiv" (studio aplikacji
@@ -18,6 +19,8 @@ import type { IconType } from 'react-icons'
 
 interface Brand {
   name: string
+  /** głęboki link: #brands/<slug> (pokoje wyspy CEO) */
+  slug: string
   url: string
   tagline: string
   description: string
@@ -30,6 +33,7 @@ interface Brand {
 const brands: Brand[] = [
   {
     name: 'devs-mentoring.pl',
+    slug: 'devs-mentoring',
     url: 'https://devs-mentoring.pl/',
     tagline: 'Empowering Developers Through Mentorship',
     description: 'Built a thriving community of 15 expert programming mentors helping Mid and Senior backend developers advance their careers, switch projects, and level up their skills.',
@@ -44,6 +48,7 @@ const brands: Brand[] = [
   },
   {
     name: 'coderiv',
+    slug: 'coderiv',
     url: 'https://coderiv.com/',
     tagline: 'Revolutionary Mobile Learning Platform',
     description: 'Envisioning and building a mobile application that will transform how developers learn, collaborate, and grow. Creating seamless experiences for the next generation of coders.',
@@ -58,6 +63,7 @@ const brands: Brand[] = [
   },
   {
     name: 'devs-hunting',
+    slug: 'devs-hunting',
     url: 'http://devs-hunting.com/',
     tagline: 'Connecting Talent with Opportunities',
     description: 'Evaluating and coordinating delivery of development projects for clients like Redsoft. Bridging the gap between top-tier talent and meaningful work.',
@@ -72,6 +78,7 @@ const brands: Brand[] = [
   },
   {
     name: 'Efektywniejsi',
+    slug: 'efektywniejsi',
     url: 'https://www.efektywniejsi.pl/',
     tagline: 'AI Automation & Productivity',
     description: 'Co-founded with 2 partners to teach people how to leverage AI agents and n8n automation. Conducted numerous webinars, sharing knowledge with live audiences and empowering professionals.',
@@ -98,8 +105,25 @@ function Shop({ brand, index }: { brand: Brand; index: number }) {
   const [lit, setLit] = useState(false)
   const hasUrl = brand.url && brand.url !== '#'
   const darkLogo = brand.name === 'Efektywniejsi'
+  // przyjście z pokoju wyspy (#brands/<slug>): sklep na chwilę zapala latarnie i neon
+  useEffect(() => {
+    let t = 0
+    const on = (e: Event) => {
+      const d = (e as CustomEvent<DeepLink | null>).detail
+      if (d?.id !== 'brands' || d.item !== brand.slug) return
+      setLit(true)
+      window.clearTimeout(t)
+      t = window.setTimeout(() => setLit(false), 2200)
+    }
+    window.addEventListener('deeplink:arrive', on)
+    return () => {
+      window.removeEventListener('deeplink:arrive', on)
+      window.clearTimeout(t)
+    }
+  }, [brand.slug])
   return (
     <motion.article
+      data-deep={brand.slug}
       className="group relative flex flex-col snap-center shrink-0 w-[78vw] sm:w-auto"
       initial={reduce ? false : { opacity: 0, y: 60, rotateX: -25 }}
       whileInView={{ opacity: 1, y: 0, rotateX: 0 }}

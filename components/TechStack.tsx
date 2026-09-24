@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { SectionHeader, RoomCutout, EASE } from '@/components/ui/Section'
 import {
   SiPython, SiJavascript, SiTypescript, SiCplusplus, SiSolidity, SiGo,
@@ -18,6 +18,7 @@ import {
   FaBolt, FaSitemap, FaDraftingCompass
 } from 'react-icons/fa'
 import type { IconType } from 'react-icons'
+import type { DeepLink } from '@/components/scrollNav'
 
 type Category = 'languages' | 'ai' | 'web' | 'data' | 'cloud' | 'web3' | 'practices'
 
@@ -163,6 +164,17 @@ export default function TechStack() {
   const [activeCategory, setActiveCategory] = useState<keyof typeof categories>('languages')
   const [open, setOpen] = useState<string | null>(null)
   const filteredTechs = technologies.filter((t) => t.category === activeCategory)
+  // głęboki link #stack/<kategoria> (pokój AI lab → ai): zakładka przełącza się, zanim strona dojedzie
+  useEffect(() => {
+    const on = (e: Event) => {
+      const d = (e as CustomEvent<DeepLink | null>).detail
+      if (d?.id !== 'stack' || !d.item || !(d.item in categories)) return
+      setActiveCategory(d.item as keyof typeof categories)
+      setOpen(null)
+    }
+    window.addEventListener('deeplink:go', on)
+    return () => window.removeEventListener('deeplink:go', on)
+  }, [])
 
   return (
     <section id="stack" className="relative py-16 sm:py-24 scroll-mt-20">
@@ -190,6 +202,7 @@ export default function TechStack() {
             return (
               <button
                 key={key}
+                data-deep={key}
                 role="tab"
                 aria-selected={active}
                 onClick={() => {

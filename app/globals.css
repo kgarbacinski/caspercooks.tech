@@ -921,3 +921,18 @@ body.founder-mode {
 /* reflektory nad miastem: powolne wahadło */
 .amb-searchlight { animation: amb-searchlight 10s ease-in-out infinite alternate; }
 @keyframes amb-searchlight { from { transform: rotate(-30deg); } to { transform: rotate(28deg); } }
+
+/* głęboki link (pokój wyspy → teczka / zakładka / sklep): krótkie podświetlenie po kształcie celu */
+@keyframes deeplink-flash {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgb(var(--accent-rgb) / 0));
+  }
+  25%,
+  60% {
+    filter: drop-shadow(0 0 16px rgb(var(--accent-rgb) / 0.8));
+  }
+}
+[data-flash] {
+  animation: deeplink-flash 1.7s ease-in-out 1;
+}

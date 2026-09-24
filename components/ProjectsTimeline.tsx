@@ -6,6 +6,7 @@ import { motion, useMotionValueEvent, useScroll, useTransform } from 'framer-mot
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { SectionHeader, EASE } from '@/components/ui/Section'
+import { docTop, registerTarget } from '@/components/scrollNav'
 
 /**
  * Projekty = archiwum teczek (pokój "Infra" / "devs-mentoring").
@@ -17,6 +18,8 @@ import { SectionHeader, EASE } from '@/components/ui/Section'
 
 interface Project {
   id: number
+  /** głęboki link: #projects/<slug> (np. pokój Web3 vault → octant) */
+  slug: string
   title: string
   company: string
   year: string
@@ -32,6 +35,7 @@ interface Project {
 const projects: Project[] = [
   {
     id: 1,
+    slug: 'octant',
     title: 'Octant - Public Goods Funding',
     company: 'Golem Foundation',
     year: '02.2024-Present',
@@ -45,6 +49,7 @@ const projects: Project[] = [
   },
   {
     id: 2,
+    slug: 'efektywniejsi',
     title: 'Efektywniejsi AI Automation',
     company: 'Efektywniejsi',
     year: '01.2025-04.2026',
@@ -58,6 +63,7 @@ const projects: Project[] = [
   },
   {
     id: 10,
+    slug: 'coderiv',
     title: 'coderiv Mobile App',
     company: 'coderiv.com',
     year: '2024-Present',
@@ -71,6 +77,7 @@ const projects: Project[] = [
   },
   {
     id: 6,
+    slug: 'fathom',
     title: 'Architecture Consultant',
     company: 'Fathom Group',
     year: '08.2022-11.2022',
@@ -84,6 +91,7 @@ const projects: Project[] = [
   },
   {
     id: 3,
+    slug: 'dac',
     title: 'Client Products & DeFi Microservices',
     company: 'DAC Digital',
     year: '01.2022-02.2024',
@@ -97,6 +105,7 @@ const projects: Project[] = [
   },
   {
     id: 7,
+    slug: 'redbull',
     title: 'Soccer Players Platform',
     company: 'Red Bull',
     year: '06.2021-01.2022',
@@ -110,6 +119,7 @@ const projects: Project[] = [
   },
   {
     id: 5,
+    slug: 'devs-mentoring',
     title: 'devs-mentoring Platform',
     company: 'devs-mentoring.pl',
     year: '03.2021-Present',
@@ -123,6 +133,7 @@ const projects: Project[] = [
   },
   {
     id: 11,
+    slug: 'devs-hunting',
     title: 'devs-hunting Agency',
     company: 'devs-hunting.com',
     year: '2021-Present',
@@ -136,6 +147,7 @@ const projects: Project[] = [
   },
   {
     id: 4,
+    slug: 'invicta',
     title: 'Microservices Architecture',
     company: 'Invicta',
     year: '06.2020-06.2021',
@@ -149,6 +161,7 @@ const projects: Project[] = [
   },
   {
     id: 9,
+    slug: 'nokia',
     title: 'R&D Software Engineer',
     company: 'Nokia',
     year: '06.2019-06.2020',
@@ -162,6 +175,7 @@ const projects: Project[] = [
   },
   {
     id: 8,
+    slug: 'intercars',
     title: 'Short-Term Contract',
     company: 'Inter Cars',
     year: '12.2018-06.2019',
@@ -175,6 +189,7 @@ const projects: Project[] = [
   },
   {
     id: 12,
+    slug: 'devshouse',
     title: 'C++/Python Software Engineer',
     company: 'DevsHouse',
     year: '12.2015-12.2018',
@@ -195,6 +210,7 @@ function Folder({ p, i, active }: { p: Project; i: number; active: boolean }) {
   const isDev = p.type === 'developer'
   return (
     <article
+      data-deep={p.slug}
       className={`folder group relative shrink-0 w-[82vw] max-w-[26.25rem] sm:w-[26.25rem] lg:w-[25rem] xl:w-[26.875rem] ${isDev ? 'folder-dev' : 'folder-ceo'} ${active ? '' : 'folder-other'}`}
       style={{ rotate: `${TILTS[i % TILTS.length]}deg` }}
     >
@@ -298,6 +314,28 @@ export default function ProjectsTimeline() {
     return () => window.removeEventListener('resize', measure)
   }, [theme])
   const { scrollYProgress } = useScroll({ target: wrapRef, offset: ['start start', 'end end'] })
+
+  // głęboki link #projects/<slug> na desktopie: pozycja pionowego scrolla, przy której przejazd
+  // stawia teczkę na początku kolumny treści (x = −lewa krawędź teczki · skala, w granicach [0, dist])
+  const live = useRef({ dist: 0, s: 1 })
+  live.current = { dist, s: fit.s }
+  useEffect(
+    () =>
+      registerTarget('projects', (item) => {
+        const wrap = wrapRef.current
+        const track = trackRef.current
+        if (!wrap || !track || wrap.offsetParent === null) return null // mobile/tablet: domyślny algorytm
+        const top = docTop(wrap)
+        const card = item ? track.querySelector<HTMLElement>(`[data-deep="${CSS.escape(item)}"]`) : null
+        const { dist: d, s: sc } = live.current
+        if (!card || d <= 0) return top
+        const X = Math.min(d, Math.max(0, (card.offsetLeft - track.offsetLeft) * sc))
+        // x = transform(postęp, [0.08, 0.96], [0, −dist]); pierwsza teczka = start przypięcia (nagłówek, licznik 01)
+        const p = X <= 0 ? 0 : 0.08 + (0.88 * X) / d
+        return top + p * d
+      }),
+    [],
+  )
   // bez dodatkowej sprężyny: scroll wygładza już Lenis (podwójne wygładzanie = opóźnienie)
   const x = useTransform(scrollYProgress, [0.08, 0.96], [0, -dist])
   const [idx, setIdx] = useState(0)
@@ -333,7 +371,7 @@ export default function ProjectsTimeline() {
     <section id="projects" className="relative scroll-mt-20">
       {/* desktop: przypięty poziomy przejazd */}
       <div ref={wrapRef} className="relative hidden lg:block" style={{ height: `calc(100vh + ${dist}px)` }}>
-        <div className="sticky top-0 h-screen overflow-hidden flex flex-col [justify-content:safe_center] pt-20">
+        <div data-pin className="sticky top-0 h-screen overflow-hidden flex flex-col [justify-content:safe_center] pt-20">
           <div ref={headRef} className="max-w-6xl w-full mx-auto px-8 mb-8 flex items-end justify-between gap-8">
             {header(true)}
             <div className="shrink-0 text-right font-mono text-xs text-paper-dim pb-2">

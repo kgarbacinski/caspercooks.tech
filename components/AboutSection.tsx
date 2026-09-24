@@ -306,7 +306,7 @@ export default function AboutSection() {
 
       {/* ——— desktop: przypięta scena ——— */}
       <div ref={sceneRef} className="relative hidden lg:block" style={{ height: `${steps * 62 + 60}vh` }}>
-        <div data-dive-stage data-paused={sceneInView ? undefined : true} className="sticky top-0 h-screen overflow-x-clip">
+        <div data-dive-stage data-pin data-paused={sceneInView ? undefined : true} className="sticky top-0 h-screen overflow-x-clip">
           {/* pt-20 = pasek nawigacji: na niskim ekranie (1280×720) etykieta sekcji nie chowa się pod nim */}
           <div className="max-w-6xl mx-auto px-8 pt-20 pb-4 h-full grid grid-cols-[1.05fr_1fr] gap-10 items-center">
             {/* pokój, w który wjeżdża kamera */}

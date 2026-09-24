@@ -6,7 +6,8 @@ import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { SWITCH, useTheme } from '@/contexts/ThemeContext'
 import type { Theme } from '@/contexts/ThemeContext'
 import { FRAME, ROOM_BOX } from './layout'
-import { KEY, ROOMS, roomSrc, roomSrcSet, scrollToHash } from './rooms'
+import { KEY, ROOMS, roomSrc, roomSrcSet } from './rooms'
+import { navigateTo } from '@/components/scrollNav'
 import Figure, { type FigureHandle } from './Figure'
 import Sparks from './Sparks'
 import PaperBurst from './PaperBurst'
@@ -418,11 +419,11 @@ export default function Diorama() {
       setHover(i)
       at(420, () => {
         setHover(null)
-        scrollToHash(info[i].href)
+        navigateTo(info[i].href)
       })
       return
     }
-    scrollToHash(info[i].href)
+    navigateTo(info[i].href)
   }
 
   const paused = !onScreen || (dive && gone)
@@ -722,7 +723,7 @@ export default function Diorama() {
             {/* dostępność: pokoje jako przyciski (fokus z klawiatury podświetla dokładny kształt) */}
             <div className="sr-only">
               {info.map((r, i) => (
-                <button key={r.label} type="button" onFocus={() => setHover(i)} onBlur={() => setHover(null)} onClick={() => scrollToHash(r.href)}>
+                <button key={r.label} type="button" onFocus={() => setHover(i)} onBlur={() => setHover(null)} onClick={() => navigateTo(r.href)}>
                   {r.label} — {r.hint}
                 </button>
               ))}

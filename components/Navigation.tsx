@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '@/contexts/ThemeContext'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const navLinks = [
   { href: '#about', label: 'about' },
@@ -52,22 +52,39 @@ export default function Navigation() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // aktywny link = sekcja przecinająca linię 30% wysokości pod paskiem (z pozycji, nie z IntersectionObservera:
+  // ten gubił stan przy szybkim przejeździe Lenisa przez przypięte sceny, a kontakt na dole strony nigdy nie
+  // dochodził do pasma obserwacji). #stack nie ma linku — nad pegboardem podświetlenie gaśnie.
+  const barRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveSection(entry.target.id)
-        })
-      },
-      { rootMargin: '-20% 0px -60% 0px', threshold: 0 },
-    )
-    // #stack nie ma linku, ale obserwujemy go, żeby podświetlenie "projects" gasło nad pegboardem
-    ;[...navLinks.map((l) => l.label), 'stack'].forEach((id) => {
-      const el = document.getElementById(id)
-      if (el) observer.observe(el)
-    })
-    return () => observer.disconnect()
-    // sekcja Stack montuje się na nowo po zmianie trybu — obserwujemy świeże elementy
+    const ids = ['about', 'projects', 'stack', 'brands', 'studio', 'contact']
+    let raf = 0
+    const compute = () => {
+      raf = 0
+      const bar = barRef.current?.getBoundingClientRect().bottom ?? 0
+      const line = bar + (window.innerHeight - bar) * 0.3
+      let cur = ''
+      for (const id of ids) {
+        const r = document.getElementById(id)?.getBoundingClientRect()
+        if (r && r.top <= line && r.bottom > line) cur = id
+      }
+      // koniec strony: kontakt nie dojedzie pod pasek, ale to on jest na ekranie
+      const contact = document.getElementById('contact')?.getBoundingClientRect()
+      if (contact && contact.top < window.innerHeight && window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) cur = 'contact'
+      setActiveSection(cur)
+    }
+    const on = () => {
+      if (!raf) raf = requestAnimationFrame(compute)
+    }
+    compute()
+    window.addEventListener('scroll', on, { passive: true })
+    window.addEventListener('resize', on)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('scroll', on)
+      window.removeEventListener('resize', on)
+    }
+    // sekcja Stack montuje się na nowo po zmianie trybu
   }, [theme])
 
   return (
@@ -76,7 +93,8 @@ export default function Navigation() {
         scrolled ? 'bg-night/95 backdrop-blur-md border-b border-cocoa-500/40' : 'bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between">
+      {/* data-nav-bar: wysokość paska dla nawigacji po stronie (components/scrollNav) */}
+      <div ref={barRef} data-nav-bar className="max-w-7xl mx-auto px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between">
         <Brand theme={theme} />
 
         <div className="hidden lg:flex items-center gap-8 font-mono text-sm">
