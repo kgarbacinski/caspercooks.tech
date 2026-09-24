@@ -572,6 +572,28 @@ body.founder-mode {
 .animate-nudge-3 {
   animation: nudge 1.4s ease-in-out 1.8s 3;
 }
+/* prąd w kablach pod wyspą (Cables.tsx): impuls biegnie od pieczęci KG na zewnątrz wiązek.
+   Pasek jedzie transformem wewnątrz warstwy z maską kabli → sam kompozytor, bez repaintu. */
+@keyframes cable-pulse {
+  0% { transform: translateX(-100%); opacity: 0; }
+  2% { opacity: 1; }
+  21% { transform: translateX(260%); opacity: 1; }
+  23%, 100% { transform: translateX(260%); opacity: 0; }
+}
+@keyframes cable-surge {
+  0% { transform: translateX(-100%); opacity: 1; }
+  100% { transform: translateX(260%); opacity: 1; }
+}
+@keyframes cable-flash {
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes seal-ring {
+  0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
+}
+
 /* hero poza kadrem / po wjeździe kamery: wszystkie pętle CSS w dioramie stoją */
 [data-paused] *,
 [data-paused] *::before,

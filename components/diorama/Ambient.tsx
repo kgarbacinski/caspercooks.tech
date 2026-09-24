@@ -1008,7 +1008,7 @@ export default function RoomAmbient({ world, room, run, show, hot, lite, artClas
   return (
     <div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ containerType: 'inline-size' }}>
       {art && (
-        <div className={`absolute inset-0 ${artClass ?? ''}`} style={artStyle}>
+        <div data-amb-art className={`absolute inset-0 ${artClass ?? ''}`} style={artStyle}>
           {art}
         </div>
       )}

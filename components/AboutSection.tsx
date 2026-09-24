@@ -11,6 +11,7 @@ import { SectionHeader, EASE } from '@/components/ui/Section'
 import { KEY, ROOMS, roomSrc } from '@/components/diorama/rooms'
 import { FIG, ROOM_BOX } from '@/components/diorama/layout'
 import RoomAmbient from '@/components/diorama/Ambient'
+import DepthRoom, { type DepthTarget } from '@/components/diorama/DepthRoom'
 
 /**
  * About = pokój nr 1 z wyspy (Dev cave / CEO office).
@@ -257,6 +258,45 @@ export default function AboutSection() {
   const steps = s.notes.length + 1 // ostatni krok = statystyki
   useMotionValueEvent(scrollYProgress, 'change', (v) => setActive(Math.min(steps - 1, Math.floor(v * steps * 1.02))))
 
+  // 2.5D: pokój z mapą głębi — kursor (gdziekolwiek w oknie) obraca "kamerę", scroll powoli
+  // opuszcza ją z widoku z góry na wprost; figurka stoi przed pokojem, więc przesuwa się najmocniej
+  const peek = useRef<DepthTarget>({ x: 0, y: 0 })
+  const cursor = useRef({ x: 0, y: 0 })
+  const roomLayer = useRef<HTMLDivElement>(null)
+  const figEl = useRef<HTMLDivElement>(null)
+  const aim = () => {
+    // do chwili podmiany z hero (pokój przyjeżdża z wyspy jako płaski obraz) widok stoi na wprost
+    if (shown.get() < 1) {
+      peek.current = { x: 0, y: 0 }
+      return
+    }
+    const p = scrollYProgress.get()
+    peek.current = { x: cursor.current.x, y: Math.max(-1, Math.min(1, cursor.current.y * 0.55 + (0.5 - p) * 0.9)) }
+  }
+  useMotionValueEvent(scrollYProgress, 'change', aim)
+  useMotionValueEvent(shown, 'change', aim)
+  useEffect(() => {
+    if (!sceneInView || reduce) return
+    const move = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return
+      cursor.current = { x: (e.clientX / window.innerWidth - 0.5) * 2, y: (e.clientY / window.innerHeight - 0.5) * 2 }
+      aim()
+    }
+    aim()
+    window.addEventListener('pointermove', move, { passive: true })
+    return () => window.removeEventListener('pointermove', move)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sceneInView, reduce])
+
+  // mobile: bez kursora — sam scroll prowadzi kamerę (z góry → na wprost, gdy pokój przejeżdża przez ekran)
+  const mRoom = useRef<HTMLDivElement>(null)
+  const mInView = useInView(mRoom)
+  const mPeek = useRef<DepthTarget>({ x: 0, y: 0 })
+  const { scrollYProgress: mProg } = useScroll({ target: mRoom, offset: ['start end', 'end start'] })
+  useMotionValueEvent(mProg, 'change', (v) => {
+    mPeek.current = { x: 0, y: Math.max(-1, Math.min(1, (0.5 - v) * 2.2)) }
+  })
+
   return (
     // desktop z ruchem: sekcja nachodzi na ostatni ekran przypiętego hero (patrz HeroSection)
     <section id="about" className="relative z-20 scroll-mt-20 motion-safe:lg:-mt-[100vh]">
@@ -287,20 +327,27 @@ export default function AboutSection() {
                     exit={{ rotateX: 86, transition: { duration: 0.3 } }}
                     transition={{ type: 'spring', stiffness: 160, damping: 14, delay: 0.3 }}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <div ref={roomLayer} className="relative">
+                    <DepthRoom
                       src={roomSrc(theme, 0)}
-                      alt={`${room.label} — a papercraft room from the diorama`}
+                      depth={`/diorama/v2/depth-${KEY[theme]}-0.webp`}
+                      target={peek}
+                      active={sceneInView && !reduce}
+                      amp={0.034}
+                      freeze={roomLayer}
+                      followers={[{ el: figEl, depth: 1.12 }]}
+                      imgProps={{ alt: `${room.label} — a papercraft room from the diorama` }}
                       className="block w-full h-auto drop-shadow-[0_40px_40px_rgba(0,0,0,0.7)]"
                       // proporcje znane przed załadowaniem (pomiar celu kamery w hero)
                       style={{ aspectRatio: `${rb.w * 24} / ${rb.h * 12.24}` }}
                     />
                     {/* ten sam stan ekranów co w hero (wspólny model) — podmiana przy wjeździe kamery jest niewidoczna */}
                     {!reduce && <RoomAmbient world={KEY[theme]} room={0} run={sceneInView} show />}
+                    </div>
                   </motion.div>
                 </AnimatePresence>
                 {/* figurka stoi w progu pokoju — dokładnie tam, gdzie na wyspie */}
-                <div aria-hidden="true" className="absolute" style={figPos}>
+                <div ref={figEl} aria-hidden="true" className="absolute" style={figPos}>
                   <div className="absolute left-[-10%] right-[-10%] bottom-[-2.5%] h-[5%] rounded-[50%] bg-black/60 blur-[3px]" />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`/diorama/v2/fig-${KEY[theme]}.webp`} alt="" className="absolute inset-0 w-full h-full" />
@@ -361,10 +408,20 @@ export default function AboutSection() {
 
       {/* ——— mobile / tablet: pokój + notatki w pionie ——— */}
       <div className="lg:hidden max-w-2xl mx-auto px-4 sm:px-8 pb-8">
-        <div className="relative mx-auto w-[74%] max-w-[380px] mt-10 mb-16">
+        <div ref={mRoom} className="relative mx-auto w-[74%] max-w-[380px] mt-10 mb-16">
           <div aria-hidden="true" className="absolute inset-x-[5%] bottom-0 h-1/3 rounded-[50%] blur-3xl" style={{ background: 'rgb(var(--accent-rgb) / 0.22)' }} />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={roomSrc(theme, 0, true)} alt={`${room.label} — a papercraft room from the diorama`} className="relative w-full h-auto drop-shadow-[0_30px_30px_rgba(0,0,0,0.7)]" />
+          <div className="relative">
+            <DepthRoom
+              src={roomSrc(theme, 0, true)}
+              depth={`/diorama/v2/depth-${KEY[theme]}-0.webp`}
+              target={mPeek}
+              active={mInView && !reduce}
+              amp={0.07}
+              imgProps={{ alt: `${room.label} — a papercraft room from the diorama` }}
+              className="relative w-full h-auto drop-shadow-[0_30px_30px_rgba(0,0,0,0.7)]"
+              style={{ aspectRatio: `${rb.w * 24} / ${rb.h * 12.24}` }}
+            />
+          </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={`/diorama/v2/fig-${KEY[theme]}.webp`} alt="" aria-hidden="true" className="absolute bottom-0 right-[-10%] h-[72%] w-auto" />
         </div>

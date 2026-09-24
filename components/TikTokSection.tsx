@@ -66,8 +66,9 @@ export default function TikTokSection() {
                 className="group absolute right-[16%] sm:right-[12%] bottom-[9%] block"
                 initial={reduce ? false : { y: 40, opacity: 0, rotate: -3 }}
                 whileInView={{ y: 0, opacity: 1, rotate: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
-                transition={{ duration: 0.9, ease: EASE, delay: 0.15 }}
+                // telefon wchodzi dopiero, gdy pokój za nim już wstał (pop-up zależny od scrolla)
+                viewport={{ once: true, amount: 1 }}
+                transition={{ duration: 0.9, ease: EASE, delay: 0.25 }}
                 whileHover={reduce ? undefined : { y: -6, rotate: -1 }}
               >
                 <div className="relative w-[118px] sm:w-[150px] aspect-[9/18.5] rounded-[26px] p-[7px] bg-gradient-to-b from-[#2a1d15] to-[#130c08] border border-cocoa-500/70 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(232,132,58,0.4)]">

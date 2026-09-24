@@ -11,6 +11,8 @@ import Figure, { type FigureHandle } from './Figure'
 import Sparks from './Sparks'
 import PaperBurst from './PaperBurst'
 import RoomAmbient from './Ambient'
+import DepthRoom, { type DepthTarget } from './DepthRoom'
+import Cables from './Cables'
 
 /**
  * Lewitująca diorama v2 — złożona z warstw zamiast jednego obrazka:
@@ -45,6 +47,10 @@ const GLOWS: Record<'dev' | 'ceo', { x: number; y: number; r: number; c: string;
   ],
 }
 
+// podpis pokoju pod pokojem, na krawędzi wyspy; środkowy pokój ma pod sobą pieczęć KG (easter egg) —
+// jego podpis schodzi poniżej pieczęci, żeby jej nie zasłaniać
+const labelTop = (b: { l: number; w: number; t: number; h: number }) => (Math.abs(b.l + b.w / 2 - 50) < 8 ? 79.5 : b.t + b.h + 1.5)
+
 type RoomState = { up: boolean; lit: boolean; flicker: boolean }
 const allRooms = (s: RoomState) => Array.from({ length: 5 }, () => ({ ...s }))
 
@@ -63,7 +69,15 @@ export default function Diorama() {
   const [ready, setReady] = useState(false)
   const [burst, setBurst] = useState(0)
   const [flash, setFlash] = useState(0)
+  const [surge, setSurge] = useState(0) // mocny impuls prądu w kablach
+  const [ring, setRing] = useState(0) // fala od pieczęci po kliknięciu
   const panRef = useRef<HTMLDivElement>(null)
+  // 2.5D "zajrzyj do środka": kursor nad pokojem → paralaksa z mapy głębi (desktop)
+  const peek = useRef<DepthTarget>({ x: 0, y: 0 })
+  const roomInner = useRef<(HTMLDivElement | null)[]>([])
+  const figLayer = useRef<HTMLDivElement>(null)
+  const [peekLive, setPeekLive] = useState<number | null>(null)
+  const pending = useRef<{ val: number | null | undefined; n: number; t: number }>({ val: undefined, n: 0, t: 0 })
   // mobile: startowo pokazujemy pokój z figurką
   useEffect(() => {
     const el = panRef.current
@@ -116,6 +130,8 @@ export default function Diorama() {
         if (bounceRef.current)
           animateBounce(bounceRef.current, { y: [0, 16, -6, 2, 0], scaleY: [1, 0.985, 1.006, 1, 1], rotateZ: [0, -0.7, 0.35, 0, 0] }, { duration: 0.75, ease: 'easeOut' })
       })
+      // prąd rusza kablami tuż przed zapaleniem świateł
+      at(delay + E.lights - 180, () => setSurge((v) => v + 1))
       for (let i = 0; i < 5; i++)
         at(delay + E.lights + i * 110, () => setRooms((r) => r.map((s, j) => (j === i ? { ...s, lit: true, flicker: true } : s))))
       at(delay + E.lights + 4 * 110 + 100, () => setBaseLit(true))
@@ -349,7 +365,42 @@ export default function Diorama() {
     if (!interactive || e.pointerType !== 'mouse') return
     // nad figurką działa jej własny hover (podskok + podpowiedź), nie pokój pod nią
     if ((e.target as HTMLElement).closest('button')) return
-    setHover(locate(e.clientX, e.clientY))
+    const i = locate(e.clientX, e.clientY)
+    // histereza na styku pokoi: zmiana pokoju dopiero po 2 kolejnych odczytach, wyjście w szczelinę po 120 ms
+    // (inaczej hit-test na granicy skakał między pokojami i podpis mrugał)
+    const pd = pending.current
+    if (i === hover) {
+      pd.val = undefined
+      pd.n = 0
+      window.clearTimeout(pd.t)
+    } else if (i === null) {
+      if (pd.val !== null) {
+        pd.val = null
+        window.clearTimeout(pd.t)
+        pd.t = window.setTimeout(() => setHover(null), 120)
+      }
+    } else {
+      window.clearTimeout(pd.t)
+      if (pd.val === i) pd.n++
+      else {
+        pd.val = i
+        pd.n = 1
+      }
+      if (hover === null || pd.n >= 2) {
+        pd.val = undefined
+        pd.n = 0
+        setHover(i)
+      }
+    }
+    if (i !== null && boxRef.current) {
+      const r = boxRef.current.getBoundingClientRect()
+      const b = boxes[i]
+      const c = (v: number) => Math.max(-1, Math.min(1, v))
+      peek.current = {
+        x: c((((e.clientX - r.left) / r.width) * 100 - (b.l + b.w / 2)) / (b.w / 2)),
+        y: c((((e.clientY - r.top) / r.height) * 100 - (b.t + b.h / 2)) / (b.h / 2)),
+      }
+    }
   }
   const onClick = (e: React.MouseEvent) => {
     if (!interactive) return
@@ -408,7 +459,11 @@ export default function Diorama() {
             className={`relative ${spot ? 'cursor-pointer' : ''}`}
             style={{ aspectRatio: ASPECT }}
             onPointerMove={onPointerMove}
-            onPointerLeave={() => setHover(null)}
+            onPointerLeave={() => {
+              window.clearTimeout(pending.current.t)
+              pending.current.val = undefined
+              setHover(null)
+            }}
             onClick={onClick}
           >
             {/* cień wyspy w pustce */}
@@ -441,6 +496,7 @@ export default function Diorama() {
                 }}
               />
             </AnimatePresence>
+            <Cables key={k} world={k} accent={accent} on={baseLit && !spot} surge={surge} reduce={reduce} />
             </motion.div>
 
             {/* pokoje — każdy osobną warstwą w dokładnym kształcie */}
@@ -484,6 +540,9 @@ export default function Diorama() {
                   }
                 >
                   <div
+                    ref={(el) => {
+                      roomInner.current[i] = el
+                    }}
                     className="absolute inset-0 transition-transform duration-500"
                     style={{
                       transformOrigin: '50% 100%',
@@ -506,17 +565,24 @@ export default function Diorama() {
                     <div
                       aria-hidden="true"
                       className="absolute inset-0 transition-opacity duration-300"
-                      style={{ ...maskStyle, background: 'linear-gradient(180deg, #ffe2b8, #ffb56b)', filter: 'blur(1.5px)', transform: 'scale(1.014)', opacity: isHover ? 0.9 : 0 }}
+                      style={{ ...maskStyle, background: 'linear-gradient(180deg, #ffe2b8, #ffb56b)', filter: 'blur(1.5px)', transform: 'scale(1.014)', opacity: isHover && peekLive !== i ? 0.9 : 0 }}
                     />
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    {/* pokój: zwykły obrazek; przy hoverze (mysz) podmieniany na widok 2.5D z mapy głębi */}
+                    <DepthRoom
                       // zawsze pełna rozdzielczość (20–30 KB): przy wjeździe kamery pokój jest powiększony do 1.9×
                       src={src}
-                      alt=""
-                      draggable={false}
+                      depth={`/diorama/v2/depth-${k}-${i}.webp`}
+                      target={peek}
+                      active={isHover && finePointer && !reduce}
+                      amp={0.09}
+                      pad={0.03}
+                      rim
+                      freeze={{ current: roomInner.current[i] }}
+                      followers={i <= 1 ? [{ el: figLayer, depth: 1.1 }] : undefined}
+                      onLive={(v) => setPeekLive((p) => (v ? i : p === i ? null : p))}
                       className={`absolute inset-0 w-full h-full ${litClass}`}
                       style={litStyle}
-                      onAnimationEnd={() => setRooms((r) => r.map((x, j) => (j === i ? { ...x, flicker: false } : x)))}
+                      imgProps={{ alt: '', onAnimationEnd: () => setRooms((r) => r.map((x, j) => (j === i ? { ...x, flicker: false } : x))) }}
                     />
                     {/* żywa miniatura: animacje wewnątrz warstwy pokoju (składają się z nim i jadą z kamerą) */}
                     {!reduce && (
@@ -581,7 +647,7 @@ export default function Diorama() {
             )}
 
             {/* figurka — własna warstwa i paralaksa */}
-            <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 20 }}>
+            <div ref={figLayer} className="absolute inset-0 pointer-events-none" style={{ zIndex: 20 }}>
               <Figure ref={figRef} theme={theme} reduce={reduce} dim={spot && hover !== 0 && hover !== 1} />
             </div>
 
@@ -605,6 +671,40 @@ export default function Diorama() {
               }}
             />
 
+            {/* pieczęć KG = źródło prądu: klik puszcza impuls kablami, światła w pokojach mrugają od środka */}
+            <button
+              type="button"
+              className="group absolute z-30 rounded-full cursor-pointer focus-visible:outline-accent"
+              style={{ left: '46.46%', top: '64.13%', width: '7.08%', height: '13.9%' }}
+              aria-label="Power up the island"
+              disabled={!interactive || reduce}
+              onMouseEnter={() => setHover(null)}
+              onClick={(e) => {
+                e.stopPropagation()
+                if (!rooms.every((r) => r.lit)) return
+                setSurge((v) => v + 1)
+                setRing((v) => v + 1)
+                // fala idzie od środka wyspy: środkowy pokój, potem sąsiednie, na końcu skrajne
+                ;[[2], [1, 3], [0, 4]].forEach((group, n) =>
+                  at(70 + n * 90, () => setRooms((r) => r.map((s, j) => (group.includes(j) ? { ...s, flicker: true } : s)))),
+                )
+              }}
+            >
+              <span
+                aria-hidden="true"
+                className="absolute inset-[-18%] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 mix-blend-screen"
+                style={{ background: `radial-gradient(circle, transparent 50%, rgba(${accent},0.4) 58%, rgba(${accent},0.1) 64%, transparent 71%)` }}
+              />
+              {ring > 0 && (
+                <span
+                  key={ring}
+                  aria-hidden="true"
+                  className="absolute left-1/2 top-1/2 w-full h-full rounded-full"
+                  style={{ border: `2px solid rgba(${accent},0.9)`, boxShadow: `0 0 18px rgba(${accent},0.7)`, animation: 'seal-ring .8s cubic-bezier(.2,.7,.3,1) both' }}
+                />
+              )}
+            </button>
+
             {/* dostępność: pokoje jako przyciski (fokus z klawiatury podświetla dokładny kształt) */}
             <div className="sr-only">
               {info.map((r, i) => (
@@ -619,12 +719,15 @@ export default function Diorama() {
               {spot && hover !== null && (
                 <motion.div
                   key={`${k}-${hover}`}
-                  initial={{ opacity: 0, y: 12, scale: 0.92 }}
+                  initial={{ opacity: 0, y: -10, scale: 0.92 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 6, transition: { duration: 0.12 } }}
-                  transition={{ type: 'spring', stiffness: 420, damping: 26 }}
+                  // krótkie przenikanie (półprzezroczysta kartka nad dachem wyglądała, jakby wpadała pod szczyt)
+                  exit={{ opacity: 0, transition: { duration: 0.05 } }}
+                  transition={{ type: 'spring', stiffness: 420, damping: 26, opacity: { duration: 0.06, delay: 0.05 } }}
                   className="absolute pointer-events-none z-40"
-                  style={{ left: `${boxes[hover].l + boxes[hover].w / 2}%`, top: `${boxes[hover].t - 5}%`, x: '-50%', y: '-100%' }}
+                  // przypięty do krawędzi wyspy pod pokojem — nie zasłania szczytu dachu uniesionego pokoju
+                  // (nad pokojem kolidował z nawigacją przy najwyższych dachach)
+                  style={{ left: `${boxes[hover].l + boxes[hover].w / 2}%`, top: `${labelTop(boxes[hover])}%`, x: '-50%' }}
                 >
                   <div className="paper-tag">
                     <span className="block font-display text-lg leading-tight text-ink">{info[hover].label}</span>

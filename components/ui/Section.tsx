@@ -1,17 +1,23 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useInView, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { useTheme } from '@/contexts/ThemeContext'
-import { roomSrc, roomSrcOf } from '@/components/diorama/rooms'
+import { KEY, roomSrcOf } from '@/components/diorama/rooms'
+import { ROOM_BOX } from '@/components/diorama/layout'
+import DepthRoom, { type DepthTarget } from '@/components/diorama/DepthRoom'
 
 export const EASE = [0.22, 1, 0.36, 1] as const
 
 /**
- * Pokój z dioramy wycięty dokładnie po kształcie (ta sama grafika co w hero).
- * Przy zmianie motywu pokój składa się i wyskakuje już z nowego świata (jak w hero).
- * Domyślnie stoi nieruchomo — pętla lewitacji zostaje tylko w hero (float = wyjątek).
+ * Pokój z dioramy wycięty dokładnie po kształcie (ta sama grafika co w hero) — "żywa makieta":
+ *  - pop-up book: pokój leży złożony płasko i wstaje razem ze scrollem, gdy wjeżdża w kadr
+ *    (scroll w górę składa go z powrotem); po wstaniu zapala się w nim światło (mrugnięcie jak w hero),
+ *  - 2.5D: mapa głębi z AI → przy przewijaniu kamera schodzi z widoku z góry na wprost,
+ *    a na desktopie lekko podąża za kursorem (DepthRoom, WebGL tylko gdy pokój jest w kadrze),
+ *  - przy zmianie motywu pokój składa się i wyskakuje już z nowego świata (jak w hero).
  * Z jawnym `world` grafika nie zależy od trybu (i nie przeskakuje przy przełączeniu).
  */
 export function RoomCutout({
@@ -31,28 +37,97 @@ export function RoomCutout({
 }) {
   const { theme } = useTheme()
   const reduce = useReducedMotion()
-  const src = world ? roomSrcOf(world, room, !hi) : roomSrc(theme, room, !hi)
+  const w = world ?? KEY[theme]
+  const src = roomSrcOf(w, room, !hi)
+  const b = ROOM_BOX[w][room]
+  // proporcje wyciętego pokoju (kadr 2400×1224) — canvas 2.5D musi mieć dokładnie kształt grafiki
+  const aspect = (b.w * 24) / (b.h * 12.24)
+
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { margin: '120px' })
+  // wstawanie: od wjazdu dolnej krawędzi w kadr do ~60% wysokości ekranu
+  const { scrollYProgress: rise } = useScroll({ target: ref, offset: ['start 0.98', 'start 0.62'] })
+  const fold = useSpring(useTransform(rise, [0, 1], [84, 0]), { stiffness: 140, damping: 22, mass: 0.6 })
+  const shadow = useTransform(fold, [84, 0], [0.25, 1])
+  const [lit, setLit] = useState(true)
+  const [flick, setFlick] = useState(false)
+  const flickT = useRef(0)
+  useEffect(() => () => window.clearTimeout(flickT.current), [])
+  useMotionValueEvent(rise, 'change', (v) => {
+    if (reduce) return
+    // światło dopiero, gdy pokój już stoi (pop-up najpierw, potem mrugnięcie lampy)
+    if (v >= 0.995 && !lit && !flickT.current) {
+      flickT.current = window.setTimeout(() => {
+        flickT.current = 0
+        setLit(true)
+        setFlick(true)
+      }, 260)
+    } else if (v < 0.5) {
+      window.clearTimeout(flickT.current)
+      flickT.current = 0
+      if (lit) setLit(false)
+    }
+  })
+  useEffect(() => {
+    // stan początkowy zgodny z położeniem (np. po odświeżeniu w połowie strony)
+    if (!reduce) setLit(rise.get() >= 0.995)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reduce])
+
+  // kamera 2.5D: przejazd pokoju przez ekran (z góry → na wprost → lekko z dołu) + kursor na desktopie
+  const peek = useRef<DepthTarget>({ x: 0, y: 0 })
+  const cx = useRef(0)
+  const { scrollYProgress: pass } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+  const aim = () => {
+    peek.current = { x: cx.current, y: Math.max(-1, Math.min(1, (0.5 - pass.get()) * 1.8)) }
+  }
+  useMotionValueEvent(pass, 'change', aim)
+  useEffect(() => {
+    if (!inView || reduce) return
+    const move = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return
+      cx.current = (e.clientX / window.innerWidth - 0.5) * 1.6
+      aim()
+    }
+    aim()
+    window.addEventListener('pointermove', move, { passive: true })
+    return () => window.removeEventListener('pointermove', move)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inView, reduce])
+
+  const on = lit || reduce
+  const light: React.CSSProperties = flick
+    ? {}
+    : { filter: `brightness(${on ? 1 : 0.5}) saturate(${on ? 1 : 0.7})`, transition: 'filter .5s ease' }
+
   return (
-    <div aria-hidden="true" className={`relative ${className}`} style={{ perspective: 900 }}>
+    <div ref={ref} aria-hidden="true" className={`relative ${className}`} style={{ perspective: 900 }}>
       <div className={reduce || !float ? '' : 'animate-float'} style={{ animationDuration: '6.5s' }}>
-        <div className="relative" style={{ aspectRatio: '6 / 7' }}>
+        <motion.div className="relative" style={{ aspectRatio: '6 / 7', rotateX: reduce ? 0 : fold, transformOrigin: '50% 100%', transformPerspective: 800 }}>
           <AnimatePresence initial={false} mode="popLayout">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <motion.img
+            <motion.div
               key={src}
-              src={src}
-              alt=""
-              draggable={false}
-              className="absolute inset-0 w-full h-full object-contain object-bottom drop-shadow-[0_28px_26px_rgba(0,0,0,0.65)]"
-              style={{ transformOrigin: '50% 100%' }}
+              className="absolute bottom-0 left-1/2 h-full drop-shadow-[0_28px_26px_rgba(0,0,0,0.65)]"
+              style={{ aspectRatio: `${aspect}`, x: '-50%', transformOrigin: '50% 100%' }}
               initial={reduce ? { opacity: 0 } : { rotateX: 86, opacity: 1 }}
               animate={{ rotateX: 0, opacity: 1 }}
               exit={reduce ? { opacity: 0 } : { rotateX: 86, transition: { duration: 0.35, ease: [0.55, 0, 0.85, 0.35] } }}
               transition={{ type: 'spring', stiffness: 170, damping: 14, delay: 0.35 }}
-            />
+            >
+              <DepthRoom
+                src={src}
+                depth={`/diorama/v2/depth-${w}-${room}.webp`}
+                target={peek}
+                active={inView && !reduce}
+                amp={0.05}
+                className={`absolute inset-0 w-full h-full ${flick ? 'animate-lights-on' : ''}`}
+                style={light}
+                imgProps={{ alt: '', onAnimationEnd: () => setFlick(false) }}
+              />
+            </motion.div>
           </AnimatePresence>
-        </div>
-        <div className="mx-auto -mt-1 h-3 w-3/4 rounded-[50%] bg-black/60 blur-md" />
+        </motion.div>
+        <motion.div className="mx-auto -mt-1 h-3 w-3/4 rounded-[50%] bg-black/60 blur-md" style={{ opacity: reduce ? 1 : shadow }} />
       </div>
     </div>
   )
