@@ -21,18 +21,16 @@ function Brand({ theme }: { theme: 'developer' | 'founder' }) {
   const k = theme === 'developer' ? 'dev' : 'ceo'
   return (
     <a href="#" className="flex items-center gap-3 group" aria-label="caspercooks.tech — back to top">
-      {/* znak: głowa figurki w kremowym krążku; hover = pierścień w kolorze akcentu i lekkie uniesienie */}
-      <span
+      {/* znak: avatar figurki (głowa i ramiona, strój zgodny z trybem) w kremowym krążku; hover = pierścień w kolorze akcentu */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`/diorama/v2/avatar-${k}.webp`}
+        alt=""
         aria-hidden="true"
-        className="relative grid place-items-center w-9 h-9 shrink-0 rounded-full overflow-hidden bg-[#efe4cf] shadow-[0_2px_0_rgba(0,0,0,0.35),0_0_0_2px_rgba(255,255,255,0.06)] transition-all duration-200 ease-out group-hover:-translate-y-px group-hover:shadow-[0_2px_0_rgba(0,0,0,0.35),0_0_0_2px_rgb(var(--accent-rgb))]"
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={`/diorama/v2/logo-head-${k}.webp`}
-          alt=""
-          className="absolute left-1/2 top-[6%] w-[118%] max-w-none -translate-x-1/2 transition-transform duration-200 ease-out group-hover:scale-105"
-        />
-      </span>
+        width={36}
+        height={36}
+        className="block w-9 h-9 shrink-0 rounded-full ring-2 ring-white/5 shadow-[0_2px_0_rgba(0,0,0,0.35)] transition-[transform,box-shadow] duration-200 ease-out group-hover:-translate-y-px group-hover:ring-accent"
+      />
       <span className="font-mono text-sm text-paper/80 group-hover:text-accent transition-colors">
         caspercooks<span className="text-accent">.tech</span>
       </span>
