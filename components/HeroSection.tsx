@@ -17,7 +17,7 @@ const COPY = {
     ],
     stats: [
       { value: '0x0A+ years', label: '// experience' },
-      { value: '0x09 projects', label: '// delivered' },
+      { value: '0x08 projects', label: '// delivered' },
       { value: 'AI + Web3', label: '// focus' },
     ],
   },

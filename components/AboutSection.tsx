@@ -74,7 +74,7 @@ const STORIES: Record<Story, { title: string; notes: Note[]; stats: { value: num
     ],
     stats: [
       { value: 10, suffix: '+', label: 'Years' },
-      { value: 9, label: 'Projects' },
+      { value: 8, label: 'Projects' },
       { value: 5, label: 'From Scratch' },
     ],
   },
