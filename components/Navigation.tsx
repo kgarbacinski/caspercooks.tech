@@ -17,34 +17,21 @@ const navLinks = [
  * z dioramy, która "wystaje" ponad górną krawędź — ta sama postać co na wyspie, strój zmienia się
  * z trybem (DEV / CEO). Hover: karteczka się prostuje, głowa podskakuje, obwódka w kolorze akcentu.
  */
-const TAG = 'polygon(0 0, 100% 0, 100% 74%, 74% 100%, 0 100%)'
-
 function Brand({ theme }: { theme: 'developer' | 'founder' }) {
   const k = theme === 'developer' ? 'dev' : 'ceo'
   return (
     <a href="#" className="flex items-center gap-3 group" aria-label="caspercooks.tech — back to top">
-      <span aria-hidden="true" className="relative w-[30px] h-[30px] sm:w-[34px] sm:h-[34px] shrink-0 mt-1.5 -rotate-[4deg] transition-transform duration-200 ease-out group-hover:rotate-[-1deg] group-hover:-translate-y-px">
-        {/* hover: karteczka w kolorze akcentu wysuwa się spod spodu (przesunięty "drugi arkusz") */}
-        <span
-          className="absolute inset-0 bg-accent opacity-0 translate-x-0 translate-y-0 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-[2px] group-hover:translate-y-[2px]"
-          style={{ clipPath: TAG }}
+      {/* znak: głowa figurki w kremowym krążku; hover = pierścień w kolorze akcentu i lekkie uniesienie */}
+      <span
+        aria-hidden="true"
+        className="relative grid place-items-center w-9 h-9 shrink-0 rounded-full overflow-hidden bg-[#efe4cf] shadow-[0_2px_0_rgba(0,0,0,0.35),0_0_0_2px_rgba(255,255,255,0.06)] transition-all duration-200 ease-out group-hover:-translate-y-px group-hover:shadow-[0_2px_0_rgba(0,0,0,0.35),0_0_0_2px_rgb(var(--accent-rgb))]"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`/diorama/v2/logo-head-${k}.webp`}
+          alt=""
+          className="absolute left-1/2 top-[6%] w-[118%] max-w-none -translate-x-1/2 transition-transform duration-200 ease-out group-hover:scale-105"
         />
-        {/* karteczka: krem, zagięty róg, miękki cień */}
-        <span className="absolute inset-0 bg-[#efe4cf] shadow-[0_2px_0_rgba(0,0,0,0.35)]" style={{ clipPath: TAG }} />
-        {/* głowa wychodzi z "kieszonki": szyję zakrywa przednia klapka karteczki, górą włosy wystają ~6 px */}
-        <span className="absolute inset-0" style={{ clipPath: 'polygon(-10% -40%, 110% -40%, 100% 0, 100% 100%, 0 100%, 0 0)' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={`/diorama/v2/logo-head-${k}.webp`}
-            alt=""
-            className="absolute left-1/2 bottom-[14%] w-[108%] max-w-none -translate-x-1/2 origin-bottom transition-transform duration-200 ease-out group-hover:-translate-y-[2px] group-hover:-rotate-[4deg]"
-          />
-        </span>
-        <span
-          className="absolute inset-x-0 bottom-0 h-[24%] bg-[#e6d8bd] border-t border-[rgba(0,0,0,0.25)] shadow-[0_-1px_0_rgba(255,250,235,0.7),0_-3px_4px_rgba(0,0,0,0.18)]"
-          style={{ clipPath: 'polygon(0 0, 100% 0, 100% 13%, 13% 100%, 0 100%)' }}
-        />
-        <span className="absolute right-0 bottom-0 w-[26%] h-[26%] bg-[#c9b18e]" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }} />
       </span>
       <span className="font-mono text-sm text-paper/80 group-hover:text-accent transition-colors">
         caspercooks<span className="text-accent">.tech</span>
