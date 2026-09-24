@@ -377,7 +377,10 @@ export default function Diorama() {
   )
 
   const onPointerMove = (e: React.PointerEvent) => {
-    if (!interactive || e.pointerType !== 'mouse') return
+    // tylko prawdziwa mysz: WebKit po przewinięciu (panorama, strona) i iOS po tapnięciu potrafią wysłać
+    // „myszowy” pointermove pod stojącym palcem — hover przygaszał wtedy całą wyspę i gasił poświaty
+    // (animacje) we wszystkich pokojach poza jednym, aż do następnego dotknięcia
+    if (!interactive || e.pointerType !== 'mouse' || !finePointer) return
     // nad figurką działa jej własny hover (podskok + podpowiedź), nie pokój pod nią
     if ((e.target as HTMLElement).closest('button')) return
     const i = locate(e.clientX, e.clientY)

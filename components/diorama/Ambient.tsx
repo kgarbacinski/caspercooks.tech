@@ -20,7 +20,9 @@ import type { ScreenCfg } from './codeScreen'
  *  - warstwa leży WEWNĄTRZ warstwy pokoju, więc składa się z nim przy DEV ⇄ CEO i jedzie z kamerą,
  *  - transform/opacity (kompozytor); jeden wspólny rAF tylko dla ekranów z kodem,
  *  - pauza poza kadrem ([data-paused] zatrzymuje pętle CSS, `run` odpina canvasy),
- *  - bez prefers-reduced-motion (rodzic w ogóle tego nie renderuje); na telefonie lżej (`lite`).
+ *  - bez prefers-reduced-motion (rodzic w ogóle tego nie renderuje); na telefonie lżej (`lite`), ale
+ *    tylko drobiazgi (rzadsze okna, krótszy ogonek, mniej kłębków pary) — główna animacja KAŻDEGO
+ *    pokoju (ekrany, diody, ramię z parą z kubka, sejf, radar, slajdy, ON AIR…) chodzi też na telefonie.
  */
 
 type World = 'dev' | 'ceo'
@@ -33,7 +35,7 @@ type Props = {
   show: boolean
   /** kursor nad tym pokojem (sejf otwiera się i czeka) */
   hot?: boolean
-  /** telefon / słaby sprzęt: bez najdroższych drobiazgów */
+  /** telefon / dotyk: mniej drobiazgów (główne animacje pokoju zostają) */
   lite?: boolean
   /** filtr jasności obrazka pokoju — te same wartości na warstwie podmieniającej grafikę */
   artClass?: string
@@ -60,7 +62,8 @@ const HiRes = createContext(false)
 function Img({ src, style, className }: { src: string; style?: CSSProperties; className?: string }) {
   const hi = useContext(HiRes)
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={`${A}${src}.webp`} srcSet={hi ? `${A}${src}.webp 1x, ${A}${src}-lg.webp 2x` : undefined} alt="" draggable={false} className={className} style={style} />
+  // decoding async: dekodowanie sprite'ów nie blokuje klatki, w której pokój wjeżdża w kadr (telefon, pierwsze przewinięcie)
+  return <img src={`${A}${src}.webp`} srcSet={hi ? `${A}${src}.webp 1x, ${A}${src}-lg.webp 2x` : undefined} alt="" decoding="async" draggable={false} className={className} style={style} />
 }
 
 // warstwa na cały pokój z punktem obrotu w % pokoju (sprite'y w środku leżą w swoich miejscach)
@@ -198,7 +201,7 @@ function Arm({ lite }: { lite?: boolean }) {
         <Img src="arm-fore" style={box(ARM2.fore)} />
         <Pivot o={ARM2.wrist} className="amb-wrist">
           <Img src="arm-hand" style={box(ARM2.hand)} />
-          {!lite && <Steam x={ARM2.cup[0]} y={ARM2.cup[1]} w={6} h={11} />}
+          <Steam x={ARM2.cup[0]} y={ARM2.cup[1]} w={6} h={11} n={lite ? 3 : 4} />
         </Pivot>
       </Pivot>
     </>
@@ -260,8 +263,12 @@ function Lamp({ world }: { world: World }) {
 
 function Leds({ lite }: { lite?: boolean }) {
   // każda dioda w swoim wzorze i tempie (aktywność dysków), co piąta krótko rozbłyskuje
-  const on = LEDS.filter((_, i) => !lite || i % 2 === 0)
-  const flash = LEDS.filter((_, i) => i % (lite ? 8 : 4) === 2)
+  // (telefon: wszystkie diody i rozbłyski zostają — to główna animacja pokoju; odpada tylko „biegnąca” kolumna)
+  const on = LEDS
+  const flash = LEDS.filter((_, i) => i % 4 === 2)
+  // telefon: pokój w hero ma ~130 px szerokości — diody większe, żeby mruganie było widać bez szukania
+  const k = lite ? 1.7 : 1
+  const pc = (v: number) => `${(v * k).toFixed(2)}%`
   // dwie kolumny szaf, w których aktywność "biegnie" z góry na dół
   const chase = LEDS.filter(([x]) => Math.abs(x - 83) < 1 || Math.abs(x - 90) < 1)
     .slice()
@@ -276,7 +283,7 @@ function Leds({ lite }: { lite?: boolean }) {
             left: `${x}%`,
             top: `${y}%`,
             // prawa szafa (niezasłonięta figurką) — większe, wyraźniejsze diody
-            width: x > 60 ? '3.4%' : '2.2%',
+            width: pc(x > 60 ? 3.4 : 2.2),
             aspectRatio: '1',
             transform: 'translate(-50%,-50%)',
             background: 'radial-gradient(circle, rgba(255,236,190,1) 18%, rgba(255,160,70,0.7) 40%, transparent 72%)',
@@ -307,7 +314,7 @@ function Leds({ lite }: { lite?: boolean }) {
         style={{
           left: `${LEDS[11][0]}%`,
           top: `${LEDS[11][1]}%`,
-          width: '9%',
+          width: pc(9),
           aspectRatio: '1',
           transform: 'translate(-50%,-50%)',
           background: 'radial-gradient(circle, rgba(255,150,140,1) 10%, rgba(255,40,30,0.8) 26%, rgba(255,30,20,0.25) 46%, transparent 70%)',
@@ -322,7 +329,7 @@ function Leds({ lite }: { lite?: boolean }) {
           style={{
             left: `${x}%`,
             top: `${y}%`,
-            width: '4%',
+            width: pc(4),
             aspectRatio: '1',
             transform: 'translate(-50%,-50%)',
             background: 'radial-gradient(circle, rgba(255,226,170,0.95) 12%, rgba(255,150,60,0.4) 36%, transparent 70%)',
@@ -344,7 +351,7 @@ function Sparkles({ lite }: { lite?: boolean }) {
     [11.2, 68.5, 3.4, -0.6],
     [13.4, 70.2, 3.2, -1.8],
     [16.6, 68.8, 3.7, -2.9],
-  ].slice(0, lite ? 3 : 6)
+  ].slice(0, lite ? 4 : 6)
   return (
     <>
       {pts.map(([x, y, d, dl], i) => (
@@ -566,13 +573,14 @@ const LAPTOPS: [number, number, number, number][] = [
   [48.1, 74.7, 11.5, 5.5],
   [75.5, 74.5, 10.9, 5.7],
 ]
-function Laptops() {
+function Laptops({ lite }: { lite?: boolean }) {
   return (
     <>
       {LAPTOPS.map(([x, y, w, h], i) => (
         <span
           key={i}
-          className="amb-laptop absolute mix-blend-overlay"
+          // telefon: tryb screen zamiast overlay — błysk ekranu laptopa widoczny także na małym pokoju
+          className={`amb-laptop absolute ${lite ? 'mix-blend-screen' : 'mix-blend-overlay'}`}
           style={{
             left: `${x}%`,
             top: `${y}%`,
@@ -630,8 +638,8 @@ function Phone() {
 // grupa = połowa budynku (górne / dolne piętra) — gaśnie i zapala się razem, więc zmiana jest widoczna z daleka
 const BUILDINGS = [45, 51, 59, 72]
 const winGroup = (x: number, y: number) => BUILDINGS.filter((b) => x > b).length * 10 + (y < 50 ? 0 : 1)
-function Windows({ lite }: { lite?: boolean }) {
-  const list = CITY.windows.filter((_, i) => i % (lite ? 4 : 1) === 0)
+function Windows() {
+  const list = CITY.windows
   return (
     <>
       {list.map(([x, y, w, h, c], i) => {
@@ -657,8 +665,8 @@ function Windows({ lite }: { lite?: boolean }) {
 }
 
 /** jaśniejsze "zapalone" okna: ciepła albo chłodna poświata na części okien, grupami */
-function WindowGlow({ lite }: { lite?: boolean }) {
-  const list = CITY.windows.filter((_, i) => !lite || i % 2 === 1)
+function WindowGlow() {
+  const list = CITY.windows
   return (
     <>
       {list.map(([x, y, w, h], i) => {
@@ -686,7 +694,7 @@ function WindowGlow({ lite }: { lite?: boolean }) {
 }
 
 /** biuro CEO: światło ostrzegawcze na wieżowcu i spadająca gwiazda (tylko w szybach nieba) */
-function OfficeSky() {
+function OfficeSky({ lite }: { lite?: boolean }) {
   const o = OFFICE
   const m = `url(${A}sky-mask.webp)`
   return (
@@ -696,7 +704,8 @@ function OfficeSky() {
         style={{
           left: `${o.beacon[0]}%`,
           top: `${o.beacon[1]}%`,
-          width: '11%',
+          // telefon: większe światło ostrzegawcze (mały pokój w hero)
+          width: lite ? '17%' : '11%',
           aspectRatio: '1',
           transform: 'translate(-50%,-50%)',
           background: 'radial-gradient(circle, rgb(255,160,140) 6%, rgba(255,40,30,0.9) 14%, rgba(255,30,20,0.3) 30%, transparent 64%)',
@@ -711,7 +720,7 @@ function OfficeSky() {
             style={{
               left: k ? '72%' : '30%',
               top: '96%',
-              width: '34%',
+              width: lite ? '52%' : '34%',
               height: '130%',
               transformOrigin: '50% 100%',
               translate: '-50% -100%',
@@ -719,7 +728,10 @@ function OfficeSky() {
               animationDelay: k ? '-4s' : '0s',
               animationDirection: k ? 'alternate-reverse' : 'alternate',
               // miękki stożek światła: jasny u podstawy (między wieżowcami), gaśnie ku górze
-              background: 'linear-gradient(0deg, rgba(225,238,255,0.55), rgba(210,226,255,0.3) 50%, rgba(200,220,255,0.08) 90%, transparent)',
+              // telefon: jaśniejszy stożek (na małym pokoju blady reflektor ginął)
+              background: lite
+                ? 'linear-gradient(0deg, rgba(235,244,255,0.9), rgba(215,230,255,0.55) 50%, rgba(200,220,255,0.15) 90%, transparent)'
+                : 'linear-gradient(0deg, rgba(225,238,255,0.55), rgba(210,226,255,0.3) 50%, rgba(200,220,255,0.08) 90%, transparent)',
               clipPath: 'polygon(46% 100%, 54% 100%, 100% 0, 0 0)',
               filter: 'blur(0.6cqw)',
             }}
@@ -782,7 +794,7 @@ function Flow({ lite }: { lite?: boolean }) {
   const P = FLOW.paths
   // cykl 20 s wspólny ze slajdami: schemat jest na ekranie w 0–25 %
   const css = `@keyframes amb-flow{0%{transform:${tr(P[0][0])};opacity:0}${seg(P[0], 1, 10).join('')}${seg(P[1], 11, 16).join('')}${seg(P[2], 17, 23.5).join('')}100%{transform:${tr(P[2][1])};opacity:0}}`
-  const trail = lite ? [0] : [0, 1, 2, 3]
+  const trail = lite ? [0, 1] : [0, 1, 2, 3]
   return (
     <>
       <style>{css}</style>
@@ -889,7 +901,31 @@ export default function RoomAmbient({ world, room, run, show, hot, lite, artClas
               background: 'radial-gradient(ellipse, rgba(120,255,170,0.6) 0%, rgba(120,255,170,0.2) 45%, transparent 70%)',
             }}
           />
-          {!lite && <Steam x={82.6} y={67.9} w={5} h={9} />}
+          <Steam x={82.6} y={67.9} w={5} h={9} n={lite ? 3 : 4} />
+          {/* telefon: tekst na monitorach ma tu kilka pikseli — ekrany dodatkowo „oddychają” poświatą
+              (nierówny rytm pracy, każdy monitor w swoim tempie), więc ruch widać od razu */}
+          {lite &&
+            (['dev0L', 'dev0R'] as const).map((id, i) => {
+              const sc = SCREENS[id]
+              return (
+                <span
+                  key={id}
+                  className="amb-pulse absolute rounded-[20%] mix-blend-screen"
+                  style={{
+                    ['--lo' as string]: 0.05,
+                    ['--hi' as string]: 1,
+                    left: `${sc.x + sc.w / 2}%`,
+                    top: `${sc.y + sc.h / 2}%`,
+                    width: `${sc.w * 1.35}%`,
+                    height: `${sc.h * 1.6}%`,
+                    transform: 'translate(-50%,-50%)',
+                    background: 'radial-gradient(ellipse, rgba(150,255,190,0.75) 0%, rgba(120,255,170,0.35) 50%, transparent 72%)',
+                    animationDuration: i ? '2.3s' : '2.9s',
+                    animationDelay: i ? '-1.1s' : '0s',
+                  } as CSSProperties}
+                />
+              )
+            })}
         </>
       )
       break
@@ -915,7 +951,7 @@ export default function RoomAmbient({ world, room, run, show, hot, lite, artClas
       break
     case 'dev3':
       art = <Arm lite={lite} />
-      if (!lite) fx = <Steam x={76.7} y={72.2} w={5} h={9} speed={1.15} />
+      fx = <Steam x={76.7} y={72.2} w={5} h={9} speed={1.15} n={lite ? 3 : 4} />
       break
     case 'dev4':
       fx = (
@@ -952,12 +988,12 @@ export default function RoomAmbient({ world, room, run, show, hot, lite, artClas
       )
       break
     case 'ceo0':
-      art = <Windows lite={lite} />
+      art = <Windows />
       fx = (
         <>
-          <WindowGlow lite={lite} />
+          <WindowGlow />
           <Stars />
-          <OfficeSky />
+          <OfficeSky lite={lite} />
         </>
       )
       break
@@ -968,7 +1004,7 @@ export default function RoomAmbient({ world, room, run, show, hot, lite, artClas
           <Duck id="duck-ceo" />
         </>
       )
-      fx = <Laptops />
+      fx = <Laptops lite={lite} />
       break
     case 'ceo2':
       art = (
@@ -992,7 +1028,7 @@ export default function RoomAmbient({ world, room, run, show, hot, lite, artClas
         <>
           <Radar />
           <Lamp world="ceo" />
-          {!lite && <Steam x={80.4} y={71.3} w={5} h={9} speed={1.1} />}
+          <Steam x={80.4} y={71.3} w={5} h={9} speed={1.1} n={lite ? 3 : 4} />
         </>
       )
       break
