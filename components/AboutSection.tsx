@@ -226,7 +226,7 @@ export default function AboutSection() {
   const [story, setStory] = useState<Story>(theme)
   useEffect(() => setStory(theme), [theme])
   const s = STORIES[story]
-  const room = ROOMS[theme][0]
+  const room = ROOMS[story][0]
 
   // scena przypięta: postęp scrolla → aktywna notatka + zoom kamery w pokój
   const sceneRef = useRef<HTMLDivElement>(null)
@@ -246,8 +246,8 @@ export default function AboutSection() {
   const glowBase = useTransform(scrollYProgress, [0, 0.5, 1], [0.35, 0.8, 0.55])
   const glow = useTransform([glowBase, shown], ([g, v]: number[]) => g * v)
   // figurka w tym samym miejscu względem pokoju co na wyspie
-  const rb = ROOM_BOX[KEY[theme]][0]
-  const fb = FIG[KEY[theme]]
+  const rb = ROOM_BOX[KEY[story]][0]
+  const fb = FIG[KEY[story]]
   const figPos = {
     left: `${((fb.l - rb.l) / rb.w) * 100}%`,
     top: `${((fb.t - rb.t) / rb.h) * 100}%`,
@@ -321,7 +321,7 @@ export default function AboutSection() {
                 <AnimatePresence mode="popLayout" initial={false}>
                   {/* pokój + jego żywe animacje składają się razem przy przełączeniu świata */}
                   <motion.div
-                    key={theme}
+                    key={story}
                     className="relative"
                     style={{ transformOrigin: '50% 100%' }}
                     initial={{ rotateX: 86 }}
@@ -331,10 +331,10 @@ export default function AboutSection() {
                   >
                     <div ref={roomLayer} className="relative">
                     <DepthRoom
-                      src={roomSrc(theme, 0)}
-                      srcSet={roomSrcSet(KEY[theme], 0)}
+                      src={roomSrc(story, 0)}
+                      srcSet={roomSrcSet(KEY[story], 0)}
                       sizes="(min-width: 1024px) and (min-aspect-ratio: 4/5) 26.875rem, 74vw"
-                      depth={`/diorama/v2/depth-${KEY[theme]}-0.webp`}
+                      depth={`/diorama/v2/depth-${KEY[story]}-0.webp`}
                       target={peek}
                       active={sceneInView && !reduce}
                       amp={0.034}
@@ -346,7 +346,7 @@ export default function AboutSection() {
                       style={{ aspectRatio: `${rb.w * 24} / ${rb.h * 12.24}` }}
                     />
                     {/* ten sam stan ekranów co w hero (wspólny model) — podmiana przy wjeździe kamery jest niewidoczna */}
-                    {!reduce && <RoomAmbient world={KEY[theme]} room={0} run={sceneInView} show hi />}
+                    {!reduce && <RoomAmbient world={KEY[story]} room={0} run={sceneInView} show hi />}
                     </div>
                   </motion.div>
                 </AnimatePresence>
@@ -354,7 +354,7 @@ export default function AboutSection() {
                 <div ref={figEl} aria-hidden="true" className="absolute" style={figPos}>
                   <div className="absolute left-[-10%] right-[-10%] bottom-[-2.5%] h-[5%] rounded-[50%] bg-black/60 blur-[3px]" />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`/diorama/v2/fig-${KEY[theme]}.webp`} srcSet={FIG_SET(KEY[theme])} sizes="(min-width: 1024px) and (min-aspect-ratio: 4/5) 10rem, 30vw" loading="lazy" alt="" className="absolute inset-0 w-full h-full" />
+                  <img src={`/diorama/v2/fig-${KEY[story]}.webp`} srcSet={FIG_SET(KEY[story])} sizes="(min-width: 1024px) and (min-aspect-ratio: 4/5) 10rem, 30vw" loading="lazy" alt="" className="absolute inset-0 w-full h-full" />
                 </div>
                 {/* podpis przypięty do podstawy pokoju (pojawia się razem z pokojem) */}
                 <div className="absolute -left-[6%] -bottom-[7%] z-10 paper-tag !text-left -rotate-2">
@@ -417,10 +417,10 @@ export default function AboutSection() {
           <div aria-hidden="true" className="absolute inset-x-[5%] bottom-0 h-1/3 rounded-[50%] blur-3xl" style={{ background: 'rgb(var(--accent-rgb) / 0.22)' }} />
           <div ref={mLayer} className="relative">
             <DepthRoom
-              src={roomSrc(theme, 0)}
-              srcSet={roomSrcSet(KEY[theme], 0)}
+              src={roomSrc(story, 0)}
+              srcSet={roomSrcSet(KEY[story], 0)}
               sizes="(min-width: 640px) 380px, 74vw"
-              depth={`/diorama/v2/depth-${KEY[theme]}-0.webp`}
+              depth={`/diorama/v2/depth-${KEY[story]}-0.webp`}
               target={mPeek}
               active={mInView && !reduce}
               amp={0.07}
@@ -431,10 +431,10 @@ export default function AboutSection() {
               style={{ aspectRatio: `${rb.w * 24} / ${rb.h * 12.24}` }}
             />
             {/* te same żywe animacje pokoju co w hero i w scenie desktopowej (ekrany z kodem / okna miasta…) */}
-            {!reduce && <RoomAmbient world={KEY[theme]} room={0} run={mInView} show lite hi />}
+            {!reduce && <RoomAmbient world={KEY[story]} room={0} run={mInView} show lite hi />}
           </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`/diorama/v2/fig-${KEY[theme]}.webp`} srcSet={FIG_SET(KEY[theme])} sizes="(min-width: 640px) 150px, 28vw" alt="" aria-hidden="true" loading="lazy" className="absolute bottom-0 right-[-10%] h-[72%] w-auto" />
+          <img src={`/diorama/v2/fig-${KEY[story]}.webp`} srcSet={FIG_SET(KEY[story])} sizes="(min-width: 640px) 150px, 28vw" alt="" aria-hidden="true" loading="lazy" className="absolute bottom-0 right-[-10%] h-[72%] w-auto" />
         </div>
         <div className="mb-8 flex justify-center">
           <StoryTabs story={story} setStory={setStory} lid="story-tab-m" />
