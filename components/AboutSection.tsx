@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { AnimatePresence, motion, useInView, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
+import { AnimatePresence, motion, useInView, useMotionValueEvent, useSpring, useTransform } from 'framer-motion'
+import { usePageScrollProgress } from '@/hooks/usePageScroll'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { FaGraduationCap, FaMobileAlt, FaBullseye, FaRobot } from 'react-icons/fa'
 import type { IconType } from 'react-icons'
@@ -230,7 +231,7 @@ export default function AboutSection() {
 
   // scena przypięta: postęp scrolla → aktywna notatka + zoom kamery w pokój
   const sceneRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: sceneRef, offset: ['start start', 'end end'] })
+  const scrollYProgress = usePageScrollProgress(sceneRef, ['start start', 'end end'])
   // animacje w pokoju chodzą tylko, gdy scena jest w kadrze
   const sceneInView = useInView(sceneRef)
   // start dokładnie w skali 1 i bez przesunięcia: w tym miejscu kończy się wjazd kamery z hero
@@ -238,7 +239,7 @@ export default function AboutSection() {
   const panY = useSpring(useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 14]), { stiffness: 80, damping: 22 })
   // pokój, figurka i poświata pojawiają się w chwili przypięcia sceny — do tego momentu
   // ten sam pokój pokazuje powiększona wyspa z hero (podmiana 1:1, bez skoku)
-  const { scrollYProgress: pinIn } = useScroll({ target: sceneRef, offset: ['start end', 'start start'] })
+  const pinIn = usePageScrollProgress(sceneRef, ['start end', 'start start'])
   const shown = useTransform(pinIn, (v): number => (reduce ? 1 : v >= 0.985 ? 1 : 0))
   // położenie kolumny = 100vh·(1−q)^1.8 zamiast 100vh·(1−q): monotonicznie, szybciej na starcie,
   // z miękkim dojazdem do przypięcia (q = postęp wjazdu sceny od dołu ekranu do góry)
@@ -298,7 +299,7 @@ export default function AboutSection() {
   const mInView = useInView(mRoom)
   const mPeek = useRef<DepthTarget>({ x: 0, y: 0 })
   const mLayer = useRef<HTMLDivElement>(null)
-  const { scrollYProgress: mProg } = useScroll({ target: mRoom, offset: ['start end', 'end start'] })
+  const mProg = usePageScrollProgress(mRoom, ['start end', 'end start'])
   useMotionValueEvent(mProg, 'change', (v) => {
     mPeek.current = { x: 0, y: Math.max(-1, Math.min(1, (0.5 - v) * 2.2)) }
   })

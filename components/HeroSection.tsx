@@ -1,6 +1,7 @@
 'use client'
 
-import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
+import { AnimatePresence, motion, useTransform } from 'framer-motion'
+import { usePageScrollY } from '@/hooks/usePageScroll'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import Diorama from './diorama/Diorama'
@@ -89,7 +90,7 @@ function CopyPart({ part, className = '' }: { part: Part; className?: string }) 
   const c = COPY[theme]
   const reduce = useReducedMotion()
   // desktop: przy "wjeździe kamery" w pokój tekst hero znika jako pierwszy
-  const { scrollY } = useScroll()
+  const scrollY = usePageScrollY()
   const uiFade = useTransform(scrollY, [0, 80], [1, 0])
   const uiShift = useTransform(scrollY, [0, 140], [0, -70])
   const swaps = part === 'head' || part === 'lines'
@@ -188,7 +189,7 @@ function CopyPart({ part, className = '' }: { part: Part; className?: string }) 
 }
 
 export default function HeroSection() {
-  const { scrollY } = useScroll()
+  const scrollY = usePageScrollY()
   const uiFade = useTransform(scrollY, [0, 150], [1, 0])
   // sygnał scrolla znika od razu (inaczej nachodzi na nagłówek About wjeżdżający od dołu)
   const cueFade = useTransform(scrollY, [0, 60], [1, 0])

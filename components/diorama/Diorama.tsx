@@ -1,7 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion, useAnimate, useMotionValue, useMotionValueEvent, useScroll, useTransform } from 'framer-motion'
+import { AnimatePresence, motion, useAnimate, useMotionValue, useMotionValueEvent, useTransform } from 'framer-motion'
+import { usePageScrollY } from '@/hooks/usePageScroll'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { SWITCH, useTheme } from '@/contexts/ThemeContext'
 import type { Theme } from '@/contexts/ThemeContext'
@@ -93,19 +94,30 @@ export default function Diorama() {
     io.observe(el)
     return () => io.disconnect()
   }, [])
-  // w trakcie przesuwania panoramy palcem (i wygasania pędu) pętla JS ekranów z kodem / sejfu stoi —
-  // wątek główny nie maluje canvasów co klatkę, gdy przeglądarka przewija; pętle CSS chodzą dalej.
-  // Nasłuch pasywny, bez stanu Reacta (nic się nie renderuje ponownie).
+  // W trakcie przesuwania panoramy palcem (i wygasania pędu) cała scena stoi: pętla JS ekranów z kodem / sejfu
+  // (wątek główny nie maluje canvasów co klatkę) ORAZ wszystkie pętle CSS w dioramie — lewitacja, diody, okna,
+  // poświaty ([data-panning] → animation-play-state: paused). Kompozytor przesuwa wtedy nieruchomy obraz jak
+  // zdjęcie w galerii; po zatrzymaniu (160 ms bez ruchu, palec podniesiony) wszystko rusza dokładnie tam, gdzie
+  // stanęło. Pauza zaczyna się od pierwszego przesunięcia sceny (nie od dotknięcia — pionowy scroll strony po
+  // wyspie niczego nie zatrzymuje). Nasłuch pasywny, bez stanu Reacta (nic się nie renderuje ponownie).
   useEffect(() => {
     const el = panRef.current
-    if (!el) return
+    const fig = el?.closest('figure')
+    if (!el || !fig) return
     let touching = false
+    let panning = false
     let t = 0
+    const stop = () => {
+      if (touching) return
+      holdAmbient(false)
+      if (panning) {
+        panning = false
+        fig.removeAttribute('data-panning')
+      }
+    }
     const release = () => {
       window.clearTimeout(t)
-      t = window.setTimeout(() => {
-        if (!touching) holdAmbient(false)
-      }, 160)
+      t = window.setTimeout(stop, 160)
     }
     const onStart = () => {
       touching = true
@@ -119,6 +131,10 @@ export default function Diorama() {
     // pęd po puszczeniu palca: każde zdarzenie scroll przedłuża pauzę, koniec = 160 ms bez ruchu
     const onScroll = () => {
       holdAmbient(true)
+      if (!panning) {
+        panning = true
+        fig.setAttribute('data-panning', '')
+      }
       release()
     }
     const o = { passive: true } as const
@@ -132,6 +148,7 @@ export default function Diorama() {
       el.removeEventListener('touchend', onEnd)
       el.removeEventListener('touchcancel', onEnd)
       el.removeEventListener('scroll', onScroll)
+      fig.removeAttribute('data-panning')
       holdAmbient(false)
     }
   }, [])
@@ -262,7 +279,7 @@ export default function Diorama() {
   // Wyspa NIE pochyla się za kursorem (świadomie): to płaski render, więc tilt zdradzał "kartkę",
   // dublował się z lewitacją i hoverem pokoi, a hit-test po obróconym prostokącie trafiał obok.
   // Jedyna reakcja na kursor = podświetlenie pokoju. Ruch wyspy zostaje tylko ze scrolla.
-  const { scrollY } = useScroll()
+  const scrollY = usePageScrollY()
   // paralaksa wyspy przy scrollu (telefon / tablet; desktop ma wjazd kamery): bez sprężyny — przy
   // natywnym scrollu dotykowym sprężyna dociągała wyspę jeszcze po zatrzymaniu palca („guma”)
   const scrollYShift = useTransform(scrollY, [0, 850], [0, 120])
@@ -492,15 +509,21 @@ export default function Diorama() {
   const spot = hover !== null && interactive
 
   return (
-    <figure ref={figureRef} data-paused={paused || undefined} className="relative m-0 select-none" aria-label="Interactive papercraft diorama">
+    <figure ref={figureRef} data-dio data-paused={paused || undefined} className="relative m-0 select-none" aria-label="Interactive papercraft diorama">
       {/* iskry tylko przy myszy (desktop) — na dotyku to koszt baterii bez zysku */}
       <motion.div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ opacity: dive ? baseFade : 1 }}>
         <Sparks accent={accent} reduce={reduce || !finePointer} paused={paused} />
 
-        {/* poświata kabli pod wyspą — w kolorze akcentu, zapala się razem z bazą */}
+        {/* poświata kabli pod wyspą — w kolorze akcentu, zapala się razem z bazą; na dotyku gradient radialny
+            zamiast blur(64px) (rozmycie dużej warstwy liczone przez kompozytor w każdej klatce przesuwania) */}
         <div
-          className="absolute left-[12%] right-[12%] bottom-[2%] h-[34%] rounded-[50%] blur-3xl transition-opacity duration-700"
-          style={{ background: `rgba(${accent},${theme === 'developer' ? 0.13 : 0.22})`, opacity: baseLit ? 1 : 0 }}
+          className={`absolute transition-opacity duration-700 ${finePointer ? 'left-[12%] right-[12%] bottom-[2%] h-[34%] rounded-[50%] blur-3xl' : 'left-[3%] right-[3%] -bottom-[5%] h-[48%]'}`}
+          style={{
+            background: finePointer
+              ? `rgba(${accent},${theme === 'developer' ? 0.13 : 0.22})`
+              : `radial-gradient(50% 50% at 50% 50%, rgba(${accent},${theme === 'developer' ? 0.12 : 0.2}) 0%, rgba(${accent},${theme === 'developer' ? 0.06 : 0.1}) 45%, transparent 100%)`,
+            opacity: baseLit ? 1 : 0,
+          }}
         />
       </motion.div>
 
@@ -510,8 +533,13 @@ export default function Diorama() {
           pionowego przewijania w środku); overscroll-x contain: koniec sceny nie uruchamia gestu „wstecz”.
           Przewijanie w całości natywne (kompozytor): bez maski na samym kontenerze (maska na przewijanym
           elemencie wymusza przemalowanie przy każdym przesunięciu), bez snapa i bez JS w pętli scrolla. */}
-      <div ref={panRef} className="overflow-x-auto overflow-y-hidden overscroll-x-contain sm:overflow-visible no-scrollbar">
-      <div className="w-[165%] sm:w-full pt-12 pb-7 sm:p-0">
+      <div ref={panRef} className="overflow-x-auto overflow-y-hidden overscroll-x-contain sm:overflow-visible no-scrollbar snap-x snap-proximity sm:snap-none">
+      <div className="relative w-[165%] sm:w-full pt-12 pb-7 sm:p-0">
+      {/* łagodny snap (proximity, nie mandatory) do środków pokoi: pęd po puszczeniu palca dojeżdża do pokoju,
+          jeśli kończy się blisko niego; skrajne pokoje = krawędzie sceny */}
+      {boxes.map((b, i) => (
+        <span key={`snap${i}`} aria-hidden="true" className="sm:hidden absolute top-0 h-px w-px snap-center" style={{ left: `${b.l + b.w / 2}%` }} />
+      ))}
       <motion.div
         ref={wrapRef}
         style={{
@@ -538,7 +566,12 @@ export default function Diorama() {
             onClick={onClick}
           >
             {/* cień wyspy w pustce */}
-            <motion.div aria-hidden="true" className="absolute left-[16%] right-[16%] top-[76%] h-[16%] rounded-[50%] bg-black/70 blur-2xl" style={{ opacity: dive ? baseFade : 1 }} />
+            {finePointer ? (
+              <motion.div aria-hidden="true" className="absolute left-[16%] right-[16%] top-[76%] h-[16%] rounded-[50%] bg-black/70 blur-2xl" style={{ opacity: dive ? baseFade : 1 }} />
+            ) : (
+              // dotyk: ten sam cień jako gradient (bez filtra blur)
+              <div aria-hidden="true" className="absolute left-[11%] right-[11%] top-[72%] h-[24%]" style={{ background: 'radial-gradient(50% 50% at 50% 50%, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.35) 45%, transparent 100%)' }} />
+            )}
 
             {/* podstawa wyspy: skała, kable, pieczęć KG — przygasa przy hoverze i przy zgaszonych światłach */}
             <motion.div className="absolute inset-0" style={{ opacity: dive ? baseFade : 1 }}>
@@ -563,7 +596,8 @@ export default function Diorama() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5 }}
                 style={{
-                  filter: `brightness(${!baseLit ? 0.55 : spot ? 0.55 : 1}) saturate(${spot || !baseLit ? 0.75 : 1})`,
+                  // pełne światło = bez filtra (filtr, nawet brightness(1), to osobny przebieg kompozytora w każdej klatce)
+                  filter: !baseLit || spot ? 'brightness(0.55) saturate(0.75)' : 'none',
                   transition: 'filter .45s ease',
                 }}
               />
@@ -581,7 +615,7 @@ export default function Diorama() {
               const litStyle: React.CSSProperties | undefined =
                 s.flicker && !reduce && !spot
                   ? undefined
-                  : { filter: `brightness(${bright}) saturate(${bright < 0.5 ? 0.6 : 1})`, transition: 'filter .4s ease' }
+                  : { filter: bright === 1 ? 'none' : `brightness(${bright}) saturate(${bright < 0.5 ? 0.6 : 1})`, transition: 'filter .4s ease' }
               // maska = ten sam plik co pokój (już w cache, bez 5 dodatkowych pobrań)
               const maskStyle = {
                 WebkitMaskImage: `url(${src})`,
@@ -622,6 +656,10 @@ export default function Diorama() {
                       transitionTimingFunction: 'cubic-bezier(.3,1.5,.5,1)',
                     }}
                   >
+                    {/* hover (tylko mysz): cień uniesionego pokoju, poświata i papierowa krawędź — na dotyku tych
+                        warstw nie ma wcale (3 maski + rozmycia na pokój to czysty koszt kompozytora przy przesuwaniu) */}
+                    {finePointer && (
+                    <>
                     {/* cień uniesionego pokoju */}
                     <div
                       aria-hidden="true"
@@ -639,6 +677,8 @@ export default function Diorama() {
                       className="absolute inset-0 transition-opacity duration-300"
                       style={{ ...maskStyle, background: 'linear-gradient(180deg, #ffe2b8, #ffb56b)', filter: 'blur(1.5px)', transform: 'scale(1.014)', opacity: isHover && peekLive !== i ? 0.9 : 0 }}
                     />
+                    </>
+                    )}
                     {/* pokój: zwykły obrazek; przy hoverze (mysz) podmieniany na widok 2.5D z mapy głębi */}
                     <DepthRoom
                       // zawsze pełna rozdzielczość (20–30 KB): przy wjeździe kamery pokój jest powiększony do 1.9×

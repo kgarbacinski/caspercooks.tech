@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { motion, useInView, useMotionValueEvent, useScroll, useTransform } from 'framer-motion'
+import { motion, useInView, useMotionValueEvent, useTransform } from 'framer-motion'
+import { usePageScrollProgress } from '@/hooks/usePageScroll'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { SectionHeader, EASE } from '@/components/ui/Section'
@@ -319,7 +320,7 @@ export default function ProjectsTimeline() {
     window.addEventListener('resize', measure)
     return () => window.removeEventListener('resize', measure)
   }, [theme])
-  const { scrollYProgress } = useScroll({ target: wrapRef, offset: ['start start', 'end end'] })
+  const scrollYProgress = usePageScrollProgress(wrapRef, ['start start', 'end end'])
 
   // głęboki link #projects/<slug> na desktopie: pozycja pionowego scrolla, przy której przejazd
   // stawia teczkę na początku kolumny treści (x = −lewa krawędź teczki · skala, w granicach [0, dist])

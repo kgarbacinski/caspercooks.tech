@@ -92,7 +92,8 @@ export default function Cables({ world, accent, on, surge, reduce }: Props) {
     >
       {/* kable lekko przygaszone (normalny tryb mieszania), żeby impuls miał dokąd się rozjaśnić */}
       <div className="absolute inset-0" style={{ ...mask, background: 'rgba(0,0,0,0.26)', mixBlendMode: 'normal', opacity: on ? 1 : 0, transition: 'opacity .6s ease' }} />
-      <div className="absolute inset-0 will-change-transform" style={{ ...mask, mixBlendMode: 'plus-lighter' }}>
+      {/* data-cable-glow: na dotyku bez plus-lighter (globals.css) */}
+      <div data-cable-glow className="absolute inset-0 will-change-transform" style={{ ...mask, mixBlendMode: 'plus-lighter' }}>
         {half('l')}
         {half('r')}
         {/* rozbłysk całych kabli przy mocnym impulsie */}

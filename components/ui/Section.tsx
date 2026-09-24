@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { AnimatePresence, motion, useInView, useMotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
+import { AnimatePresence, motion, useInView, useMotionValue, useMotionValueEvent, useSpring, useTransform } from 'framer-motion'
+import { usePageScrollProgress } from '@/hooks/usePageScroll'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { useTheme } from '@/contexts/ThemeContext'
 import { KEY, roomSrcOf, roomSrcSet } from '@/components/diorama/rooms'
@@ -54,7 +55,7 @@ export function RoomCutout({
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { margin: '120px' })
   // wstawanie: od wjazdu dolnej krawędzi w kadr do ~60% wysokości ekranu
-  const { scrollYProgress: rise } = useScroll({ target: ref, offset: ['start 0.98', 'start 0.62'] })
+  const rise = usePageScrollProgress(ref, ['start 0.98', 'start 0.62'])
   // dotyk (lite): pop-up odgrywa się raz, gdy pokój wjeżdża w kadr (played 0 → 1), zamiast iść za palcem —
   // przy natywnym scrollu z pędem składanie/rozkładanie w obie strony i gaszenie światła przy każdym
   // powrocie było nerwowe; mysz na desktopie: bez zmian (wstawanie sterowane scrollem)
@@ -122,7 +123,7 @@ export function RoomCutout({
   // kamera 2.5D: przejazd pokoju przez ekran (z góry → na wprost → lekko z dołu) + kursor na desktopie
   const peek = useRef<DepthTarget>({ x: 0, y: 0 })
   const cx = useRef(0)
-  const { scrollYProgress: pass } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+  const pass = usePageScrollProgress(ref, ['start end', 'end start'])
   const aim = () => {
     peek.current = { x: cx.current, y: Math.max(-1, Math.min(1, (0.5 - pass.get()) * 1.8)) }
   }

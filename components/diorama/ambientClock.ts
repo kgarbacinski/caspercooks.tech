@@ -16,9 +16,18 @@ let hidden = false
 
 let held = false
 
+// dotyk (telefon): ekrany z kodem malowane ~30 razy na sekundę zamiast w każdej klatce (60–120 Hz) — w pokoju
+// szerokości ~130 px różnicy nie widać, a wątek główny i przesyłanie canvasów do kompozytora kosztują o połowę mniej
+const STEP =
+  typeof window !== 'undefined' && window.matchMedia?.('(hover: none) and (pointer: coarse)').matches ? 30 : 0
+
 function frame(now: number) {
   raf = 0
   if (hidden || held || !subs.size) return
+  if (STEP && last && now - last < STEP) {
+    raf = requestAnimationFrame(frame)
+    return
+  }
   // krok zegara ograniczony do 100 ms (po zamrożonej klatce nie przeskakujemy do przodu)
   virt += Math.min(100, Math.max(0, now - (last || now)))
   last = now

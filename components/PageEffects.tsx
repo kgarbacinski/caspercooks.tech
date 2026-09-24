@@ -53,9 +53,35 @@ export default function PageEffects() {
         window.addEventListener('touchmove', onMove, { passive: true })
         offTouch = () => window.removeEventListener('touchmove', onMove)
       }
+      // Desktop: pętla Lenisa co klatkę (wygładza kółko myszy). Dotyk: Lenis nie ma czego wygładzać, więc
+      // pętla chodzi TYLKO w trakcie programowego przejazdu (scrollTo nawigacji) i gaśnie po nim — bez
+      // wiecznego rAF, który na iOS budził wątek główny w każdej klatce przewijania strony i panoramy.
+      // Czas dla Lenisa jest własny (krok ≤ 50 ms): po uśpieniu przejazd nie przeskakuje od razu do celu.
+      let clock = 0
+      let last = 0
+      let idle = 0
+      const l = lenis
       const loop = (t: number) => {
-        lenis!.raf(t)
+        clock += last ? Math.min(50, Math.max(0, t - last)) : 16
+        last = t
+        l.raf(clock)
+        if (touch) {
+          idle = l.isScrolling ? 0 : idle + 1
+          if (idle > 3) {
+            raf = 0
+            last = 0
+            return
+          }
+        }
         raf = requestAnimationFrame(loop)
+      }
+      if (touch) {
+        const scrollTo = l.scrollTo.bind(l)
+        l.scrollTo = ((...args: Parameters<typeof scrollTo>) => {
+          idle = 0
+          if (!raf) raf = requestAnimationFrame(loop)
+          return scrollTo(...args)
+        }) as typeof l.scrollTo
       }
       raf = requestAnimationFrame(loop)
     }

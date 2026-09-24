@@ -617,6 +617,27 @@ body.founder-mode {
 [data-paused] *::after {
   animation-play-state: paused !important;
 }
+/* panorama hero przesuwana palcem (Diorama: od pierwszego przesunięcia do zatrzymania pędu) — cała scena
+   stoi, kompozytor przesuwa nieruchomy obraz; po zatrzymaniu pętle ruszają dalej od miejsca pauzy */
+[data-panning],
+[data-panning] *,
+[data-panning] *::before,
+[data-panning] *::after {
+  animation-play-state: paused !important;
+}
+
+/* dotyk (telefon / tablet): poświaty, diody, okna i impulsy w kablach bez trybów mieszania (screen / overlay /
+   plus-lighter). Każdy element z mix-blend-mode to na iOS osobny przebieg kompozytora czytający tło — w hero
+   było ich 33–42 i liczyły się od nowa w każdej klatce przesuwania panoramy. Świecą na ciemnych pokojach,
+   więc zwykłe nakładanie z tą samą przezroczystością wygląda prawie tak samo. Desktop (mysz) bez zmian. */
+@media (hover: none) and (pointer: coarse) {
+  [data-amb] .mix-blend-screen,
+  [data-amb] .mix-blend-overlay,
+  [data-dio] .mix-blend-screen,
+  [data-dio] [data-cable-glow] {
+    mix-blend-mode: normal !important;
+  }
+}
 
 /* przycisk wysyłki: pieczęć "stempluje" w trakcie wysyłania, przy błędzie krótkie potrząśnięcie */
 @keyframes seal-stamp {
