@@ -256,7 +256,12 @@ export default function AboutSection() {
   }
   const [active, setActive] = useState(0)
   const steps = s.notes.length + 1 // ostatni krok = statystyki
+  // wysokość przypiętej sceny liczona z dłuższej historii — przełączenie zakładki nie zmienia wysokości strony
+  // (inaczej zmienia się postęp scrolla i ekran przeskakuje o kilkaset pikseli)
+  const sceneSteps = Math.max(STORIES.developer.notes.length, STORIES.founder.notes.length) + 1
   useMotionValueEvent(scrollYProgress, 'change', (v) => setActive(Math.min(steps - 1, Math.floor(v * steps * 1.02))))
+  // po zmianie zakładki aktywna notatka od razu z bieżącego postępu (bez czekania na ruch scrolla)
+  useEffect(() => setActive(Math.min(steps - 1, Math.floor(scrollYProgress.get() * steps * 1.02))), [steps, scrollYProgress])
 
   // 2.5D: pokój z mapą głębi — kursor (gdziekolwiek w oknie) obraca "kamerę", scroll powoli
   // opuszcza ją z widoku z góry na wprost; figurka stoi przed pokojem, więc przesuwa się najmocniej
@@ -306,7 +311,7 @@ export default function AboutSection() {
       </div>
 
       {/* ——— desktop: przypięta scena ——— */}
-      <div ref={sceneRef} className="relative hidden lg:block" style={{ height: `${steps * 62 + 60}vh` }}>
+      <div ref={sceneRef} className="relative hidden lg:block" style={{ height: `${sceneSteps * 62 + 60}vh` }}>
         <div data-dive-stage data-pin data-paused={sceneInView ? undefined : true} className="sticky top-0 h-screen overflow-x-clip">
           {/* pt-20 = pasek nawigacji: na niskim ekranie (1280×720) etykieta sekcji nie chowa się pod nim */}
           <div className="max-w-6xl mx-auto px-8 pt-20 pb-4 h-full grid grid-cols-[1.05fr_1fr] gap-10 items-center">
@@ -324,10 +329,12 @@ export default function AboutSection() {
                     key={story}
                     className="relative"
                     style={{ transformOrigin: '50% 100%' }}
-                    initial={{ rotateX: 86 }}
-                    animate={{ rotateX: 0 }}
-                    exit={{ rotateX: 86, transition: { duration: 0.3 } }}
-                    transition={{ type: 'spring', stiffness: 160, damping: 14, delay: 0.3 }}
+                    // przełączenie pokoju (zakładka / tryb): miękkie przenikanie z lekkim uniesieniem — bez składania
+                    // do płaskiej kartki, żeby okna i ekrany nie startowały „na płasko”
+                    initial={{ opacity: 0, y: 12, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.98, transition: { duration: 0.22 } }}
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
                   >
                     <div ref={roomLayer} className="relative">
                     <DepthRoom
