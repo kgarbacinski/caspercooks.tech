@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { createContext, useContext, useEffect, useRef } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { ARM, ARM2, CITY, DUCKS, FLOW, GLOW, LAMP, LEDS, OFFICE, PHONES, RADAR, REC, SCOPE, SCREENS, SLIDES, VAULT } from './ambientLayout'
 import type { Pct } from './ambientLayout'
@@ -38,6 +38,8 @@ type Props = {
   /** filtr jasności obrazka pokoju — te same wartości na warstwie podmieniającej grafikę */
   artClass?: string
   artStyle?: CSSProperties
+  /** duże ujęcie (scena About): sprite'y w 2× (warianty -lg) na ekranach retina */
+  hi?: boolean
 }
 
 const A = '/diorama/v2/amb/'
@@ -52,10 +54,13 @@ const hash = (i: number) => {
 const sec = (v: number) => `${v.toFixed(2)}s`
 const pt = (p: readonly number[]) => `${p[0]}% ${p[1]}%`
 
-// obrazek-sprite bez interakcji
+const HiRes = createContext(false)
+
+// obrazek-sprite bez interakcji (w dużym ujęciu z wariantem 2× dla retina)
 function Img({ src, style, className }: { src: string; style?: CSSProperties; className?: string }) {
+  const hi = useContext(HiRes)
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={`${A}${src}.webp`} alt="" draggable={false} className={className} style={style} />
+  return <img src={`${A}${src}.webp`} srcSet={hi ? `${A}${src}.webp 1x, ${A}${src}-lg.webp 2x` : undefined} alt="" draggable={false} className={className} style={style} />
 }
 
 // warstwa na cały pokój z punktem obrotu w % pokoju (sprite'y w środku leżą w swoich miejscach)
@@ -856,7 +861,7 @@ function Duck({ id }: { id: keyof typeof DUCKS }) {
   )
 }
 
-export default function RoomAmbient({ world, room, run, show, hot, lite, artClass, artStyle }: Props) {
+export default function RoomAmbient({ world, room, run, show, hot, lite, artClass, artStyle, hi = false }: Props) {
   const key = `${world}${room}`
   // warstwa "grafiki": płyty, sprite'y, ekrany — dostaje ten sam filtr co obrazek pokoju
   let art: ReactNode = null
@@ -1006,6 +1011,7 @@ export default function RoomAmbient({ world, room, run, show, hot, lite, artClas
   }
   if (!art && !fx) return null
   return (
+    <HiRes.Provider value={hi}>
     <div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ containerType: 'inline-size' }}>
       {art && (
         <div data-amb-art className={`absolute inset-0 ${artClass ?? ''}`} style={artStyle}>
@@ -1018,5 +1024,6 @@ export default function RoomAmbient({ world, room, run, show, hot, lite, artClas
         </div>
       )}
     </div>
+    </HiRes.Provider>
   )
 }

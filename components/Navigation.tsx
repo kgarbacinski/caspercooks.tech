@@ -20,7 +20,7 @@ const navLinks = [
 function Brand({ theme }: { theme: 'developer' | 'founder' }) {
   const k = theme === 'developer' ? 'dev' : 'ceo'
   return (
-    <a href="#" className="flex items-center gap-3 group" aria-label="caspercooks.tech — back to top">
+    <a href="#" className="flex items-center gap-3 min-h-11 min-w-11 group" aria-label="caspercooks.tech — back to top">
       {/* znak: avatar figurki (głowa i ramiona, strój zgodny z trybem) w kremowym krążku; hover = pierścień w kolorze akcentu */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -31,7 +31,8 @@ function Brand({ theme }: { theme: 'developer' | 'founder' }) {
         height={36}
         className="block w-9 h-9 shrink-0 rounded-full ring-2 ring-white/5 shadow-[0_2px_0_rgba(0,0,0,0.35)] transition-[transform,box-shadow] duration-200 ease-out group-hover:-translate-y-px group-hover:ring-accent"
       />
-      <span className="font-mono text-sm text-paper/80 group-hover:text-accent transition-colors">
+      {/* najwęższe telefony (< 380 px): sam avatar — napis z przełącznikiem i menu nie mieszczą się w jednym wierszu */}
+      <span className="hidden [@media(min-width:380px)]:inline font-mono text-sm text-paper/80 group-hover:text-accent transition-colors">
         caspercooks<span className="text-accent">.tech</span>
       </span>
     </a>
@@ -102,13 +103,13 @@ export default function Navigation() {
             onClick={toggleTheme}
             // nazwa dostępna = widoczny tekst (DEV CEO) + opis w sr-only — wymóg WCAG "label in name"
             type="button"
-            className="relative flex items-center w-[104px] h-10 p-1 border border-cocoa-500 hover:border-accent/60 bg-cocoa-800 font-mono text-[11px] transition-colors"
+            className="relative flex items-center w-[6.5rem] h-11 lg:h-10 p-1 border border-cocoa-500 hover:border-accent/60 bg-cocoa-800 font-mono text-xs transition-colors"
           >
             <motion.span
               layout
               transition={{ type: 'spring', stiffness: 500, damping: 32 }}
-              className="absolute top-1 bottom-1 w-[48px] bg-accent"
-              style={{ left: theme === 'developer' ? 4 : 52 }}
+              className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-accent"
+              style={{ left: theme === 'developer' ? 4 : 'calc(50% + 0px)' }}
             />
             <span className={`relative z-10 w-1/2 text-center ${theme === 'developer' ? 'text-night' : 'text-paper-muted'}`}>DEV</span>{' '}
             <span className={`relative z-10 w-1/2 text-center ${theme === 'founder' ? 'text-night' : 'text-paper-muted'}`}>CEO</span>
@@ -118,7 +119,7 @@ export default function Navigation() {
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             type="button"
-            className="lg:hidden w-10 h-10 grid place-items-center border border-cocoa-500 hover:border-accent/60 text-paper transition-colors"
+            className="lg:hidden w-11 h-11 grid place-items-center border border-cocoa-500 hover:border-accent/60 text-paper transition-colors"
             aria-label="Toggle menu"
             aria-expanded={isMobileMenuOpen}
           >
@@ -135,13 +136,14 @@ export default function Navigation() {
             exit={{ opacity: 0, height: 0 }}
             className="lg:hidden overflow-hidden bg-night/95 backdrop-blur-lg border-t border-cocoa-500/40"
           >
-            <div className="px-4 py-4">
+            {/* niski ekran (telefon poziomo): lista przewija się zamiast wychodzić poza ekran */}
+            <div className="px-4 sm:px-8 py-2 max-h-[calc(100svh-4rem)] overflow-y-auto overscroll-contain">
               {navLinks.map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block py-3 font-mono text-lg border-b border-cocoa-500/30 ${
+                  className={`block py-3 font-mono text-lg border-b last:border-b-0 border-cocoa-500/30 ${
                     activeSection === link.label ? 'text-accent' : 'text-paper'
                   }`}
                 >

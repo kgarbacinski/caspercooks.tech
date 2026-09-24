@@ -8,7 +8,7 @@ import { FaGraduationCap, FaMobileAlt, FaBullseye, FaRobot } from 'react-icons/f
 import type { IconType } from 'react-icons'
 import { useTheme } from '@/contexts/ThemeContext'
 import { SectionHeader, EASE } from '@/components/ui/Section'
-import { KEY, ROOMS, roomSrc } from '@/components/diorama/rooms'
+import { FIG_SET, KEY, ROOMS, roomSrc, roomSrcSet } from '@/components/diorama/rooms'
 import { FIG, ROOM_BOX } from '@/components/diorama/layout'
 import RoomAmbient from '@/components/diorama/Ambient'
 import DepthRoom, { type DepthTarget } from '@/components/diorama/DepthRoom'
@@ -169,13 +169,13 @@ function Counter({ value, suffix = '' }: { value: number; suffix?: string }) {
 
 function Stats({ items }: { items: { value: number; suffix?: string; label: string }[] }) {
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-3 gap-2 sm:gap-3">
       {items.map((s, i) => (
         <div key={s.label} className="stamp-ticket" style={{ rotate: `${[-2, 1.5, -1][i]}deg` }}>
           <div className="font-display text-3xl sm:text-4xl text-accent leading-none">
             <Counter value={s.value} suffix={s.suffix} />
           </div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper-muted mt-2">{s.label}</div>
+          <div className="font-mono text-xs uppercase tracking-[0.06em] sm:tracking-[0.16em] text-paper-muted mt-2">{s.label}</div>
         </div>
       ))}
     </div>
@@ -191,7 +191,7 @@ function StoryTabs({ story, setStory, lid }: { story: Story; setStory: (s: Story
           role="tab"
           aria-selected={story === s}
           onClick={() => setStory(s)}
-          className={`relative px-3 sm:px-4 py-2 transition-colors ${story === s ? 'text-night' : 'text-paper-muted hover:text-paper'}`}
+          className={`relative px-3 sm:px-4 py-2 min-h-11 lg:min-h-0 transition-colors ${story === s ? 'text-night' : 'text-paper-muted hover:text-paper'}`}
         >
           {story === s && <motion.span layoutId={lid} className="absolute inset-0 bg-accent" transition={{ type: 'spring', stiffness: 500, damping: 36 }} />}
           <span className="relative">{STORIES[s].title}</span>
@@ -205,7 +205,7 @@ function NoteCard({ note, i, total, under = false }: { note: Note; i: number; to
   return (
     <div className="note-paper" style={{ rotate: `${TILT[i % TILT.length]}deg` }}>
       <span className="pin" aria-hidden="true" />
-      <div className="flex items-baseline justify-between mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ink/50">
+      <div className="flex items-baseline justify-between mb-2 font-mono text-xs uppercase tracking-[0.18em] text-ink/50 transition-opacity duration-300" style={under ? { opacity: 0 } : undefined}>
         <span>note {String(i + 1).padStart(2, '0')}</span>
         <span>
           {i + 1}/{total}
@@ -307,15 +307,16 @@ export default function AboutSection() {
       {/* ——— desktop: przypięta scena ——— */}
       <div ref={sceneRef} className="relative hidden lg:block" style={{ height: `${steps * 62 + 60}vh` }}>
         <div data-dive-stage data-paused={sceneInView ? undefined : true} className="sticky top-0 h-screen overflow-x-clip">
-          <div className="max-w-6xl mx-auto px-8 h-full grid grid-cols-[1.05fr_1fr] gap-10 items-center">
+          {/* pt-20 = pasek nawigacji: na niskim ekranie (1280×720) etykieta sekcji nie chowa się pod nim */}
+          <div className="max-w-6xl mx-auto px-8 pt-20 pb-4 h-full grid grid-cols-[1.05fr_1fr] gap-10 items-center">
             {/* pokój, w który wjeżdża kamera */}
-            <div className="relative h-[80vh] flex items-center justify-center">
+            <div className="relative h-[min(80vh,calc(100vh-6rem))] flex items-center justify-center">
               <motion.div
                 aria-hidden="true"
                 className="absolute inset-x-[8%] bottom-[6%] h-[40%] rounded-[50%] blur-3xl"
                 style={{ background: 'rgb(var(--accent-rgb) / 0.22)', opacity: glow }}
               />
-              <motion.div data-dive-target className="relative w-[74%] max-w-[430px] mr-[16%]" style={{ scale: zoom, y: panY, opacity: shown, transformOrigin: '50% 70%' }}>
+              <motion.div data-dive-target className="relative w-[74%] max-w-[26.875rem] mr-[16%]" style={{ scale: zoom, y: panY, opacity: shown, transformOrigin: '50% 70%' }}>
                 <AnimatePresence mode="popLayout" initial={false}>
                   {/* pokój + jego żywe animacje składają się razem przy przełączeniu świata */}
                   <motion.div
@@ -330,19 +331,21 @@ export default function AboutSection() {
                     <div ref={roomLayer} className="relative">
                     <DepthRoom
                       src={roomSrc(theme, 0)}
+                      srcSet={roomSrcSet(KEY[theme], 0)}
+                      sizes="(min-width: 1024px) and (min-aspect-ratio: 4/5) 26.875rem, 74vw"
                       depth={`/diorama/v2/depth-${KEY[theme]}-0.webp`}
                       target={peek}
                       active={sceneInView && !reduce}
                       amp={0.034}
                       freeze={roomLayer}
                       followers={[{ el: figEl, depth: 1.12 }]}
-                      imgProps={{ alt: `${room.label} — a papercraft room from the diorama` }}
+                      imgProps={{ alt: `${room.label} — a papercraft room from the diorama`, loading: 'lazy' }}
                       className="block w-full h-auto drop-shadow-[0_40px_40px_rgba(0,0,0,0.7)]"
                       // proporcje znane przed załadowaniem (pomiar celu kamery w hero)
                       style={{ aspectRatio: `${rb.w * 24} / ${rb.h * 12.24}` }}
                     />
                     {/* ten sam stan ekranów co w hero (wspólny model) — podmiana przy wjeździe kamery jest niewidoczna */}
-                    {!reduce && <RoomAmbient world={KEY[theme]} room={0} run={sceneInView} show />}
+                    {!reduce && <RoomAmbient world={KEY[theme]} room={0} run={sceneInView} show hi />}
                     </div>
                   </motion.div>
                 </AnimatePresence>
@@ -350,11 +353,11 @@ export default function AboutSection() {
                 <div ref={figEl} aria-hidden="true" className="absolute" style={figPos}>
                   <div className="absolute left-[-10%] right-[-10%] bottom-[-2.5%] h-[5%] rounded-[50%] bg-black/60 blur-[3px]" />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`/diorama/v2/fig-${KEY[theme]}.webp`} alt="" className="absolute inset-0 w-full h-full" />
+                  <img src={`/diorama/v2/fig-${KEY[theme]}.webp`} srcSet={FIG_SET(KEY[theme])} sizes="(min-width: 1024px) and (min-aspect-ratio: 4/5) 10rem, 30vw" loading="lazy" alt="" className="absolute inset-0 w-full h-full" />
                 </div>
                 {/* podpis przypięty do podstawy pokoju (pojawia się razem z pokojem) */}
                 <div className="absolute -left-[6%] -bottom-[7%] z-10 paper-tag !text-left -rotate-2">
-                  <span className="block font-mono text-[10px] uppercase tracking-[0.2em] text-ink/70">room 01</span>
+                  <span className="block font-mono text-xs uppercase tracking-[0.2em] text-ink/70">room 01</span>
                   <span className="block font-display text-lg text-ink">{room.label}</span>
                 </div>
               </motion.div>
@@ -363,10 +366,10 @@ export default function AboutSection() {
             {/* tablica z notatkami — przed przypięciem wjeżdża szybciej niż scroll, żeby prawa połowa
                 kadru nie stała pusta, gdy kamera z hero dojeżdża do pokoju */}
             <motion.div className="relative" style={{ y: colY }}>
-              <SectionHeader index="01" eyebrow="about.txt" title="About" className="mb-8" />
-              <div className="flex items-center justify-between gap-4 mb-10">
+              <SectionHeader index="01" eyebrow="about.txt" title="About" className="mb-8 [@media(max-height:760px)]:mb-4" />
+              <div className="flex items-center justify-between gap-4 mb-10 [@media(max-height:760px)]:mb-6">
                 <StoryTabs story={story} setStory={setStory} lid="story-tab-d" />
-                <span className="font-mono text-[11px] text-paper-dim tabular-nums">
+                <span className="font-mono text-xs text-paper-dim tabular-nums">
                   {String(Math.min(active + 1, s.notes.length)).padStart(2, '0')} / {String(s.notes.length).padStart(2, '0')}
                 </span>
               </div>
@@ -412,18 +415,20 @@ export default function AboutSection() {
           <div aria-hidden="true" className="absolute inset-x-[5%] bottom-0 h-1/3 rounded-[50%] blur-3xl" style={{ background: 'rgb(var(--accent-rgb) / 0.22)' }} />
           <div className="relative">
             <DepthRoom
-              src={roomSrc(theme, 0, true)}
+              src={roomSrc(theme, 0)}
+              srcSet={roomSrcSet(KEY[theme], 0)}
+              sizes="(min-width: 640px) 380px, 74vw"
               depth={`/diorama/v2/depth-${KEY[theme]}-0.webp`}
               target={mPeek}
               active={mInView && !reduce}
               amp={0.07}
-              imgProps={{ alt: `${room.label} — a papercraft room from the diorama` }}
+              imgProps={{ alt: `${room.label} — a papercraft room from the diorama`, loading: 'lazy' }}
               className="relative w-full h-auto drop-shadow-[0_30px_30px_rgba(0,0,0,0.7)]"
               style={{ aspectRatio: `${rb.w * 24} / ${rb.h * 12.24}` }}
             />
           </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`/diorama/v2/fig-${KEY[theme]}.webp`} alt="" aria-hidden="true" className="absolute bottom-0 right-[-10%] h-[72%] w-auto" />
+          <img src={`/diorama/v2/fig-${KEY[theme]}.webp`} srcSet={FIG_SET(KEY[theme])} sizes="(min-width: 640px) 150px, 28vw" alt="" aria-hidden="true" loading="lazy" className="absolute bottom-0 right-[-10%] h-[72%] w-auto" />
         </div>
         <div className="mb-8 flex justify-center">
           <StoryTabs story={story} setStory={setStory} lid="story-tab-m" />

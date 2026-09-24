@@ -20,7 +20,7 @@ export default function Footer() {
   return (
     <footer className="bg-night border-t border-cocoa-500/40 py-10 sm:py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-        <a href="#" className="inline-flex items-center gap-3 group" aria-label="caspercooks.tech — back to top">
+        <a href="#" className="inline-flex items-center gap-3 min-h-11 group" aria-label="caspercooks.tech — back to top">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`/diorama/v2/avatar-${k}.webp`}
@@ -47,7 +47,7 @@ export default function Footer() {
               {...(social.url.startsWith('mailto:') ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
               title={social.name}
               aria-label={social.name}
-              className="w-10 h-10 grid place-items-center border border-cocoa-500/60 bg-cocoa-900 text-paper-muted hover:text-accent hover:border-accent/50 hover:-translate-y-0.5 transition"
+              className="w-11 h-11 grid place-items-center border border-cocoa-500/60 bg-cocoa-900 text-paper-muted hover:text-accent hover:border-accent/50 hover:-translate-y-0.5 transition"
             >
               <social.icon className="w-4 h-4" />
             </a>

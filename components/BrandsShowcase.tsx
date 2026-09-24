@@ -112,9 +112,10 @@ function Shop({ brand, index }: { brand: Brand; index: number }) {
       onBlur={() => setLit(false)}
     >
       {/* fasada */}
-      <div className={`relative transition-transform duration-500 ${lit ? '-translate-y-2' : ''}`} style={{ aspectRatio: '720 / 795' }}>
+      {/* container query: napisy na szyldzie i w witrynie skalują się z szerokością fasady (a nie ekranu) */}
+      <div className={`relative transition-transform duration-500 ${lit ? '-translate-y-2' : ''}`} style={{ aspectRatio: '720 / 795', containerType: 'inline-size' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/sections/facade.webp" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full drop-shadow-[0_24px_24px_rgba(0,0,0,0.7)]" loading="lazy" />
+        <img src="/sections/facade.webp" srcSet="/sections/facade.webp 720w, /sections/facade-lg.webp 1440w" sizes="(min-width: 1921px) and (min-aspect-ratio: 4/5) 15vw, (min-width: 1280px) 290px, (min-width: 1024px) and (min-aspect-ratio: 4/5) 23vw, (min-width: 640px) 45vw, 78vw" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full drop-shadow-[0_24px_24px_rgba(0,0,0,0.7)]" loading="lazy" />
         {/* markiza w kolorze marki (tryb "hue": krem zostaje kremowy, pasy zmieniają barwę) */}
         <div
           aria-hidden="true"
@@ -147,15 +148,15 @@ function Shop({ brand, index }: { brand: Brand; index: number }) {
           ) : (
             <brand.icon className="h-1/2 w-auto text-ink/70" />
           )}
-          <span className="font-display text-[clamp(14px,1.2vw,18px)] leading-none text-ink whitespace-nowrap">{brand.name}</span>
+          <span className="font-display text-[clamp(0.875rem,6cqw,1.25rem)] leading-none text-ink whitespace-nowrap">{brand.name}</span>
         </div>
         {/* witryna z neonem */}
         <div
-          className="absolute flex items-center justify-center p-[4%] text-center overflow-hidden"
+          className="absolute flex items-center justify-center p-[2.5%] text-center overflow-hidden"
           style={{ left: '15.6%', top: '48.2%', width: '45%', height: '31.4%' }}
         >
           <span
-            className="font-mono text-[clamp(9px,0.95vw,12px)] leading-snug uppercase tracking-[0.08em] transition-all duration-500"
+            className="font-mono text-[clamp(0.75rem,4.3cqw,0.875rem)] leading-snug uppercase tracking-[0.02em] transition-all duration-500"
             style={{
               color: lit ? '#fff4e0' : 'rgba(241,228,207,0.45)',
               textShadow: lit ? `0 0 6px ${brand.color}, 0 0 16px ${brand.color}, 0 0 30px ${brand.color}` : 'none',
@@ -177,7 +178,7 @@ function Shop({ brand, index }: { brand: Brand; index: number }) {
         <dl className="pt-3 mt-auto border-t border-dashed border-cocoa-500/60 space-y-1">
           {brand.stats.map((stat) => (
             <div key={stat.label} className="flex items-baseline justify-between gap-3">
-              <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-paper-dim">{stat.label}</dt>
+              <dt className="font-mono text-xs uppercase tracking-[0.12em] text-paper-dim">{stat.label}</dt>
               <dd className="font-display text-base text-accent leading-tight text-right">{stat.value}</dd>
             </div>
           ))}
@@ -187,7 +188,7 @@ function Shop({ brand, index }: { brand: Brand; index: number }) {
             href={brand.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="link-arrow mt-5 self-start"
+            className="link-arrow mt-3 -mb-2 self-start"
           >
             Visit Website
             <ExternalIcon className="w-3.5 h-3.5" />
@@ -217,18 +218,18 @@ export default function BrandsShowcase() {
               </>
             }
           />
-          <RoomCutout world="ceo" room={2} hi className="hidden md:block w-56 lg:w-72 shrink-0 -mb-6" />
+          <RoomCutout world="ceo" room={2} className="hidden md:block w-56 lg:w-72 shrink-0 -mb-6" />
         </div>
       </div>
 
       {/* uliczka */}
       <div className="relative max-w-7xl mx-auto">
-        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-6 overflow-x-auto sm:overflow-visible snap-x snap-mandatory px-4 sm:px-8 pb-6 no-scrollbar">
+        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 items-stretch gap-6 sm:gap-8 lg:gap-6 overflow-x-auto sm:overflow-visible snap-x snap-mandatory px-4 sm:px-8 pb-6 no-scrollbar">
           {brands.map((brand, index) => (
             <Shop key={brand.name} brand={brand} index={index} />
           ))}
         </div>
-        <p className="sm:hidden px-4 font-mono text-[11px] uppercase tracking-[0.18em] text-paper-dim text-center">swipe → 4 shops</p>
+        <p className="sm:hidden px-4 font-mono text-xs uppercase tracking-[0.18em] text-paper-dim text-center">swipe → 4 shops</p>
         {/* chodnik pod sklepami */}
         <div aria-hidden="true" className="hidden lg:block mx-8 -mt-[1px] h-2 rounded-full bg-gradient-to-r from-transparent via-kraft/25 to-transparent" />
       </div>

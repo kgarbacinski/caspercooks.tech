@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import { MQ, MQ_BELOW_LG } from './hooks/media'
 
 /**
  * Motyw "papercraft diorama" — paleta wzięta z hero (public/diorama/island.webp).
@@ -12,6 +13,15 @@ const config: Config = {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    // lg/xl/2xl tylko na ekranach nie-pionowych (hooks/media.ts); `tab` = wszystko poniżej lg
+    screens: {
+      sm: '640px',
+      md: '768px',
+      lg: { raw: MQ.lg },
+      xl: { raw: MQ.xl },
+      '2xl': { raw: MQ['2xl'] },
+      tab: { raw: MQ_BELOW_LG },
+    },
     extend: {
       colors: {
         night: '#0b0806', // tło strony (pustka wokół wyspy)

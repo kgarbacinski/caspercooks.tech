@@ -55,7 +55,7 @@ export default function TikTokSection() {
           {/* studio: pokój "Studio" z dioramy jako plan zdjęciowy, przed nim telefon na statywie */}
           <div ref={stageRef} className="relative pt-4 pb-10">
             <div className="relative mx-auto w-full max-w-[520px]">
-              <RoomCutout room={4} hi float={false} className="w-[88%] mx-auto opacity-95" />
+              <RoomCutout room={4} sizes="(min-width: 768px) 420px, 70vw" float={false} className="w-[88%] mx-auto opacity-95" />
               {/* ciepłe światło planu */}
               <div aria-hidden="true" className="absolute inset-x-[10%] bottom-[8%] h-1/3 rounded-[50%] blur-3xl bg-[rgba(255,200,140,0.18)]" />
               <motion.a
@@ -71,12 +71,13 @@ export default function TikTokSection() {
                 transition={{ duration: 0.9, ease: EASE, delay: 0.25 }}
                 whileHover={reduce ? undefined : { y: -6, rotate: -1 }}
               >
-                <div className="relative w-[118px] sm:w-[150px] aspect-[9/18.5] rounded-[26px] p-[7px] bg-gradient-to-b from-[#2a1d15] to-[#130c08] border border-cocoa-500/70 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(232,132,58,0.4)]">
-                  <div className="relative w-full h-full rounded-[20px] overflow-hidden bg-cocoa-900">
-                    <Image src="/tiktok-thumbnail.png" alt="TikTok content preview" fill sizes="180px" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                <div className="relative w-[7.375rem] sm:w-[9.375rem] aspect-[9/18.5] rounded-[1.625rem] p-[0.4375rem] bg-gradient-to-b from-[#2a1d15] to-[#130c08] border border-cocoa-500/70 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(232,132,58,0.4)]">
+                  {/* ekran telefonu to ilustracja (nazwę linku daje aria-label) — drobne napisy UI są częścią grafiki */}
+                  <div aria-hidden="true" className="relative w-full h-full rounded-[1.25rem] overflow-hidden bg-cocoa-900">
+                    <Image src="/tiktok-thumbnail.png" alt="TikTok content preview" fill sizes="(min-width: 640px) 16rem, 12rem" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70" />
                     {/* nagrywanie */}
-                    <div className="absolute top-6 left-2 right-2 flex items-center justify-between font-mono text-[8px] sm:text-[9px] text-white">
+                    <div className="absolute top-6 left-2 right-2 flex items-center justify-between font-mono text-[0.5rem] sm:text-[0.5625rem] text-white">
                       <span className="flex items-center gap-1.5 px-1.5 py-0.5 rounded-full bg-black/45 backdrop-blur-sm">
                         <span className={`w-2 h-2 rounded-full bg-[#ff3b30] ${reduce ? '' : 'animate-rec'}`} />
                         REC <RecTimer run={inView && !reduce} />
@@ -95,11 +96,11 @@ export default function TikTokSection() {
                       </span>
                     </div>
                     <div className="absolute bottom-2.5 left-2.5 right-2.5">
-                      <p className="text-white font-display text-[9.5px] sm:text-[13px] leading-tight truncate">@kacper.senior.dev</p>
-                      <p className="font-mono text-[8px] sm:text-[9px] text-white/70 truncate">Polish dev community</p>
+                      <p className="text-white font-display text-[0.59rem] sm:text-[0.8125rem] leading-tight truncate">@kacper.senior.dev</p>
+                      <p className="font-mono text-[0.5rem] sm:text-[0.5625rem] text-white/70 truncate">Polish dev community</p>
                     </div>
                   </div>
-                  <span aria-hidden="true" className="absolute top-[13px] left-1/2 -translate-x-1/2 w-12 h-3 rounded-full bg-black" />
+                  <span aria-hidden="true" className="absolute top-[0.8125rem] left-1/2 -translate-x-1/2 w-12 h-3 rounded-full bg-black" />
                 </div>
                 {/* cień telefonu na podłodze pokoju */}
                 <span aria-hidden="true" className="absolute left-[8%] right-[8%] -bottom-2 h-3 rounded-[50%] bg-black/70 blur-[5px] -z-10" />
@@ -114,7 +115,7 @@ export default function TikTokSection() {
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
           >
-            <span className="inline-flex items-center gap-1.5 font-mono text-[11px] px-2 py-1 border border-accent/40 text-accent mb-6">
+            <span className="inline-flex items-center gap-1.5 font-mono text-xs px-2 py-1 border border-accent/40 text-accent mb-6">
               <FaFlag className="w-3 h-3" /> Polish Content
             </span>
             <h3 className="font-display text-3xl sm:text-4xl text-paper mb-4 leading-tight">
@@ -145,7 +146,7 @@ export default function TikTokSection() {
                 href={theme === 'founder' ? 'https://devs-mentoring.pl/' : TIKTOK_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center gap-2 text-sm text-paper-muted hover:text-paper transition-colors"
+                className="group inline-flex items-center gap-2 min-h-11 text-sm text-paper-muted hover:text-paper transition-colors"
               >
                 {theme === 'founder' ? (
                   <>

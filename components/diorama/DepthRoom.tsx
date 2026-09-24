@@ -23,6 +23,11 @@ export type DepthTarget = { x: number; y: number }
 
 type Props = {
   src: string
+  /** warianty rozdzielczości (retina): przeglądarka wybiera plik wg zmierzonej szerokości i DPR,
+   *  a tekstura WebGL bierze ten sam plik (img.currentSrc) */
+  srcSet?: string
+  /** szacunek szerokości przed pierwszym pomiarem (potem liczy się zmierzona szerokość) */
+  sizes?: string
   depth: string
   /** cel widoku w [-1, 1] (x: kursor w prawo, y: kursor w dół) — czytany co klatkę */
   target: MutableRefObject<DepthTarget>
@@ -120,8 +125,33 @@ function loadImg(src: string) {
   })
 }
 
-export default function DepthRoom({ src, depth, target, active, amp = 0.05, freeze, rim, followers, className = '', style, imgProps, pad = 0, onLive }: Props) {
+export default function DepthRoom({ src, srcSet, sizes: sizesHint, depth, target, active, amp = 0.05, freeze, rim, followers, className = '', style, imgProps, pad = 0, onLive }: Props) {
   const [gl, setGl] = useState(false) // canvas zamontowany
+  const imgRef = useRef<HTMLImageElement>(null)
+  // sizes = faktyczna szerokość <img> w px (tylko rośnie — bez podmiany na mniejszy plik)
+  const [sizes, setSizes] = useState<string | undefined>(sizesHint)
+  // rodzic może podnieść szacunek (np. przed zbliżeniem kamery) — wtedy przeglądarka dobiera większy plik
+  useEffect(() => {
+    if (sizesHint && !sizesHint.includes('(')) setSizes(sizesHint)
+  }, [sizesHint])
+  useEffect(() => {
+    const im = imgRef.current
+    if (!srcSet || !im) return
+    const ro = new ResizeObserver(() => {
+      const w = Math.ceil(im.offsetWidth)
+      if (w > 0) setSizes((s) => (s && s.endsWith('px') && parseInt(s) >= w ? s : `${w}px`))
+    })
+    ro.observe(im)
+    return () => ro.disconnect()
+  }, [srcSet])
+  // tekstura WebGL = ten sam plik, który wybrała przeglądarka; zmiana wariantu podmienia teksturę w locie
+  const swapTex = useRef<(im: HTMLImageElement) => void>(() => {})
+  const texSrc = useRef('')
+  const pickSrc = () => {
+    // currentSrc tylko, jeśli to wariant tego samego pokoju (po zmianie motywu nowy plik może się jeszcze ładować)
+    const cs = imgRef.current?.currentSrc
+    return cs && cs.includes(src.replace(/\.\w+$/, '')) ? cs : src
+  }
   const [live, setLive] = useState(false) // canvas pokazuje obraz (img ukryty)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const activeRef = useRef(active)
@@ -201,7 +231,7 @@ export default function DepthRoom({ src, depth, target, active, amp = 0.05, free
 
     const size = () => {
       const r = cv.getBoundingClientRect()
-      const dpr = Math.min(2, window.devicePixelRatio || 1)
+      const dpr = Math.min(3, window.devicePixelRatio || 1) // 3× (telefony): tekstura -lg ma tę rozdzielczość
       // rozmiar bez transformu rodzica (hover skaluje pokój) — offsetWidth
       const w = Math.max(1, Math.round(cv.offsetWidth * dpr))
       const h = Math.max(1, Math.round(cv.offsetHeight * dpr))
@@ -309,9 +339,19 @@ export default function DepthRoom({ src, depth, target, active, amp = 0.05, free
     })
     ro.observe(cv)
 
-    Promise.all([loadImg(src), loadImg(depth), measureFreeze()])
+    const first = pickSrc()
+    swapTex.current = (im) => {
+      if (dead || !ready) return
+      g.activeTexture(g.TEXTURE0)
+      const old = g.getParameter(g.TEXTURE_BINDING_2D)
+      tex(0, im, true)
+      if (old) g.deleteTexture(old)
+      draw()
+    }
+    Promise.all([loadImg(first), loadImg(depth), measureFreeze()])
       .then(([im, dm]) => {
         if (dead) return
+        texSrc.current = first
         tex(0, im, true)
         tex(1, dm, false)
         size()
@@ -339,7 +379,22 @@ export default function DepthRoom({ src, depth, target, active, amp = 0.05, free
   return (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
-      <img {...imgProps} src={src} draggable={false} className={className} style={{ ...style, ...(live ? { opacity: 0 } : null) }} />
+      <img
+        {...imgProps}
+        ref={imgRef}
+        src={src}
+        srcSet={srcSet}
+        sizes={srcSet ? sizes : undefined}
+        onLoad={(e) => {
+          imgProps?.onLoad?.(e)
+          // przeglądarka dobrała większy wariant → ta sama rozdzielczość w teksturze
+          const cs = e.currentTarget.currentSrc
+          if (texSrc.current && cs && cs !== texSrc.current) {
+            texSrc.current = cs
+            loadImg(cs).then((im) => swapTex.current(im)).catch(() => {})
+          }
+        }}
+        draggable={false} className={className} style={{ ...style, ...(live ? { opacity: 0 } : null) }} />
       {gl && (
         <canvas
           ref={canvasRef}

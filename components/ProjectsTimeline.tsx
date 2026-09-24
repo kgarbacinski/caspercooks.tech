@@ -195,7 +195,7 @@ function Folder({ p, i, active }: { p: Project; i: number; active: boolean }) {
   const isDev = p.type === 'developer'
   return (
     <article
-      className={`folder group relative shrink-0 w-[82vw] sm:w-[420px] lg:w-[400px] xl:w-[430px] ${isDev ? 'folder-dev' : 'folder-ceo'} ${active ? '' : 'folder-other'}`}
+      className={`folder group relative shrink-0 w-[82vw] max-w-[26.25rem] sm:w-[26.25rem] lg:w-[25rem] xl:w-[26.875rem] ${isDev ? 'folder-dev' : 'folder-ceo'} ${active ? '' : 'folder-other'}`}
       style={{ rotate: `${TILTS[i % TILTS.length]}deg` }}
     >
       {/* zakładka teczki: hash commita + data */}
@@ -206,7 +206,7 @@ function Folder({ p, i, active }: { p: Project; i: number; active: boolean }) {
       </div>
       <div className="folder-body">
         <div className="flex items-start justify-between gap-4 mb-5">
-          <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.2em] px-2 py-1 border border-ink/30 text-ink/75">
+          <span className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-[0.2em] px-2 py-1 border border-ink/30 text-ink/75">
             <span className={`w-1.5 h-1.5 rounded-full ${isDev ? 'bg-[#0f9f5c]' : 'bg-[#d4541f]'}`} />
             {isDev ? 'dev track' : 'ceo track'}
           </span>
@@ -230,7 +230,7 @@ function Folder({ p, i, active }: { p: Project; i: number; active: boolean }) {
           {p.company} • {p.role}
         </p>
         <p className="text-[15px] text-paper-muted leading-relaxed mb-5">{p.description}</p>
-        <div className="flex flex-wrap gap-1.5 mb-28 sm:mb-16">
+        <div className="flex flex-wrap gap-1.5 mb-16">
           {p.tech.map((t) => (
             <span key={t} className="label-chip">
               {t}
@@ -240,7 +240,7 @@ function Folder({ p, i, active }: { p: Project; i: number; active: boolean }) {
       </div>
       {/* impact na żółtej karteczce przyklejonej do teczki */}
       <div className="sticky-note">
-        <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-ink/55 mb-1">Impact &amp; Results</span>
+        <span className="block font-mono text-xs uppercase tracking-[0.2em] text-ink/55 mb-1">Impact &amp; Results</span>
         <span className="block text-[13.5px] leading-snug text-ink">
           {p.impact ||
             'Successfully delivered complex solution with high code quality and performance. Collaborated with cross-functional teams to exceed client expectations.'}
@@ -266,19 +266,34 @@ export default function ProjectsTimeline() {
     if (rowRef.current) rowRef.current.scrollLeft = 0
   }, [theme])
   const trackRef = useRef<HTMLDivElement>(null)
+  const headRef = useRef<HTMLDivElement>(null)
+  const lineRef = useRef<HTMLDivElement>(null)
   const [dist, setDist] = useState(0)
+  // niski ekran (laptop 1280×720, tablet poziomo 1024×768): rząd teczek zmniejsza się tak, żeby
+  // nagłówek, teczki z karteczkami i linia czasu zmieściły się między paskiem nawigacji a dołem ekranu
+  const [fit, setFit] = useState({ s: 1, h: 0 })
   useEffect(() => {
     const measure = () => {
       const t = trackRef.current
       if (!t) return
+      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+      const vh = window.innerHeight
+      const head = headRef.current?.offsetHeight ?? 0
+      const line = lineRef.current?.offsetHeight ?? 0
+      // pasek nawigacji + odstęp pod nagłówkiem + wystająca karteczka + margines linii czasu i dołu
+      const room = vh - 5 * rem - head - 2 * rem - line - 2.5 * rem - 2 * rem
+      const natural = t.offsetHeight + 12 // karteczka jest w przepływie; zapas na jej obrót
+      const s = Math.max(0.6, Math.min(1, room / natural))
+      setFit({ s, h: t.offsetHeight * s })
       // koniec przejazdu: prawa krawędź ostatniej teczki równo z prawą krawędzią kolumny treści
-      // (scrollWidth nie liczył końcowego paddingu, więc ostatnia teczka zostawała ucięta)
       const last = t.lastElementChild as HTMLElement | null
       if (!last) return
-      const pad = Math.max(32, (window.innerWidth - 1152) / 2 + 32)
-      setDist(Math.max(0, last.offsetLeft + last.offsetWidth + pad - window.innerWidth))
+      const pad = Math.max(2 * rem, (window.innerWidth - 72 * rem) / 2 + 2 * rem)
+      setDist(Math.max(0, pad + (last.offsetLeft + last.offsetWidth) * s + pad - window.innerWidth))
     }
     measure()
+    // czcionki (Fraunces) zmieniają wysokość nagłówka po załadowaniu
+    document.fonts?.ready.then(measure)
     window.addEventListener('resize', measure)
     return () => window.removeEventListener('resize', measure)
   }, [theme])
@@ -288,16 +303,27 @@ export default function ProjectsTimeline() {
   const [idx, setIdx] = useState(0)
   useMotionValueEvent(scrollYProgress, 'change', (v) => setIdx(Math.min(ordered.length - 1, Math.floor(v * ordered.length))))
 
-  const header = (
+  // compact = przypięta scena na desktopie: na niskim ekranie mniejszy tytuł i bez drugiego wiersza leadu
+  const header = (compact: boolean) => (
     <SectionHeader
       index="02"
       eyebrow="Projects"
-      title={<span className="font-mono text-[26px] sm:text-4xl md:text-5xl tracking-normal whitespace-nowrap">git log --all --oneline</span>}
+      title={
+        <span
+          className={`font-mono tracking-normal whitespace-nowrap ${
+            compact ? 'text-5xl [@media(max-height:820px)]:text-4xl' : 'text-[clamp(1.125rem,6.4vw,1.625rem)] sm:text-4xl md:text-5xl'
+          }`}
+        >
+          git log --all --oneline
+        </span>
+      }
       lead={
         <>
           Dual-track journey: technical excellence + entrepreneurial ventures
-          <br />
-          <span className="text-paper-dim text-base">Scroll through the archive — impact is on the sticky notes</span>
+          <br className={compact ? '[@media(max-height:820px)]:hidden' : ''} />
+          <span className={`text-paper-dim text-base ${compact ? '[@media(max-height:820px)]:hidden' : ''}`}>
+            Scroll through the archive — impact is on the sticky notes
+          </span>
         </>
       }
     />
@@ -307,9 +333,9 @@ export default function ProjectsTimeline() {
     <section id="projects" className="relative scroll-mt-20">
       {/* desktop: przypięty poziomy przejazd */}
       <div ref={wrapRef} className="relative hidden lg:block" style={{ height: `calc(100vh + ${dist}px)` }}>
-        <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center pt-20">
-          <div className="max-w-6xl w-full mx-auto px-8 mb-8 flex items-end justify-between gap-8">
-            {header}
+        <div className="sticky top-0 h-screen overflow-hidden flex flex-col [justify-content:safe_center] pt-20">
+          <div ref={headRef} className="max-w-6xl w-full mx-auto px-8 mb-8 flex items-end justify-between gap-8">
+            {header(true)}
             <div className="shrink-0 text-right font-mono text-xs text-paper-dim pb-2">
               <div className="text-accent text-2xl font-display tabular-nums">
                 {String(idx + 1).padStart(2, '0')}
@@ -318,12 +344,14 @@ export default function ProjectsTimeline() {
               <div className="mt-1 uppercase tracking-[0.18em]">{ordered[idx].type === theme ? 'current track' : 'the other track'}</div>
             </div>
           </div>
-          <motion.div ref={trackRef} className="flex items-start gap-10 pl-[max(2rem,calc((100vw-72rem)/2+2rem))] pr-16 pt-6" style={{ x: reduce ? 0 : x }}>
+          <div data-rwd-carousel className="pl-[max(2rem,calc((100vw-72rem)/2+2rem))] pt-6" style={fit.h ? { height: fit.h + 24 } : undefined}>
+          {/* przesunięcie idzie 1:1 za scrollem (także przy reduced motion — inaczej teczki za kadrem byłyby nieosiągalne) */}
+          <motion.div ref={trackRef} className="flex items-start gap-10 w-max" style={{ x, scale: fit.s, transformOrigin: '0 0' }}>
             {ordered.map((p, i) => (
               <div key={p.id} className="flex items-start gap-10">
                 {i === mine.length && (
                   <div className="shrink-0 self-stretch w-24 grid place-items-center">
-                    <span className="[writing-mode:vertical-rl] rotate-180 px-3 py-5 bg-cream text-ink font-mono text-[11px] uppercase tracking-[0.24em] shadow-[0_18px_30px_-12px_rgba(0,0,0,0.9)]">
+                    <span className="[writing-mode:vertical-rl] rotate-180 px-3 py-5 bg-cream text-ink font-mono text-xs uppercase tracking-[0.24em] shadow-[0_18px_30px_-12px_rgba(0,0,0,0.9)]">
                       the other track →
                     </span>
                   </div>
@@ -332,8 +360,9 @@ export default function ProjectsTimeline() {
               </div>
             ))}
           </motion.div>
+          </div>
           {/* linia czasu jak kabel z impulsem = postęp */}
-          <div className="max-w-6xl w-full mx-auto px-8 mt-10" aria-hidden="true">
+          <div ref={lineRef} className="max-w-6xl w-full mx-auto px-8 pt-10" aria-hidden="true">
             <div className="relative h-px bg-cocoa-500/50">
               <motion.div className="absolute inset-y-0 left-0 w-full bg-accent shadow-glow origin-left" style={{ scaleX: scrollYProgress }} />
               {ordered.map((p, i) => (
@@ -349,9 +378,9 @@ export default function ProjectsTimeline() {
       </div>
 
       {/* mobile / tablet: rząd teczek przewijany palcem */}
-      <div className="lg:hidden pt-24 sm:pt-32 pb-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 mb-10">{header}</div>
-        <div ref={rowRef} className="flex gap-5 overflow-x-auto snap-x snap-mandatory px-4 sm:px-8 pt-8 pb-14 no-scrollbar" style={{ scrollPaddingInline: '1rem' }}>
+      <div className="lg:hidden pt-20 sm:pt-28 pb-2">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 mb-10">{header(false)}</div>
+        <div ref={rowRef} data-rwd-carousel className="flex gap-5 overflow-x-auto snap-x snap-mandatory px-4 sm:px-8 pt-8 pb-10 no-scrollbar" style={{ scrollPaddingInline: '1rem' }}>
           {ordered.map((p, i) => (
             <motion.div
               key={p.id}
@@ -365,7 +394,7 @@ export default function ProjectsTimeline() {
             </motion.div>
           ))}
         </div>
-        <p className="px-4 font-mono text-[11px] uppercase tracking-[0.18em] text-paper-dim text-center">swipe → {ordered.length} commits</p>
+        <p className="px-4 font-mono text-xs uppercase tracking-[0.18em] text-paper-dim text-center">swipe → {ordered.length} commits</p>
       </div>
     </section>
   )

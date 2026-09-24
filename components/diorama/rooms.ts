@@ -1,4 +1,5 @@
 import type { Theme } from '@/contexts/ThemeContext'
+import { ROOM_BOX } from './layout'
 
 /** Klucz zestawu grafik dioramy dla motywu. */
 export const KEY: Record<Theme, 'dev' | 'ceo'> = { developer: 'dev', founder: 'ceo' }
@@ -35,4 +36,17 @@ export function scrollToHash(href: string) {
   const lenis = (window as unknown as { __lenis?: { scrollTo: (t: HTMLElement, o?: object) => void } }).__lenis
   if (lenis) lenis.scrollTo(el, { offset: -72 })
   else el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+/** Warianty rozdzielczości pokoju do srcSet: -sm (½), bazowy (kadr 2400 px), -lg (2×, retina). */
+export const roomSrcSet = (world: 'dev' | 'ceo', i: number) => {
+  const px = ROOM_BOX[world][i].px
+  const b = `/diorama/v2/room-${world}-${i}`
+  return `${b}-sm.webp ${Math.floor(px / 2)}w, ${b}.webp ${px}w, ${b}-lg.webp ${px * 2}w`
+}
+
+/** Figurka (i sprite skoku) w dwóch rozdzielczościach — te same kadry, -lg = 2.5×. */
+export const FIG_SET = (k: 'dev' | 'ceo', kind: 'fig' | 'jump' = 'fig') => {
+  const w = { fig: { dev: 172, ceo: 178 }, jump: { dev: 361, ceo: 376 } }[kind][k]
+  return `/diorama/v2/${kind}-${k}.webp ${w}w, /diorama/v2/${kind}-${k}-lg.webp ${Math.round(w * 2.5)}w`
 }

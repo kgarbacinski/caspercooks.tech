@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { SectionHeader, RoomCutout, EASE } from '@/components/ui/Section'
 import {
   SiPython, SiJavascript, SiTypescript, SiCplusplus, SiSolidity, SiGo,
@@ -111,6 +111,45 @@ const categories: Record<Category, { name: string }> = {
 }
 
 
+/**
+ * "Used in" — karteczka wysuwana spod zawieszki. Na wąskim ekranie zawieszka w prawej kolumnie
+ * wypychała karteczkę poza ekran — po zamontowaniu przesuwamy ją w poziomie do granic okna (16 px marginesu).
+ */
+function UsedIn({ projects }: { projects: string[] }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [dx, setDx] = useState(0)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    const m = 16
+    setDx(r.left < m ? m - r.left : r.right > window.innerWidth - m ? window.innerWidth - m - r.right : 0)
+  }, [])
+  return (
+    <motion.div
+      ref={ref}
+      className="absolute top-full left-1/2 z-30 mt-2 w-[min(15rem,calc(100vw-2rem))] tag-card !text-left after:!top-[-6px] after:!bottom-auto after:!rotate-[225deg]"
+      style={{ marginLeft: `calc(min(15rem, 100vw - 2rem) / -2 + ${dx}px)`, ['--dx' as string]: `${-dx}px` }}
+      initial={{ opacity: 0, y: -8, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -4, transition: { duration: 0.12 } }}
+      transition={{ duration: 0.22, ease: EASE }}
+    >
+      <p className="eyebrow !text-xs mb-2">
+        <strong className="font-normal text-accent">Used in:</strong>
+      </p>
+      <ul className="text-xs text-paper-muted space-y-1">
+        {projects.map((project) => (
+          <li key={project} className="flex gap-2">
+            <span className="text-ember">•</span>
+            <span>{project}</span>
+          </li>
+        ))}
+      </ul>
+    </motion.div>
+  )
+}
+
 // stałe "losowe" przechylenie zawieszek na haczykach
 const SWAY = [-4, 3, -2, 5, -3, 2, -5, 4]
 
@@ -141,7 +180,7 @@ export default function TechStack() {
             }
             lead="Adaptability allows writing efficient code in any stack"
           />
-          <RoomCutout room={3} hi className="hidden md:block w-56 lg:w-72 shrink-0 -mb-6" />
+          <RoomCutout room={3} className="hidden md:block w-56 lg:w-72 shrink-0 -mb-6" />
         </div>
 
         {/* naklejki kategorii */}
@@ -198,32 +237,10 @@ export default function TechStack() {
                       <span className="peg-hole" aria-hidden="true" />
                       <tech.icon className="w-7 h-7 sm:w-8 sm:h-8 mb-2 text-ink/70 group-hover:text-ink transition-colors" />
                       <span className="block font-display text-[17px] sm:text-lg leading-tight text-ink">{tech.name}</span>
-                      <span className="block font-mono text-[10px] text-ink/70 mt-1 line-clamp-1">{tech.projects[0]}</span>
+                      <span className="block font-mono text-xs text-ink/70 mt-1 line-clamp-1">{tech.projects[0]}</span>
                     </button>
                     {/* "used in" — karteczka wysuwana spod zawieszki */}
-                    <AnimatePresence>
-                      {isOpen && (
-                        <motion.div
-                          className="absolute top-full z-30 mt-2 w-[min(15rem,80vw)] tag-card !text-left after:!top-[-6px] after:!bottom-auto after:!rotate-[225deg]"
-                          initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: -4, transition: { duration: 0.12 } }}
-                          transition={{ duration: 0.22, ease: EASE }}
-                        >
-                          <p className="eyebrow !text-[10px] mb-2">
-                            <strong className="font-normal text-accent">Used in:</strong>
-                          </p>
-                          <ul className="text-xs text-paper-muted space-y-1">
-                            {tech.projects.map((project) => (
-                              <li key={project} className="flex gap-2">
-                                <span className="text-ember">•</span>
-                                <span>{project}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    <AnimatePresence>{isOpen && <UsedIn projects={tech.projects} />}</AnimatePresence>
                   </motion.div>
                 )
               })}
@@ -248,7 +265,7 @@ export default function TechStack() {
               transition={{ type: 'spring', stiffness: 380, damping: 18, delay: i * 0.08 }}
             >
               <div className="font-display text-3xl sm:text-4xl text-accent mb-2 leading-none">{stat.value}</div>
-              <div className="font-mono text-[10px] sm:text-[11px] uppercase tracking-wider text-paper-muted">{stat.label}</div>
+              <div className="font-mono text-xs uppercase tracking-wider text-paper-muted">{stat.label}</div>
             </motion.div>
           ))}
         </div>

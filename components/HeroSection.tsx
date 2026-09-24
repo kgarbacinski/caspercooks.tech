@@ -76,7 +76,7 @@ function CopyPart({ part, className = '' }: { part: Part; className?: string }) 
 
   return (
     // desktop: tekst gaśnie i odsuwa się w lewo przed nadjeżdżającą wyspą (mobile: bez zmian)
-    <motion.div style={{ opacity: uiFade, x: uiShift }} className={`max-lg:!opacity-100 max-lg:![transform:none] ${className}`}>
+    <motion.div style={{ opacity: uiFade, x: uiShift }} className={`tab:!opacity-100 tab:![transform:none] ${className}`}>
       {/* zwykły div z przejściem CSS: przygaszenie na czas gaszenia świateł */}
       <div className="grid" style={{ opacity: phase === 'leaving' ? 0.45 : 1, transition: 'opacity .45s ease' }}>
         {/* bez animacji wejścia przy pierwszym renderze: nagłówek i przyciski są widoczne od pierwszego
@@ -100,7 +100,7 @@ function CopyPart({ part, className = '' }: { part: Part; className?: string }) 
                 </motion.p>
                 {/* desktop: stopień liczony od szerokości lewej kolumny — pierwsza linia mieści się
                     w jednym wierszu od 1024 do 1920 px */}
-                <h1 className="font-display text-[2.75rem] sm:text-6xl lg:text-[min(3.3rem,calc(4.3vw-4px))] leading-[1.02] tracking-tight mb-6">
+                <h1 className="font-display text-[clamp(2rem,10.6vw,2.75rem)] sm:text-6xl lg:text-[min(3.3rem,calc(4.3vw-4px))] leading-[1.02] tracking-tight mb-6">
                   {c.title.map((line, i) => (
                     <span key={line} className="block pb-[0.08em]">
                       <motion.span
@@ -125,22 +125,23 @@ function CopyPart({ part, className = '' }: { part: Part; className?: string }) 
               </p>
             )}
 
+            {/* < 400 px: trzy karty w kolumnie (wartość i podpis w jednym wierszu) — w trzech wąskich kolumnach napisy łamały się po znaku */}
             {part === 'stats' && (
-              <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-2 xl:gap-3 lg:mb-7 max-w-md">
+              <div className="grid grid-cols-3 [@media(max-width:399px)]:grid-cols-1 gap-2 sm:gap-3 lg:gap-2 xl:gap-3 lg:mb-7 max-w-md">
                 {c.stats.map((s, i) => (
-                  <motion.div key={i} variants={pop} className="paper-card px-2.5 sm:px-4 lg:px-2.5 xl:px-4 py-3 font-mono">
+                  <motion.div key={i} variants={pop} className="paper-card px-4 [@media(min-width:400px)_and_(max-width:639px)]:px-2.5 sm:px-4 lg:px-2.5 xl:px-4 py-3 [@media(max-width:399px)]:py-2.5 font-mono">
                     {/* sama karta zostaje, podmienia się tylko napis */}
                     <div className="grid">
                     <AnimatePresence initial={false}>
                       <motion.div
                         key={s.value}
-                        className="[grid-area:1/1]"
+                        className="[grid-area:1/1] [@media(max-width:399px)]:flex [@media(max-width:399px)]:items-baseline [@media(max-width:399px)]:gap-3"
                         initial={{ opacity: 0.4, y: 5 }}
                         animate={{ opacity: 1, y: 0, transition: { duration: 0.35, delay: 0.04 * i } }}
                         exit={{ opacity: 0, transition: { duration: 0 } }}
                       >
-                        <div className="text-accent text-[12px] xl:text-[13px] whitespace-nowrap">{s.value}</div>
-                        <div className="text-paper-dim text-[10px] sm:text-xs whitespace-nowrap">{s.label}</div>
+                                                <div className="text-accent text-xs xl:text-[0.8125rem] whitespace-nowrap">{s.value}</div>
+                        <div className="text-paper-dim text-xs whitespace-nowrap">{s.label}</div>
                       </motion.div>
                     </AnimatePresence>
                     </div>
@@ -177,7 +178,7 @@ export default function HeroSection() {
     // "wjeżdża" w pierwszy pokój na nieruchomym kadrze, bez sprężyny goniącej scroll.
     // Sekcja About nachodzi na ostatni ekran tej sekcji (-mt-[100vh]) i przejmuje ujęcie.
     <section className="relative z-10 motion-safe:lg:h-[200vh]">
-      <div className="relative min-h-[100svh] lg:min-h-0 lg:h-screen motion-safe:lg:sticky lg:top-0 flex items-start lg:pt-[max(6rem,calc((100vh-620px)/2))] overflow-x-clip pt-20 sm:pt-24 pb-12 lg:pb-20">
+      <div className="relative min-h-[100svh] lg:min-h-0 lg:h-screen motion-safe:lg:sticky lg:top-0 flex items-start md:items-center lg:items-start lg:pt-[max(6rem,calc((100vh-38.75rem)/2))] overflow-x-clip pt-20 sm:pt-24 pb-12 lg:pb-20">
       {/* daleki grzbiet gór na horyzoncie (motyw ścian dioramy) */}
       {/* góry znikają razem z UI przy wjeździe kamery (inaczej prześwitują przez gasnący pokój) */}
       <motion.div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ opacity: uiFade }}>
@@ -201,7 +202,7 @@ export default function HeroSection() {
           initial={{ opacity: 1, y: 30, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
-          className="mt-1 mb-2 sm:mt-8 sm:mb-6 lg:my-0 -mx-3 sm:mx-0 lg:col-start-2 lg:row-start-1 lg:row-span-6 lg:self-center lg:-mr-[1vw] xl:-mr-[3vw] 2xl:-mr-[6vw]"
+          className="mt-1 mb-2 sm:mt-8 sm:mb-6 lg:my-0 -mx-3 sm:mx-0 lg:col-start-2 lg:row-start-1 lg:row-span-6 lg:self-center lg:-mr-[1vw] xl:-mr-[min(3vw,calc((100vw-80rem)/2+1.5rem))] 2xl:-mr-[6vw]"
         >
           <Diorama />
         </motion.div>

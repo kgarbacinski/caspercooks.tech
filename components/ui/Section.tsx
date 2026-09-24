@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 import { AnimatePresence, motion, useInView, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { useTheme } from '@/contexts/ThemeContext'
-import { KEY, roomSrcOf } from '@/components/diorama/rooms'
+import { KEY, roomSrcOf, roomSrcSet } from '@/components/diorama/rooms'
 import { ROOM_BOX } from '@/components/diorama/layout'
 import DepthRoom, { type DepthTarget } from '@/components/diorama/DepthRoom'
 
@@ -24,7 +24,7 @@ export function RoomCutout({
   room,
   className = '',
   float = false,
-  hi = false,
+  sizes = '(min-width: 1024px) 250px, 200px',
   world,
 }: {
   room: number
@@ -32,13 +32,13 @@ export function RoomCutout({
   world?: 'dev' | 'ceo'
   className?: string
   float?: boolean
-  /** pełna rozdzielczość (duże ujęcia) */
-  hi?: boolean
+  /** szacowana szerokość pokoju w kadrze (srcSet dobiera wariant -sm / bazowy / -lg; potem liczy się pomiar) */
+  sizes?: string
 }) {
   const { theme } = useTheme()
   const reduce = useReducedMotion()
   const w = world ?? KEY[theme]
-  const src = roomSrcOf(w, room, !hi)
+  const src = roomSrcOf(w, room)
   const b = ROOM_BOX[w][room]
   // proporcje wyciętego pokoju (kadr 2400×1224) — canvas 2.5D musi mieć dokładnie kształt grafiki
   const aspect = (b.w * 24) / (b.h * 12.24)
@@ -116,13 +116,15 @@ export function RoomCutout({
             >
               <DepthRoom
                 src={src}
+                srcSet={roomSrcSet(w, room)}
+                sizes={sizes}
                 depth={`/diorama/v2/depth-${w}-${room}.webp`}
                 target={peek}
                 active={inView && !reduce}
                 amp={0.05}
                 className={`absolute inset-0 w-full h-full ${flick ? 'animate-lights-on' : ''}`}
                 style={light}
-                imgProps={{ alt: '', onAnimationEnd: () => setFlick(false) }}
+                imgProps={{ alt: '', loading: 'lazy', onAnimationEnd: () => setFlick(false) }}
               />
             </motion.div>
           </AnimatePresence>
@@ -161,7 +163,7 @@ export function SectionHeader({
       whileInView="show"
       viewport={{ once: true, margin: '-40px' }}
     >
-      <div className="overflow-hidden mb-4">
+      <div className="overflow-hidden py-1 -my-1 mb-3">
         <motion.p className="eyebrow" variants={rise} custom={0}>
           {index && (
             <span className="inline-flex items-center gap-2 text-accent mr-3">
@@ -172,8 +174,9 @@ export function SectionHeader({
           {eyebrow}
         </motion.p>
       </div>
-      <div className="overflow-hidden pb-2">
-        <motion.h2 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.04] tracking-tight text-balance" variants={rise} custom={0.08}>
+      {/* maska wjazdu tytułu: zapas u góry i u dołu na wydłużenia liter (Fraunces przy leading 1.04) */}
+      <div className="overflow-hidden pt-[0.14em] -mt-[0.14em] pb-2">
+        <motion.h2 className="font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.04] tracking-tight text-balance" variants={rise} custom={0.08}>
           {title}
         </motion.h2>
       </div>

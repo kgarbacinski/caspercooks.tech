@@ -6,13 +6,14 @@ import { useReducedMotion } from '@/hooks/useSafeReducedMotion'
 import { SWITCH, useTheme } from '@/contexts/ThemeContext'
 import type { Theme } from '@/contexts/ThemeContext'
 import { FRAME, ROOM_BOX } from './layout'
-import { KEY, ROOMS, roomSrc, scrollToHash } from './rooms'
+import { KEY, ROOMS, roomSrc, roomSrcSet, scrollToHash } from './rooms'
 import Figure, { type FigureHandle } from './Figure'
 import Sparks from './Sparks'
 import PaperBurst from './PaperBurst'
 import RoomAmbient from './Ambient'
 import DepthRoom, { type DepthTarget } from './DepthRoom'
 import Cables from './Cables'
+import { MQ } from '@/hooks/media'
 
 /**
  * Lewitująca diorama v2 — złożona z warstw zamiast jednego obrazka:
@@ -210,13 +211,19 @@ export default function Diorama() {
   const scrollYShift = useSpring(useTransform(scrollY, [0, 850], [0, 120]), spring)
   const [wide, setWide] = useState(false)
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)')
+    const mq = window.matchMedia(MQ.lg)
     const sync = () => setWide(mq.matches)
     sync()
     mq.addEventListener('change', sync)
     return () => mq.removeEventListener('change', sync)
   }, [])
   const dive = wide && !reduce
+  // wjazd kamery powiększa pokój nr 1 do rozmiaru sceny About — dopiero od pierwszego scrolla
+  // dociągamy mu wariant 2× (i sprite'y 2×), żeby nie obciążać pierwszego ekranu
+  const [diveHi, setDiveHi] = useState(false)
+  useMotionValueEvent(scrollY, 'change', (v) => {
+    if (dive && !diveHi && v > 8) setDiveHi(true)
+  })
 
   /*
    * Desktop: "wjazd kamery" w pierwszy pokój. Hero jest przypięte (sticky) przez D px scrolla,
@@ -477,7 +484,8 @@ export default function Diorama() {
                 key={k}
                 src={`/diorama/v2/base-${k}.webp`}
                 srcSet={`/diorama/v2/base-${k}-sm.webp 1200w, /diorama/v2/base-${k}.webp 2400w`}
-                sizes="(min-width: 1024px) 100vw, 165vw"
+                // diorama zajmuje ~2/3 szerokości na desktopie (max ~1000 px), na telefonie 165% ekranu
+                sizes="(min-width: 1536px) and (min-aspect-ratio: 4/5) 1000px, (min-width: 1024px) and (min-aspect-ratio: 4/5) 66vw, (min-width: 640px) 92vw, 165vw"
                 alt={
                   theme === 'developer'
                     ? "Papercraft diorama of Casper's developer workspace: dev cave, infra room, web3 vault, AI lab and studio on a floating island with glowing green cables."
@@ -571,6 +579,10 @@ export default function Diorama() {
                     <DepthRoom
                       // zawsze pełna rozdzielczość (20–30 KB): przy wjeździe kamery pokój jest powiększony do 1.9×
                       src={src}
+                      // retina: -lg (2×) tylko tam, gdzie pokój jest duży (telefon 3×, szeroki desktop)
+                      srcSet={roomSrcSet(k, i)}
+                      // szacunek = szerokość pokoju w kadrze × szerokość wyspy (desktop ~62vw, tablet ~92vw, telefon 165vw)
+                      sizes={i === 0 && diveHi ? '26.875rem' : `(min-width: 1024px) and (min-aspect-ratio: 4/5) ${(b.w * 0.62).toFixed(1)}vw, (min-width: 640px) ${(b.w * 0.92).toFixed(1)}vw, ${(b.w * 1.65).toFixed(1)}vw`}
                       depth={`/diorama/v2/depth-${k}-${i}.webp`}
                       target={peek}
                       active={isHover && finePointer && !reduce}
@@ -587,6 +599,7 @@ export default function Diorama() {
                     {/* żywa miniatura: animacje wewnątrz warstwy pokoju (składają się z nim i jadą z kamerą) */}
                     {!reduce && (
                       <RoomAmbient
+                        hi={i === 0 && diveHi}
                         world={k}
                         room={i}
                         run={!paused && s.lit}
@@ -648,14 +661,15 @@ export default function Diorama() {
 
             {/* figurka — własna warstwa i paralaksa */}
             <div ref={figLayer} className="absolute inset-0 pointer-events-none" style={{ zIndex: 20 }}>
-              <Figure ref={figRef} theme={theme} reduce={reduce} dim={spot && hover !== 0 && hover !== 1} />
+              <Figure ref={figRef} theme={theme} reduce={reduce} hi={diveHi} dim={spot && hover !== 0 && hover !== 1} />
             </div>
 
             {/* strefa figurki: podskok na hover, klik = przebranie (DEV ⇄ CEO) */}
             <button
               type="button"
-              className="absolute z-30 cursor-pointer rounded-full focus-visible:outline-accent"
-              style={{ left: '23.4%', top: '22%', width: '6.8%', height: '42%' }}
+              // środek strefy w % kadru + min. 44 px (cel dotykowy na małej wyspie telefonu)
+              className="absolute z-30 cursor-pointer rounded-full focus-visible:outline-accent min-w-11 min-h-11 -translate-x-1/2 -translate-y-1/2"
+              style={{ left: '26.8%', top: '43%', width: '6.8%', height: '42%' }}
               aria-label={`Switch to ${theme === 'developer' ? 'founder (CEO)' : 'developer'} mode`}
               disabled={!interactive}
               onMouseEnter={() => {
@@ -674,8 +688,8 @@ export default function Diorama() {
             {/* pieczęć KG = źródło prądu: klik puszcza impuls kablami, światła w pokojach mrugają od środka */}
             <button
               type="button"
-              className="group absolute z-30 rounded-full cursor-pointer focus-visible:outline-accent"
-              style={{ left: '46.46%', top: '64.13%', width: '7.08%', height: '13.9%' }}
+              className="group absolute z-30 rounded-full cursor-pointer focus-visible:outline-accent min-w-11 min-h-11 -translate-x-1/2 -translate-y-1/2"
+              style={{ left: '50%', top: '71.08%', width: '7.08%', height: '13.9%' }}
               aria-label="Power up the island"
               disabled={!interactive || reduce}
               onMouseEnter={() => setHover(null)}
@@ -731,7 +745,7 @@ export default function Diorama() {
                 >
                   <div className="paper-tag">
                     <span className="block font-display text-lg leading-tight text-ink">{info[hover].label}</span>
-                    <span className="block font-mono text-[11px] text-ink/60">
+                    <span className="block font-mono text-xs text-ink/60">
                       {info[hover].hint} <span aria-hidden="true">→</span>
                     </span>
                   </div>
@@ -747,7 +761,7 @@ export default function Diorama() {
                   style={{ left: '26.8%', top: '6%', x: '-50%', y: '-100%' }}
                 >
                   <div className="paper-tag whitespace-nowrap">
-                    <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-ink/55">psst — click me</span>
+                    <span className="block font-mono text-xs uppercase tracking-[0.16em] text-ink/55">psst — click me</span>
                     <span className="block font-display text-base text-ink">
                       change into {theme === 'developer' ? 'the CEO suit' : 'dev clothes'}
                     </span>

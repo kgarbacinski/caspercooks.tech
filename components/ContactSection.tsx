@@ -23,8 +23,8 @@ const STAMPS: { type: ContactType; label: string; icon: typeof FaUserTie }[] = [
 ]
 
 const field =
-  'w-full bg-transparent border-0 border-b border-ink/25 focus:border-ink/70 focus:outline-none focus-visible:outline-none text-ink placeholder:text-ink/50 text-base py-2 transition-colors'
-const label = 'block font-mono text-[10px] uppercase tracking-[0.2em] text-ink/75 mb-1'
+  'w-full bg-transparent border-0 border-b border-ink/25 focus:border-ink/70 focus:outline-none focus-visible:outline-none text-ink placeholder:text-ink/50 text-base py-2.5 transition-colors'
+const label = 'block font-mono text-xs uppercase tracking-[0.2em] text-ink/75 mb-1'
 
 const SEAL =
   'M50 3 C62 2 70 9 80 12 C91 16 97 27 96 39 C95 48 99 55 97 64 C94 77 85 84 76 90 C66 97 55 98 45 97 C33 96 24 91 16 83 C7 74 2 63 4 51 C5 42 1 34 5 26 C11 13 24 9 34 6 C40 4 45 3 50 3Z'
@@ -148,7 +148,8 @@ export default function ContactSection() {
           className="mb-14 sm:mb-16"
         />
 
-        <div className="grid lg:grid-cols-[1.15fr_1fr] gap-12 lg:gap-16 items-start">
+        {/* tablet (jedna kolumna): list i karty nie rozciągają się na całe 1000 px */}
+        <div className="grid grid-cols-1 tab:max-w-2xl tab:mx-auto lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] gap-12 lg:gap-16 items-start">
           {/* ——— list ——— */}
           <div ref={scope} className="relative" style={{ perspective: 1200 }}>
             {/* koperta (pojawia się po wysłaniu) */}
@@ -171,16 +172,17 @@ export default function ContactSection() {
               viewport={{ once: true, margin: '-80px' }}
               transition={{ duration: 0.9, ease: EASE }}
             >
-              <form onSubmit={handleSubmit} className="letter-paper p-6 sm:p-10" aria-describedby={error ? 'contact-error' : undefined}>
-                <div className="flex items-start justify-between gap-6 mb-8">
-                  <div className="font-mono text-[11px] leading-relaxed text-ink/60">
+              <form onSubmit={handleSubmit} className="letter-paper p-5 [@media(min-width:400px)_and_(max-width:639px)]:p-6 sm:p-10" aria-describedby={error ? 'contact-error' : undefined}>
+                {/* wąski telefon: adresat nad znaczkami (w jednym wierszu znaczki wypychały kartkę poza ekran) */}
+                <div className="flex flex-col [@media(min-width:420px)]:flex-row items-start justify-between gap-4 [@media(min-width:420px)]:gap-6 mb-8">
+                  <div className="font-mono text-xs leading-relaxed text-ink/60">
                     <div className="uppercase tracking-[0.2em] text-ink/45">to</div>
                     <div className="text-ink/80">Kacper Garbacinski</div>
                     <div>caspercooks.tech</div>
                   </div>
                   {/* znaczki = typ zapytania */}
-                  <fieldset>
-                    <legend className={`${label} text-right mb-2`}>I&apos;m interested in...</legend>
+                  <fieldset className="min-w-0">
+                    <legend className={`${label} [@media(min-width:420px)]:text-right mb-2`}>I&apos;m interested in...</legend>
                     <div className="flex gap-2 sm:gap-3">
                       {STAMPS.map((s, i) => {
                         const active = formData.type === s.type
@@ -194,7 +196,7 @@ export default function ContactSection() {
                             style={{ rotate: `${[-4, 2, -1][i]}deg` }}
                           >
                             <s.icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                            <span className="font-mono text-[10px] sm:text-[11px] uppercase tracking-wider">{s.label}</span>
+                            <span className="font-mono text-xs uppercase tracking-normal">{s.label}</span>
                           </button>
                         )
                       })}
@@ -314,9 +316,9 @@ export default function ContactSection() {
                     <div className="relative inline-grid place-items-center w-60 h-60 sm:w-72 sm:h-72 rounded-full border-[5px] border-double border-[#b8461a]/85 text-[#b8461a]" style={{ filter: 'url(#ink)' }}>
                       <div className="absolute inset-4 rounded-full border border-dashed border-[#c2541f]/60" />
                       <div className="text-center px-6">
-                        <div className="font-mono text-[9px] uppercase tracking-[0.2em] mb-2 whitespace-nowrap">caspercooks.tech · post</div>
+                        <div className="font-mono text-xs uppercase tracking-[0.14em] mb-2">caspercooks.tech · post</div>
                         <div className="font-display text-[24px] sm:text-[28px] leading-tight whitespace-nowrap">✓ Message Sent!</div>
-                        <div className="font-mono text-[9px] uppercase tracking-[0.16em] mt-2 opacity-80 whitespace-nowrap">the envelope is on its way</div>
+                        <div className="font-mono text-xs uppercase tracking-[0.1em] mt-2 opacity-80">the envelope is on its way</div>
                       </div>
                     </div>
                     </div>
@@ -335,7 +337,7 @@ export default function ContactSection() {
           {/* ——— adresy i notka ——— */}
           <div className="space-y-8">
             <motion.div
-              className="index-card px-6 pb-4 pt-5 sm:px-8"
+              className="index-card px-5 [@media(min-width:400px)_and_(max-width:639px)]:px-6 pb-4 pt-5 sm:px-8"
               style={{ rotate: '-0.8deg' }}
               initial={reduce ? false : { opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -345,15 +347,15 @@ export default function ContactSection() {
               <h3 className="font-display text-2xl text-ink h-[38px] mb-5">Get In Touch</h3>
               <div>
                 {contactMethods.map((method) => (
-                  <a key={method.label} href={method.link} className="group flex items-center gap-4 h-[54px]">
+                  <a key={method.label} href={method.link} className="group flex items-center gap-3 [@media(min-width:380px)]:gap-4 h-[54px]">
                     <span className="postmark">
                       <method.icon className="w-4 h-4" />
                     </span>
                     <span className="min-w-0">
-                      <span className="block font-mono text-[10px] uppercase tracking-[0.14em] text-ink/50">{method.label}</span>
-                      <span className="block text-[15px] text-ink truncate group-hover:text-[#b8461a] transition-colors">{method.value}</span>
+                      <span className="block font-mono text-xs uppercase tracking-[0.14em] text-ink/50">{method.label}</span>
+                      <span className="block text-[clamp(0.8125rem,4.2vw,0.9375rem)] text-ink truncate group-hover:text-[#b8461a] transition-colors">{method.value}</span>
                     </span>
-                    <span className="ml-auto text-ink/55 group-hover:text-[#b8461a] group-hover:translate-x-1 transition" aria-hidden="true">
+                    <span className="hidden [@media(min-width:380px)]:inline ml-auto text-ink/55 group-hover:text-[#b8461a] group-hover:translate-x-1 transition" aria-hidden="true">
                       →
                     </span>
                   </a>
@@ -362,7 +364,7 @@ export default function ContactSection() {
             </motion.div>
 
             <motion.div
-              className="note-paper !p-6 sm:!p-8"
+              className="note-paper !p-5 [@media(min-width:400px)_and_(max-width:639px)]:!p-6 sm:!p-8"
               style={{ rotate: '1.2deg' }}
               initial={reduce ? false : { opacity: 0, y: 24, rotate: 6 }}
               whileInView={{ opacity: 1, y: 0, rotate: 1.2 }}
@@ -377,7 +379,7 @@ export default function ContactSection() {
               </p>
               <div className="flex flex-wrap gap-2">
                 {['Full-Stack', 'Web3', 'Tech Lead', 'Architecture'].map((tag) => (
-                  <span key={tag} className="font-mono text-[11px] px-2 py-1 border border-ink/25 text-ink/70">
+                  <span key={tag} className="font-mono text-xs px-2 py-1 border border-ink/25 text-ink/70">
                     {tag}
                   </span>
                 ))}

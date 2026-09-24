@@ -22,6 +22,13 @@ body.founder-mode {
   html {
     position: relative;
   }
+  /* bardzo szerokie ekrany (≥1920, nie pionowe): cała typografia i kontenery w rem rosną płynnie
+     (1920 → 16 px, 2560 → ~21 px), zamiast zostawiać wąski pasek treści na środku */
+  @media (min-width: 1921px) and (min-aspect-ratio: 4/5) {
+    html {
+      font-size: clamp(16px, 0.8333vw, 22px);
+    }
+  }
 
   body {
     @apply bg-night text-paper font-sans antialiased;
@@ -74,7 +81,8 @@ body.founder-mode {
   .tag-card::after {
     content: '';
     position: absolute;
-    left: 50%;
+    /* --dx: karteczka przesunięta do granic ekranu, strzałka dalej wskazuje zawieszkę */
+    left: calc(50% + var(--dx, 0px));
     bottom: -6px;
     width: 10px;
     height: 10px;
@@ -121,7 +129,7 @@ body.founder-mode {
 
   /* bilecik z pieczątką (statystyki) */
   .stamp-ticket {
-    @apply relative px-4 py-4 sm:px-5 sm:py-5 text-ink;
+    @apply relative px-3 py-4 sm:px-5 sm:py-5 text-ink;
     background-color: #d8b98c;
     background-image: linear-gradient(90deg, rgb(var(--accent-rgb)) 0 4px, transparent 4px),
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85 0.06' numOctaves='3' seed='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.2 0 0 0 0 0.08 0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -155,7 +163,7 @@ body.founder-mode {
   }
   /* teczki z kraftu (manila): ciemny atrament na papierze, włókna, postrzępiona krawędź */
   .folder-tab {
-    @apply relative inline-flex items-center gap-2 ml-5 px-4 pt-2 pb-1.5 font-mono text-[11px] text-ink/90;
+    @apply relative inline-flex items-center gap-2 ml-5 px-4 pt-2 pb-1.5 font-mono text-xs text-ink/90;
     background: #b98f5f;
     border-radius: 8px 8px 0 0;
     box-shadow: inset 0 1px 0 rgba(255, 230, 190, 0.5);
@@ -192,14 +200,15 @@ body.founder-mode {
     transform: rotate(0deg) scale(1.06);
   }
   .label-chip {
-    @apply font-mono text-[10.5px] px-2 py-1 text-ink/75;
+    @apply font-mono text-xs px-2 py-1 text-ink/75;
     background: rgba(255, 244, 225, 0.45);
     box-shadow: 0 1px 0 rgba(60, 30, 10, 0.25);
   }
+  /* karteczka w przepływie (nie absolute): przy wąskiej teczce i wielu chipach nie zasłania już
+     technologii — nachodzi tylko na dolny margines teczki i wystaje pod nią jak wcześniej */
   .sticky-note {
-    position: absolute;
-    right: -14px;
-    bottom: -26px;
+    position: relative;
+    margin: -2.75rem -14px 0 auto;
     width: 64%;
     padding: 14px 16px 16px;
     background: linear-gradient(170deg, #fbe39a, #f2cd6c);
@@ -225,7 +234,7 @@ body.founder-mode {
 
   /* ——— pegboard ——— */
   .tape-label {
-    @apply relative px-4 py-2 font-mono text-xs sm:text-sm text-ink/75 transition;
+    @apply relative px-4 py-2 min-h-[44px] lg:min-h-0 font-mono text-xs sm:text-sm text-ink/75 transition;
     background: rgba(239, 226, 199, 0.82);
     box-shadow: 0 6px 12px -8px rgba(0, 0, 0, 0.9);
   }
@@ -306,7 +315,7 @@ body.founder-mode {
     border-color: rgba(42, 26, 16, 0.3);
   }
   .link-arrow {
-    @apply inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-paper hover:text-accent transition-colors;
+    @apply inline-flex items-center gap-2 min-h-[44px] font-mono text-xs uppercase tracking-[0.16em] text-paper hover:text-accent transition-colors;
   }
   .hanging-sign {
     position: relative;
@@ -371,14 +380,22 @@ body.founder-mode {
     width: 1px;
     background: rgba(194, 65, 12, 0.28);
   }
+  /* telefon (mniejszy padding kartki): margines bliżej krawędzi, żeby nie przecinał tekstu */
+  @media (max-width: 639px) {
+    .letter-paper::before {
+      left: 10px;
+    }
+  }
   .lined {
     background-image: repeating-linear-gradient(transparent 0 31px, rgba(42, 26, 16, 0.14) 31px 32px);
     line-height: 32px;
     border-bottom: 0;
-    padding-top: 0;
+    /* !important: utility py-* z pola nadpisywała padding i tekst (także zawinięty placeholder) rozjeżdżał się z liniami */
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
   }
   .postage {
-    @apply relative flex flex-col items-center justify-center gap-1 w-14 h-16 sm:w-16 sm:h-[72px] text-ink/80 transition;
+    @apply relative flex flex-col items-center justify-center gap-1 w-16 h-16 sm:w-[4.75rem] sm:h-[72px] text-ink/80 transition;
     background: #e9d7b6;
     /* perforacja tylko na brzegu: pełny środek + wzór dziurek (warstwy maski się sumują) */
     -webkit-mask: linear-gradient(#000 0 0) center / calc(100% - 8px) calc(100% - 8px) no-repeat,
@@ -504,7 +521,7 @@ body.founder-mode {
   }
 
   .eyebrow {
-    @apply font-mono text-[11px] uppercase tracking-[0.18em] text-paper-muted;
+    @apply font-mono text-xs uppercase tracking-[0.18em] text-paper-muted;
   }
 
   .btn-accent {

@@ -4,7 +4,7 @@ import { forwardRef, useCallback, useImperativeHandle, useRef, useState } from '
 import { motion, useAnimate } from 'framer-motion'
 import type { Theme } from '@/contexts/ThemeContext'
 import { FIG, FRAME } from './layout'
-import { KEY } from './rooms'
+import { FIG_SET, KEY } from './rooms'
 
 /**
  * Figurka Kacpra jako osobna warstwa nad wyspą (wycięta z renderu, wyspa pod spodem
@@ -25,8 +25,8 @@ export type FigureHandle = {
 
 const ASPECT = FRAME.h / FRAME.w
 
-const Figure = forwardRef<FigureHandle, { theme: Theme; dim: boolean; reduce: boolean }>(function Figure(
-  { theme, dim, reduce },
+const Figure = forwardRef<FigureHandle, { theme: Theme; dim: boolean; reduce: boolean; hi?: boolean }>(function Figure(
+  { theme, dim, reduce, hi = false },
   ref,
 ) {
   const [scope, animate] = useAnimate()
@@ -130,6 +130,9 @@ const Figure = forwardRef<FigureHandle, { theme: Theme; dim: boolean; reduce: bo
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`/diorama/v2/fig-${k}.webp`}
+          srcSet={FIG_SET(k)}
+          // przy wjeździe kamery (hi) figurka rośnie ~2× → dopiero wtedy wariant retina
+          sizes={hi ? '10rem' : '(min-width: 1024px) and (min-aspect-ratio: 4/5) 5.4vw, (min-width: 640px) 8vw, 14vw'}
           alt=""
           draggable={false}
           className="absolute inset-0 w-full h-full"
@@ -138,6 +141,8 @@ const Figure = forwardRef<FigureHandle, { theme: Theme; dim: boolean; reduce: bo
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`/diorama/v2/jump-${k}.webp`}
+          srcSet={FIG_SET(k, 'jump')}
+          sizes="(min-width: 1024px) and (min-aspect-ratio: 4/5) 12vw, 30vw"
           alt=""
           draggable={false}
           className="absolute bottom-0 h-full max-w-none"
