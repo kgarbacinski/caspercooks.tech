@@ -12,6 +12,47 @@ const navLinks = [
   { href: '#contact', label: 'contact' },
 ]
 
+/**
+ * Znak strony: papierowa karteczka (lekko przekrzywiona, z zagiętym rogiem) z głową figurki
+ * z dioramy, która "wystaje" ponad górną krawędź — ta sama postać co na wyspie, strój zmienia się
+ * z trybem (DEV / CEO). Hover: karteczka się prostuje, głowa podskakuje, obwódka w kolorze akcentu.
+ */
+const TAG = 'polygon(0 0, 100% 0, 100% 74%, 74% 100%, 0 100%)'
+
+function Brand({ theme }: { theme: 'developer' | 'founder' }) {
+  const k = theme === 'developer' ? 'dev' : 'ceo'
+  return (
+    <a href="#" className="flex items-center gap-3 group" aria-label="caspercooks.tech — back to top">
+      <span aria-hidden="true" className="relative w-[30px] h-[30px] sm:w-[34px] sm:h-[34px] shrink-0 mt-1.5 -rotate-[4deg] transition-transform duration-200 ease-out group-hover:rotate-[-1deg] group-hover:-translate-y-px">
+        {/* hover: karteczka w kolorze akcentu wysuwa się spod spodu (przesunięty "drugi arkusz") */}
+        <span
+          className="absolute inset-0 bg-accent opacity-0 translate-x-0 translate-y-0 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-[2px] group-hover:translate-y-[2px]"
+          style={{ clipPath: TAG }}
+        />
+        {/* karteczka: krem, zagięty róg, miękki cień */}
+        <span className="absolute inset-0 bg-[#efe4cf] shadow-[0_2px_0_rgba(0,0,0,0.35)]" style={{ clipPath: TAG }} />
+        {/* głowa wychodzi z "kieszonki": szyję zakrywa przednia klapka karteczki, górą włosy wystają ~6 px */}
+        <span className="absolute inset-0" style={{ clipPath: 'polygon(-10% -40%, 110% -40%, 100% 0, 100% 100%, 0 100%, 0 0)' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/diorama/v2/logo-head-${k}.webp`}
+            alt=""
+            className="absolute left-1/2 bottom-[14%] w-[108%] max-w-none -translate-x-1/2 origin-bottom transition-transform duration-200 ease-out group-hover:-translate-y-[2px] group-hover:-rotate-[4deg]"
+          />
+        </span>
+        <span
+          className="absolute inset-x-0 bottom-0 h-[24%] bg-[#e6d8bd] border-t border-[rgba(0,0,0,0.25)] shadow-[0_-1px_0_rgba(255,250,235,0.7),0_-3px_4px_rgba(0,0,0,0.18)]"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% 13%, 13% 100%, 0 100%)' }}
+        />
+        <span className="absolute right-0 bottom-0 w-[26%] h-[26%] bg-[#c9b18e]" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }} />
+      </span>
+      <span className="font-mono text-sm text-paper/80 group-hover:text-accent transition-colors">
+        caspercooks<span className="text-accent">.tech</span>
+      </span>
+    </a>
+  )
+}
+
 export default function Navigation() {
   const { theme, toggleTheme } = useTheme()
   const [activeSection, setActiveSection] = useState('')
@@ -50,15 +91,7 @@ export default function Navigation() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between">
-        <a href="#" className="flex items-center gap-3 group">
-          {/* pieczęć KG — ta sama co na froncie wyspy */}
-          <span className="grid place-items-center w-9 h-9 rounded-full bg-[#9a4f2c] text-paper font-display text-sm shadow-[inset_0_-2px_0_rgba(0,0,0,0.25),0_0_0_3px_rgba(184,102,63,0.25)]">
-            KG
-          </span>
-          <span className="font-mono text-sm text-paper group-hover:text-accent transition-colors">
-            caspercooks<span className="text-accent">.tech</span>
-          </span>
-        </a>
+        <Brand theme={theme} />
 
         <div className="hidden lg:flex items-center gap-8 font-mono text-sm">
           {navLinks.map((link) => (
