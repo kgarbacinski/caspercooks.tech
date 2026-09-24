@@ -957,3 +957,10 @@ body.founder-mode {
 [data-flash] {
   animation: deeplink-flash 1.7s ease-in-out 1;
 }
+
+/* sygnał scrolla w hero (desktop): impuls spływa kablem 3×, potem cisza */
+.cue-pulse { transform: translateY(-16px); animation: cue-pulse 2s ease-in-out 2.5s 3 both; }
+@keyframes cue-pulse {
+  0% { transform: translateY(-16px); }
+  80%, 100% { transform: translateY(48px); }
+}

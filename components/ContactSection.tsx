@@ -89,6 +89,24 @@ export default function ContactSection() {
     setMailing(false)
   }
 
+  // Po wysłaniu: koperta (u góry listu) i pieczątka potwierdzenia (na środku listu) mają być w kadrze. Na niskim
+  // telefonie (375×667) użytkownik stoi przy przycisku na dole listu — pieczątka lądowała nad ekranem / pod paskiem.
+  const bringIntoView = () => {
+    const el = scope.current as HTMLElement | null
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    const bar = document.querySelector('[data-nav-bar]')?.getBoundingClientRect().bottom ?? 64
+    const avail = window.innerHeight - bar
+    let top = r.top + 80 // koperta
+    const bottom = r.top + r.height / 2 + 170 // dół pieczątki
+    if (bottom - top > avail) top = bottom - avail + 16 // za mało miejsca: pierwszeństwo ma pieczątka
+    if (top >= bar && bottom <= window.innerHeight) return
+    const y = window.scrollY + top - bar - Math.max(0, (avail - (bottom - top)) / 2)
+    const lenis = (window as unknown as { __lenis?: { scrollTo: (t: number, o?: object) => void } }).__lenis
+    if (lenis && !reduce) lenis.scrollTo(y, { duration: 0.7 })
+    else window.scrollTo({ top: y, behavior: reduce ? 'instant' : 'smooth' })
+  }
+
   const busy = isSubmitting || submitted || mailing
   // edycja formularza chowa ewentualny błąd (zamiast znikania po 5 s, zanim ktoś go przeczyta)
   const update = (patch: Partial<typeof formData>) => {
@@ -114,6 +132,7 @@ export default function ContactSection() {
       }
       setIsSubmitting(false)
       setSubmitted(true)
+      bringIntoView()
       await mailAway()
       // formularz wraca po 3 s (jak wcześniej), już jako świeża kartka
       setTimeout(async () => {

@@ -237,12 +237,9 @@ export default function HeroSection() {
       <motion.a style={{ opacity: cueFade }} href="#about" aria-label="Scroll to about" className="absolute top-[calc(100svh-6.5rem)] left-1/2 -translate-x-1/2 hidden lg:flex [@media(max-height:760px)]:!hidden flex-col items-center gap-2 eyebrow hover:text-accent transition-colors">
         <span>scroll</span>
         <span className="relative block w-px h-12 bg-cocoa-500 overflow-hidden">
-          <motion.span
-            className="absolute left-0 top-0 w-px h-4 bg-accent shadow-glow"
-            animate={{ y: [-16, 48] }}
-            // trzy impulsy i cisza — w spoczynku hero ma się ruszać tylko wyspa
-            transition={{ duration: 1.6, repeat: 2, repeatDelay: 0.4, ease: 'easeInOut', delay: 2.5 }}
-          />
+          {/* trzy impulsy i cisza — w spoczynku hero ma się ruszać tylko wyspa (CSS na kompozytorze: bez pętli JS,
+              która na telefonie chodziła przez 8 s mimo ukrytego sygnału) */}
+          <span className="cue-pulse absolute left-0 top-0 w-px h-4 bg-accent shadow-glow" />
         </span>
       </motion.a>
       </div>

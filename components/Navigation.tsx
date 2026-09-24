@@ -161,7 +161,20 @@ export default function Navigation() {
 
       <AnimatePresence>
         {isMobileMenuOpen && (
+          // przygaszenie strony pod rozwiniętym menu (treść nie prześwituje tuż pod ostatnią pozycją); dotyk zamyka
           <motion.div
+            key="menu-dim"
+            aria-hidden="true"
+            className="lg:hidden fixed inset-0 -z-10 bg-night/70"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
+        {isMobileMenuOpen && (
+          <motion.div
+            key="menu-panel"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}

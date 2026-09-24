@@ -534,7 +534,9 @@ export default function Diorama() {
           Przewijanie w całości natywne (kompozytor): bez maski na samym kontenerze (maska na przewijanym
           elemencie wymusza przemalowanie przy każdym przesunięciu), bez snapa i bez JS w pętli scrolla. */}
       <div ref={panRef} className="overflow-x-auto overflow-y-hidden overscroll-x-contain sm:overflow-visible no-scrollbar snap-x snap-proximity sm:snap-none">
-      <div className="relative w-[165%] sm:w-full pt-12 pb-7 sm:p-0">
+      {/* overflow-x-clip: poświaty i ścinki wystające za wyspę nie wydłużają zakresu przewijania (panorama CEO
+          jechała w pustkę za ostatnim pokojem i snap ją stamtąd dociągał) */}
+      <div className="relative w-[165%] sm:w-full pt-12 pb-7 sm:p-0 overflow-x-clip sm:overflow-x-visible">
       {/* łagodny snap (proximity, nie mandatory) do środków pokoi: pęd po puszczeniu palca dojeżdża do pokoju,
           jeśli kończy się blisko niego; skrajne pokoje = krawędzie sceny */}
       {boxes.map((b, i) => (
