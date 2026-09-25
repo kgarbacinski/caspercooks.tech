@@ -94,12 +94,10 @@ export default function Diorama() {
     io.observe(el)
     return () => io.disconnect()
   }, [])
-  // W trakcie przesuwania panoramy palcem (i wygasania pędu) cała scena stoi: pętla JS ekranów z kodem / sejfu
-  // (wątek główny nie maluje canvasów co klatkę) ORAZ wszystkie pętle CSS w dioramie — lewitacja, diody, okna,
-  // poświaty ([data-panning] → animation-play-state: paused). Kompozytor przesuwa wtedy nieruchomy obraz jak
-  // zdjęcie w galerii; po zatrzymaniu (160 ms bez ruchu, palec podniesiony) wszystko rusza dokładnie tam, gdzie
-  // stanęło. Pauza zaczyna się od pierwszego przesunięcia sceny (nie od dotknięcia — pionowy scroll strony po
-  // wyspie niczego nie zatrzymuje). Nasłuch pasywny, bez stanu Reacta (nic się nie renderuje ponownie).
+  // W trakcie przesuwania panoramy palcem (i wygasania pędu) stoi pętla JS ekranów z kodem / sejfu (wątek główny
+  // nie maluje canvasów co klatkę); po zatrzymaniu (160 ms bez ruchu, palec podniesiony) rusza dalej. Pętli CSS
+  // celowo NIE pauzujemy atrybutem na całym drzewie: przełączanie selektora [data-panning] * restylowało całą
+  // scenę na starcie i końcu ruchu (szarpnięcie na iOS). Nasłuch pasywny, bez stanu Reacta.
   useEffect(() => {
     const el = panRef.current
     const fig = el?.closest('figure')
@@ -110,10 +108,7 @@ export default function Diorama() {
     const stop = () => {
       if (touching) return
       holdAmbient(false)
-      if (panning) {
-        panning = false
-        fig.removeAttribute('data-panning')
-      }
+      panning = false
     }
     const release = () => {
       window.clearTimeout(t)
@@ -131,10 +126,7 @@ export default function Diorama() {
     // pęd po puszczeniu palca: każde zdarzenie scroll przedłuża pauzę, koniec = 160 ms bez ruchu
     const onScroll = () => {
       holdAmbient(true)
-      if (!panning) {
-        panning = true
-        fig.setAttribute('data-panning', '')
-      }
+      panning = true
       release()
     }
     const o = { passive: true } as const
@@ -487,18 +479,11 @@ export default function Diorama() {
     }
   }
   const onClick = (e: React.MouseEvent) => {
-    if (!interactive) return
+    // dotyk: pokoje nie są klikalne — bez hovera i tak nie widać, że prowadzą do sekcji, a tapnięcie po
+    // przesunięciu panoramy odpalało przejście (ekran uciekał w dół); na telefonie nawigacja = menu
+    if (!interactive || !finePointer) return
     const i = locate(e.clientX, e.clientY)
     if (i === null) return
-    if (!finePointer) {
-      // dotyk: krótkie podświetlenie pokoju, potem przejście do sekcji
-      setHover(i)
-      at(420, () => {
-        setHover(null)
-        navigateTo(info[i].href)
-      })
-      return
-    }
     navigateTo(info[i].href)
   }
 
@@ -533,15 +518,10 @@ export default function Diorama() {
           pionowego przewijania w środku); overscroll-x contain: koniec sceny nie uruchamia gestu „wstecz”.
           Przewijanie w całości natywne (kompozytor): bez maski na samym kontenerze (maska na przewijanym
           elemencie wymusza przemalowanie przy każdym przesunięciu), bez snapa i bez JS w pętli scrolla. */}
-      <div ref={panRef} className="overflow-x-auto overflow-y-hidden overscroll-x-contain sm:overflow-visible no-scrollbar snap-x snap-proximity sm:snap-none">
+      <div ref={panRef} className="overflow-x-auto overflow-y-hidden overscroll-x-contain sm:overflow-visible no-scrollbar">
       {/* overflow-x-clip: poświaty i ścinki wystające za wyspę nie wydłużają zakresu przewijania (panorama CEO
           jechała w pustkę za ostatnim pokojem i snap ją stamtąd dociągał) */}
       <div className="relative w-[165%] sm:w-full pt-12 pb-7 sm:p-0 overflow-x-clip sm:overflow-x-visible">
-      {/* łagodny snap (proximity, nie mandatory) do środków pokoi: pęd po puszczeniu palca dojeżdża do pokoju,
-          jeśli kończy się blisko niego; skrajne pokoje = krawędzie sceny */}
-      {boxes.map((b, i) => (
-        <span key={`snap${i}`} aria-hidden="true" className="sm:hidden absolute top-0 h-px w-px snap-center" style={{ left: `${b.l + b.w / 2}%` }} />
-      ))}
       <motion.div
         ref={wrapRef}
         style={{
@@ -557,7 +537,7 @@ export default function Diorama() {
           <div ref={bounceRef} className="relative">
           <div
             ref={boxRef}
-            className={`relative ${spot ? 'cursor-pointer' : ''}`}
+            className={`relative ${spot && finePointer ? 'cursor-pointer' : ''}`}
             style={{ aspectRatio: ASPECT }}
             onPointerMove={onPointerMove}
             onPointerLeave={() => {
